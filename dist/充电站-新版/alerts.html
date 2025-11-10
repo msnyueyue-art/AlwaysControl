@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>告警管理 - 电动汽车充电站管理系统</title>
+  <link rel="icon" href="../充电站/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#007AFF',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            muted: '#6b7280'
+          },
+          boxShadow: {
+            card: '0 2px 8px rgba(0,0,0,0.08)'
+          },
+          borderRadius: {
+            card: '16px'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body{background:#F8F9FA;margin:0}
+    .fixed-header{display:none !important}
+    .fixed-sidebar{display:none !important}
+    .page-wrap{padding-top:0 !important;padding-left:0 !important}
+    .grid-cols-8{grid-template-columns:repeat(8,minmax(0,1fr))}
+    .grid-cols-9{grid-template-columns:repeat(9,minmax(0,1fr))}
+  </style>
+</head>
+<body>
+  <!-- 顶部固定导航 -->
+  <header class="fixed-header bg-white border-b border-gray-200">
+    <div class="max-w-screen-2xl mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-gray-700 hover:text-gray-900">首页</a>
+        <span class="text-gray-300">/</span>
+        <span class="font-semibold">告警管理</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="langToggle" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg">EN/中文</button>
+        <button id="themeToggle" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg">切换主题</button>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-600">管理员</span>
+          <button id="logoutBtn" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg">退出登录</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 左侧固定菜单 -->
+  <aside class="fixed-sidebar hidden lg:block">
+    <nav class="p-3">
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html">首页</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="sites.html">站点管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="piles.html">充电桩管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="users.html">用户管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="orders.html">充电订单管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="analytics.html">数据分析</a>
+      <a class="block px-3 py-2 rounded-lg bg-blue-50 text-primary" href="alerts.html">告警管理</a>
+      <div class="mt-2 text-xs text-gray-500 px-3">系统管理</div>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/menus">菜单管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/roles">角色管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/users">人员管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/logs">日志管理</a>
+    </nav>
+  </aside>
+
+  <!-- 主体内容容器 -->
+  <main class="page-wrap">
+    <div id="root" class="min-h-screen p-6"></div>
+  </main>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script>
+    const { useMemo, useState, useEffect } = React
+
+    // 假数据
+    const STATIONS = [
+      { id: 'all', name: '全部站点' },
+      { id: 'tech-park', name: '科技园区站' },
+      { id: 'logistics-park', name: '物流园区站' },
+      { id: 'business-center', name: '商业中心站' },
+      { id: 'residential', name: '住宅小区站' },
+      { id: 'highway', name: '高速公路站' }
+    ]
+
+    const ALERT_TYPES = [
+      '无法充电', '温度过高', '短路保护', '通信异常', '电压异常', 
+      '电流异常', '接地故障', '绝缘故障', '过载保护', '急停触发'
+    ]
+
+    const MOCK_ALERTS = Array.from({length: 89}).map((_,i)=>({
+      id: 'ALT' + String(1000000 + i).padStart(7, '0'),
+      type: ALERT_TYPES[i % ALERT_TYPES.length],
+      description: [
+        '充电过程中检测到异常电流波动',
+        '设备温度超过安全阈值，触发保护机制',
+        '检测到短路现象，已自动切断电源',
+        '与主控系统通信中断，无法获取状态',
+        '输出电压超出正常范围',
+        '输入电流异常，可能存在设备故障',
+        '检测到接地电阻异常',
+        '绝缘电阻值低于安全标准',
+        '负载电流超过额定值，触发过载保护',
+        '紧急停止按钮被按下'
+      ][i % 10],
+      level: ['一般', '重要', '严重'][i % 3],
+      pileId: `PILE-${String(i % 50 + 1).padStart(3, '0')}`,
+      gunId: `GUN-${String(i % 100 + 1).padStart(3, '0')}`,
+      stationName: STATIONS[1 + (i % 5)].name,
+      status: i % 4 === 0 ? '已解决' : '未解决',
+      alertTime: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString().slice(0,19).replace('T', ' '),
+      resolveTime: i % 4 === 0 ? new Date(Date.now() - Math.random() * 3 * 24 * 60 * 60 * 1000).toISOString().slice(0,19).replace('T', ' ') : null,
+      operator: i % 4 === 0 ? 'admin' : null
+    }))
+
+    const Tag = ({ color, text }) => (
+      React.createElement('span', { 
+        className: 'px-2 py-1 rounded text-xs text-white font-medium', 
+        style: { background: color }
+      }, text)
+    )
+
+    function SearchCard({ onQuery, onReset }){
+      const [station, setStation] = useState('all')
+      const [deviceId, setDeviceId] = useState('')
+      const [level, setLevel] = useState('')
+      const [status, setStatus] = useState('')
+      const [startDate, setStartDate] = useState('')
+      const [endDate, setEndDate] = useState('')
+
+      // 设置默认时间范围（最近7天）
+      useEffect(() => {
+        const end = new Date()
+        const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000)
+        setStartDate(start.toISOString().slice(0, 16))
+        setEndDate(end.toISOString().slice(0, 16))
+      }, [])
+
+      const handleQuery = () => {
+        onQuery({ station, deviceId, level, status, startDate, endDate })
+      }
+
+      const handleReset = () => {
+        setStation('all')
+        setDeviceId('')
+        setLevel('')
+        setStatus('')
+        const end = new Date()
+        const start = new Date(end.getTime() - 7 * 24 * 60 * 60 * 1000)
+        setStartDate(start.toISOString().slice(0, 16))
+        setEndDate(end.toISOString().slice(0, 16))
+        onReset()
+      }
+
+      return (
+        React.createElement('div', { className: 'bg-white shadow-card rounded-card border border-gray-200 p-6 mb-6' },
+          React.createElement('div', { className: 'flex items-end justify-between gap-4 flex-wrap' },
+            React.createElement('div', { className: 'flex-1 grid grid-cols-1 md:grid-cols-5 gap-4' },
+              React.createElement('div', null,
+                React.createElement('label', { className: 'block text-sm text-gray-600 mb-2' }, '站点'),
+                React.createElement('select', { 
+                  className: 'w-48 h-9 border border-gray-300 rounded-lg px-3 text-sm', 
+                  value: station, 
+                  onChange: e => setStation(e.target.value) 
+                },
+                  STATIONS.map(s => 
+                    React.createElement('option', { key: s.id, value: s.id }, s.name)
+                  )
+                )
+              ),
+              React.createElement('div', null,
+                React.createElement('label', { className: 'block text-sm text-gray-600 mb-2' }, '设备编号'),
+                React.createElement('input', { 
+                  className: 'w-48 h-9 border border-gray-300 rounded-lg px-3 text-sm', 
+                  placeholder: '充电桩/充电枪编号', 
+                  value: deviceId, 
+                  onChange: e => setDeviceId(e.target.value) 
+                })
+              ),
+              React.createElement('div', null,
+                React.createElement('label', { className: 'block text-sm text-gray-600 mb-2' }, '告警级别'),
+                React.createElement('select', { 
+                  className: 'w-48 h-9 border border-gray-300 rounded-lg px-3 text-sm', 
+                  value: level, 
+                  onChange: e => setLevel(e.target.value) 
+                },
+                  React.createElement('option', { value: '' }, '全部'),
+                  React.createElement('option', { value: '一般' }, '一般'),
+                  React.createElement('option', { value: '重要' }, '重要'),
+                  React.createElement('option', { value: '严重' }, '严重')
+                )
+              ),
+              React.createElement('div', null,
+                React.createElement('label', { className: 'block text-sm text-gray-600 mb-2' }, '告警状态'),
+                React.createElement('select', { 
+                  className: 'w-48 h-9 border border-gray-300 rounded-lg px-3 text-sm', 
+                  value: status, 
+                  onChange: e => setStatus(e.target.value) 
+                },
+                  React.createElement('option', { value: '' }, '全部'),
+                  React.createElement('option', { value: '未解决' }, '未解决'),
+                  React.createElement('option', { value: '已解决' }, '已解决')
+                )
+              ),
+              React.createElement('div', null,
+                React.createElement('label', { className: 'block text-sm text-gray-600 mb-2' }, '时间范围'),
+                React.createElement('div', { className: 'flex items-center gap-2' },
+                  React.createElement('input', { 
+                    type: 'datetime-local',
+                    className: 'w-24 h-9 border border-gray-300 rounded-lg px-2 text-sm', 
+                    value: startDate, 
+                    onChange: e => setStartDate(e.target.value) 
+                  }),
+                  React.createElement('span', { className: 'text-gray-400' }, '至'),
+                  React.createElement('input', { 
+                    type: 'datetime-local',
+                    className: 'w-24 h-9 border border-gray-300 rounded-lg px-2 text-sm', 
+                    value: endDate, 
+                    onChange: e => setEndDate(e.target.value) 
+                  })
+                )
+              )
+            ),
+            React.createElement('div', { className: 'flex items-center gap-3' },
+              React.createElement('button', { 
+                className: 'w-20 h-9 bg-primary text-white rounded-lg hover:bg-blue-600 text-sm font-medium', 
+                onClick: handleQuery 
+              }, '查询'),
+              React.createElement('button', { 
+                className: 'w-20 h-9 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm font-medium', 
+                onClick: handleReset 
+              }, '重置')
+            )
+          )
+        )
+      )
+    }
+
+    function ActionBar({ selectedCount, onBatchResolve, onExport, onSelectAll, isAllSelected }) {
+      return (
+        React.createElement('div', { className: 'bg-white shadow-card rounded-card border border-gray-200 p-4 mb-6' },
+          React.createElement('div', { className: 'flex items-center justify-between' },
+            React.createElement('div', { className: 'flex items-center gap-4' },
+              React.createElement('label', { className: 'flex items-center gap-2' },
+                React.createElement('input', { 
+                  type: 'checkbox', 
+                  className: 'w-4 h-4 text-primary rounded',
+                  checked: isAllSelected,
+                  onChange: onSelectAll
+                }),
+                React.createElement('span', { className: 'text-sm text-gray-600' }, '全选')
+              ),
+              React.createElement('span', { className: 'text-sm text-gray-600' }, `已选择 ${selectedCount} 条`),
+              React.createElement('button', { 
+                className: 'px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed',
+                disabled: selectedCount === 0,
+                onClick: onBatchResolve
+              }, '批量解决'),
+              React.createElement('button', { 
+                className: 'px-4 py-2 bg-success text-white rounded-lg hover:bg-green-600 text-sm font-medium',
+                onClick: onExport
+              }, '导出Excel')
+            )
+          )
+        )
+      )
+    }
+
+    function TableCard({ data, onDetail, onResolve, onSelect, selectedItems, onSelectAll, isAllSelected }){
+      return (
+        React.createElement('div', { className: 'bg-white shadow-card rounded-card border border-gray-200 overflow-hidden' },
+          React.createElement('div', { className: 'overflow-x-auto' },
+            React.createElement('div', { className: 'min-w-max' },
+              React.createElement('div', { className: 'bg-gray-100 px-6 py-4 grid grid-cols-9 text-base font-medium text-gray-900 whitespace-nowrap' },
+            React.createElement('div', { className: 'flex items-center gap-2' },
+              React.createElement('input', { 
+                type: 'checkbox', 
+                className: 'w-4 h-4 text-primary rounded',
+                checked: isAllSelected,
+                onChange: onSelectAll
+              }),
+              React.createElement('span', null, '告警类型')
+            ),
+            React.createElement('div', null, '告警描述'),
+            React.createElement('div', null, '级别'),
+            React.createElement('div', null, '充电桩编号'),
+            React.createElement('div', null, '充电枪编号'),
+            React.createElement('div', null, '站点'),
+            React.createElement('div', null, '状态'),
+            React.createElement('div', null, '告警时间'),
+            React.createElement('div', { className: 'text-center' }, '操作')
+          ),
+          React.createElement('div', { className: 'divide-y divide-gray-200' }, data.map(alert => (
+            React.createElement('div', { key: alert.id, className: 'grid grid-cols-9 items-center px-6 h-16 text-center whitespace-nowrap' },
+              React.createElement('div', { className: 'flex items-center gap-2' },
+                React.createElement('input', { 
+                  type: 'checkbox', 
+                  className: 'w-4 h-4 text-primary rounded',
+                  checked: selectedItems.includes(alert.id),
+                  onChange: () => onSelect(alert.id)
+                }),
+                React.createElement('span', { className: 'text-sm text-gray-900 font-medium' }, alert.type)
+              ),
+              React.createElement('div', { className: 'text-sm text-gray-600 text-left truncate' }, alert.description),
+              React.createElement('div', null, 
+                alert.level === '一般' 
+                  ? React.createElement(Tag, { color: '#007AFF', text: '一般' })
+                  : alert.level === '重要'
+                  ? React.createElement(Tag, { color: '#f59e0b', text: '重要' })
+                  : React.createElement(Tag, { color: '#ef4444', text: '严重' })
+              ),
+              React.createElement('div', { className: 'text-sm text-gray-600' }, alert.pileId),
+              React.createElement('div', { className: 'text-sm text-gray-600' }, alert.gunId),
+              React.createElement('div', { className: 'text-sm text-gray-900' }, alert.stationName),
+              React.createElement('div', null, 
+                alert.status === '未解决' 
+                  ? React.createElement(Tag, { color: '#ef4444', text: '未解决' })
+                  : React.createElement(Tag, { color: '#10b981', text: '已解决' })
+              ),
+              React.createElement('div', { className: 'text-sm text-gray-600' }, alert.alertTime),
+              React.createElement('div', { className: 'flex items-center justify-center gap-2 whitespace-nowrap' },
+                React.createElement('button', { 
+                  className: 'p-2 text-primary hover:bg-blue-50 rounded-lg transition-colors',
+                  title: '查看详情',
+                  onClick: () => onDetail(alert)
+                }, '✓'),
+                alert.status === '未解决' && React.createElement('button', { 
+                  className: 'p-2 text-success hover:bg-green-50 rounded-lg transition-colors',
+                  title: '处理告警',
+                  onClick: () => onResolve(alert)
+                }, '👁️')
+              )
+            )
+          )))
+            )
+          )
+        )
+      )
+    }
+
+    function Pagination({ total, page, pageSize, onChange, onPageSizeChange }){
+      const totalPages = Math.max(1, Math.ceil(total / pageSize))
+      const pages = []
+      for(let i = 1; i <= totalPages; i++) pages.push(i)
+      
+      return (
+        React.createElement('div', { className: 'flex items-center justify-between bg-white shadow-card rounded-card border border-gray-200 p-4 mt-6' },
+          React.createElement('div', { className: 'flex items-center gap-4' },
+            React.createElement('div', { className: 'text-sm text-gray-600' }, `共 ${total} 条记录`),
+            React.createElement('div', { className: 'flex items-center gap-2' },
+              React.createElement('span', { className: 'text-sm text-gray-600' }, '每页显示'),
+              React.createElement('select', { 
+                className: 'w-16 h-8 border border-gray-300 rounded px-2 text-sm',
+                value: pageSize,
+                onChange: e => onPageSizeChange(parseInt(e.target.value))
+              },
+                React.createElement('option', { value: 10 }, '10'),
+                React.createElement('option', { value: 20 }, '20'),
+                React.createElement('option', { value: 50 }, '50')
+              ),
+              React.createElement('span', { className: 'text-sm text-gray-600' }, '条')
+            )
+          ),
+          React.createElement('div', { className: 'flex items-center gap-2' },
+            React.createElement('button', { 
+              className: 'px-3 h-8 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed', 
+              disabled: page === 1, 
+              onClick: () => onChange(page - 1) 
+            }, '上一页'),
+            pages.slice(Math.max(0, page - 3), Math.max(0, page - 3) + 5).map(p => (
+              React.createElement('button', { 
+                key: p, 
+                className: `px-3 h-8 rounded-lg text-sm ${p === page ? 'bg-primary text-white' : 'border border-gray-300 text-gray-600 hover:bg-gray-50'}`, 
+                onClick: () => onChange(p) 
+              }, p)
+            )),
+            React.createElement('button', { 
+              className: 'px-3 h-8 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed', 
+              disabled: page === totalPages, 
+              onClick: () => onChange(page + 1) 
+            }, '下一页')
+          )
+        )
+      )
+    }
+
+    function App(){
+      const [query, setQuery] = useState({})
+      const [page, setPage] = useState(1)
+      const [pageSize, setPageSize] = useState(10)
+      const [selectedItems, setSelectedItems] = useState([])
+
+      const filtered = useMemo(() => {
+        let list = MOCK_ALERTS
+        if(query.station && query.station !== 'all') {
+          const stationName = STATIONS.find(s => s.id === query.station)?.name
+          list = list.filter(a => a.stationName === stationName)
+        }
+        if(query.deviceId) list = list.filter(a => a.pileId.includes(query.deviceId) || a.gunId.includes(query.deviceId))
+        if(query.level) list = list.filter(a => a.level === query.level)
+        if(query.status) list = list.filter(a => a.status === query.status)
+        if(query.startDate) list = list.filter(a => a.alertTime >= query.startDate)
+        if(query.endDate) list = list.filter(a => a.alertTime <= query.endDate)
+        return list
+      }, [query])
+
+      const pageData = useMemo(() => {
+        const start = (page - 1) * pageSize
+        return filtered.slice(start, start + pageSize)
+      }, [filtered, page, pageSize])
+
+      const isAllSelected = pageData.length > 0 && pageData.every(item => selectedItems.includes(item.id))
+
+      useEffect(() => { 
+        setPage(1)
+        setSelectedItems([])
+      }, [query])
+
+      const handleSelect = (alertId) => {
+        setSelectedItems(prev => 
+          prev.includes(alertId) 
+            ? prev.filter(id => id !== alertId)
+            : [...prev, alertId]
+        )
+      }
+
+      const handleSelectAll = () => {
+        if (isAllSelected) {
+          setSelectedItems(prev => prev.filter(id => !pageData.some(item => item.id === id)))
+        } else {
+          setSelectedItems(prev => [...prev, ...pageData.map(item => item.id)])
+        }
+      }
+
+      const handleBatchResolve = () => {
+        if(confirm(`确定要批量解决选中的 ${selectedItems.length} 条告警吗？`)) {
+          alert(`已批量解决 ${selectedItems.length} 条告警`)
+          setSelectedItems([])
+        }
+      }
+
+      const handleExport = () => {
+        alert(`正在导出 ${filtered.length} 条告警数据到Excel...`)
+      }
+
+      const handleDetail = (alert) => {
+        alert(`告警详情:\n\n告警ID: ${alert.id}\n告警类型: ${alert.type}\n告警描述: ${alert.description}\n告警级别: ${alert.level}\n充电桩: ${alert.pileId}\n充电枪: ${alert.gunId}\n站点: ${alert.stationName}\n状态: ${alert.status}\n告警时间: ${alert.alertTime}${alert.resolveTime ? `\n解决时间: ${alert.resolveTime}` : ''}${alert.operator ? `\n处理人: ${alert.operator}` : ''}`)
+      }
+
+      const handleResolve = (alert) => {
+        if(confirm(`确定要解决告警 ${alert.id} 吗？`)) {
+          alert(`告警 ${alert.id} 已标记为已解决`)
+        }
+      }
+
+      return (
+        React.createElement('div', { className: 'max-w-screen-2xl mx-auto' },
+          React.createElement(SearchCard, { 
+            onQuery: setQuery, 
+            onReset: () => setQuery({}) 
+          }),
+          React.createElement(ActionBar, { 
+            selectedCount: selectedItems.length,
+            onBatchResolve: handleBatchResolve,
+            onExport: handleExport,
+            onSelectAll: handleSelectAll,
+            isAllSelected: isAllSelected
+          }),
+          React.createElement(TableCard, { 
+            data: pageData, 
+            onDetail: handleDetail,
+            onResolve: handleResolve,
+            onSelect: handleSelect,
+            selectedItems: selectedItems,
+            onSelectAll: handleSelectAll,
+            isAllSelected: isAllSelected
+          }),
+          React.createElement(Pagination, { 
+            total: filtered.length, 
+            page, 
+            pageSize, 
+            onChange: setPage,
+            onPageSizeChange: setPageSize
+          })
+        )
+      )
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App))
+    
+    // Header button events
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      const isEn = document.documentElement.getAttribute('lang') === 'en'
+      document.documentElement.setAttribute('lang', isEn ? 'zh-CN' : 'en')
+    });
+    
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark')
+    });
+    
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      if(confirm('确定要退出登录吗？')) {
+        alert('已退出登录')
+      }
+    });
+  </script>
+</body>
+</html>

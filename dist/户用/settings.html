@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 - 户用家庭储能-能源管理系统</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="logo">Always Control Technology</div>
+        <div class="header-center">
+            <div class="date-display">2025/09/23</div>
+            <select class="language-selector">
+                <option value="zh-CN">简体中文</option>
+                <option value="en-US">English</option>
+            </select>
+        </div>
+        <div class="header-actions">
+            <div class="action-item">
+                <div class="action-icon">+</div>
+                <div class="action-text">添加设备</div>
+            </div>
+            <div class="action-item">
+                <div class="action-icon">🔔</div>
+                <div class="action-text">信息通知</div>
+            </div>
+            <div class="action-item">
+                <div class="action-icon">📖</div>
+                <div class="action-text">新手教程</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+        <div class="user-profile">
+            <div class="user-avatar">👤</div>
+            <div class="user-name">user_demo</div>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <span>首页</span>
+            </a>
+            <a href="historical-data.html" class="nav-item">
+                <div class="nav-icon">📊</div>
+                <span>历史数据</span>
+            </a>
+            <a href="message-center.html" class="nav-item">
+                <div class="nav-icon">🔔</div>
+                <span>消息中心</span>
+            </a>
+            <a href="help-support.html" class="nav-item">
+                <div class="nav-icon">❓</div>
+                <span>帮助与支持</span>
+            </a>
+            <a href="device-management.html" class="nav-item">
+                <div class="nav-icon">🏢</div>
+                <span>设备管理</span>
+            </a>
+            <a href="settings.html" class="nav-item active">
+                <div class="nav-icon">⚙️</div>
+                <span>设置</span>
+            </a>
+        </div>
+        <div class="version-info">
+            <span>版本号 1.0.12</span>
+            <span>▼</span>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <!-- 终端ID显示 -->
+        <div style="background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 16px;">EN09774600-9961FT</h2>
+        </div>
+
+        <!-- 工作模式设置 -->
+        <div class="data-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <span>工作模式</span>
+                </div>
+            </div>
+            
+            <!-- 家庭最大输入电流设置 -->
+            <div style="margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+                    <span style="font-size: 16px; font-weight: 500; color: #333;">家庭最大输入电流</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="adjustInputCurrent(-1)" style="padding: 4px 8px;">-</button>
+                        <input type="number" id="inputCurrent" value="32" min="6" max="32" style="width: 80px; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; text-align: center; font-size: 16px; font-weight: 600;">
+                        <button class="btn btn-secondary" onclick="adjustInputCurrent(1)" style="padding: 4px 8px;">+</button>
+                        <span style="font-size: 16px; color: #666;">A</span>
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #666;">可设置范围: 6~32A</div>
+            </div>
+
+            <!-- 工作模式选择 -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px;">工作模式</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                    <div class="mode-card active" data-mode="self_consumption">
+                        <div class="mode-icon">🏠⚡</div>
+                        <div class="mode-title">自发自用</div>
+                        <div class="mode-check">✓</div>
+                    </div>
+                    <div class="mode-card" data-mode="economic">
+                        <div class="mode-icon">⚡</div>
+                        <div class="mode-title">经济模式</div>
+                        <div class="mode-check">✓</div>
+                    </div>
+                    <div class="mode-card" data-mode="emergency">
+                        <div class="mode-icon">⚠️</div>
+                        <div class="mode-title">应急模式</div>
+                        <div class="mode-check">✓</div>
+                    </div>
+                </div>
+                <div style="margin-top: 16px; padding: 16px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; color: #666; line-height: 1.6;">
+                    选择自发自用模式后, 会最大利用光伏发的电给家庭使用。一般带有光伏的家庭会选择这个模式。
+                </div>
+            </div>
+        </div>
+
+        <!-- 电池设置 -->
+        <div class="data-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <div class="panel-icon" style="background: #52c41a;">🔋</div>
+                    <span>电池</span>
+                </div>
+            </div>
+
+            <!-- 是否允许电网充电 -->
+            <div style="margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-size: 16px; font-weight: 500; color: #333;">是否允许电网充电</span>
+                    <label class="switch">
+                        <input type="checkbox" id="gridCharging">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 设置用电备份 -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px;">设置用电备份</h3>
+                <div style="background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; padding: 16px; margin-bottom: 20px; color: #666; line-height: 1.6;">
+                    指的是电网中断备用能源的SOC, 相当于最少xx%电存在电池内部, 其余用于经济、自发自用模式。如果您希望在电网停电期间保留更多能源使用, 或者您所在的地区更容易发生停电, 您可以设置更高的储备百分比。如果您希望在自发自用或经济模式下优化电池的性能, 您可以设置较低的储备百分比。
+                </div>
+                
+                <!-- 备份百分比滑块 -->
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-size: 18px; font-weight: 600; color: #1890ff;">23%</div>
+                            <div style="font-size: 14px; color: #666;">电网停电备用能源</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 18px; font-weight: 600; color: #666;">77%</div>
+                            <div style="font-size: 14px; color: #666;">用于自供电</div>
+                        </div>
+                    </div>
+                    <div style="position: relative;">
+                        <input type="range" id="backupSlider" min="0" max="100" value="23" class="slider-range" style="width: 100%;">
+                        <div style="position: absolute; top: -25px; left: 23%; transform: translateX(-50%); font-size: 12px; color: #1890ff; font-weight: 600;">23%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 电池充电电流 -->
+            <div style="margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+                    <span style="font-size: 16px; font-weight: 500; color: #333;">电池充电电流</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="adjustBatteryCurrent(-5)" style="padding: 4px 8px;">-</button>
+                        <input type="number" id="batteryCurrent" value="80" min="5" max="100" style="width: 80px; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; text-align: center; font-size: 16px; font-weight: 600;">
+                        <button class="btn btn-secondary" onclick="adjustBatteryCurrent(5)" style="padding: 4px 8px;">+</button>
+                        <span style="font-size: 16px; color: #666;">A</span>
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #666;">可设置范围: 5~100A</div>
+            </div>
+        </div>
+
+        <!-- 充电桩设置 -->
+        <div class="data-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <div class="panel-icon" style="background: #faad14;">🚗</div>
+                    <span>充电桩</span>
+                </div>
+            </div>
+
+            <!-- 最大充电功率设置 -->
+            <div style="margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+                    <span style="font-size: 16px; font-weight: 500; color: #333;">最大充电功率设置</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="adjustChargingPower(-1000)" style="padding: 4px 8px;">-</button>
+                        <input type="number" id="chargingPower" value="25000" min="6000" max="30000" step="1000" style="width: 120px; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px; text-align: center; font-size: 16px; font-weight: 600;">
+                        <button class="btn btn-secondary" onclick="adjustChargingPower(1000)" style="padding: 4px 8px;">+</button>
+                        <span style="font-size: 16px; color: #666;">W</span>
+                    </div>
+                </div>
+                <div style="font-size: 14px; color: #666;">可设置范围: 6000~30000W</div>
+            </div>
+
+            <!-- 充电模式 -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px;">充电模式</h3>
+                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                    <button class="charging-mode-btn active" data-mode="plug_charge">即插即充</button>
+                    <button class="charging-mode-btn" data-mode="scheduled">预约充电</button>
+                    <button class="charging-mode-btn" data-mode="pv_charging">光伏充电</button>
+                </div>
+                <div style="padding: 16px; background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 6px; color: #666;">
+                    充电枪插入电车即开始充电
+                </div>
+            </div>
+        </div>
+
+        <!-- 电网设置 -->
+        <div class="data-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <div class="panel-icon" style="background: #1890ff;">⚡</div>
+                    <span>电网</span>
+                </div>
+            </div>
+
+            <!-- 币种选择 -->
+            <div style="margin-bottom: 30px;">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+                    <span style="font-size: 16px; font-weight: 500; color: #333;">币种</span>
+                    <select style="padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff;">
+                        <option>人民币</option>
+                        <option>美元</option>
+                        <option>欧元</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 价格设置 -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px;">价格设置</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                    <!-- 高电价 -->
+                    <div class="price-setting">
+                        <div style="background: #ff4d4f; color: white; padding: 8px 12px; border-radius: 6px 6px 0 0; text-align: center; font-weight: 600;">高电价</div>
+                        <div style="padding: 16px; border: 1px solid #ff4d4f; border-top: none; border-radius: 0 0 6px 6px;">
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; margin-bottom: 4px; font-size: 14px; color: #666;">买入价</label>
+                                <input type="number" value="3" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 4px; font-size: 14px; color: #666;">卖出价</label>
+                                <input type="number" value="2" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 平电价 -->
+                    <div class="price-setting">
+                        <div style="background: #faad14; color: white; padding: 8px 12px; border-radius: 6px 6px 0 0; text-align: center; font-weight: 600;">平电价</div>
+                        <div style="padding: 16px; border: 1px solid #faad14; border-top: none; border-radius: 0 0 6px 6px;">
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; margin-bottom: 4px; font-size: 14px; color: #666;">买入价</label>
+                                <input type="number" value="2" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 4px; font-size: 14px; color: #666;">卖出价</label>
+                                <input type="number" value="1" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 低电价 -->
+                    <div class="price-setting">
+                        <div style="background: #52c41a; color: white; padding: 8px 12px; border-radius: 6px 6px 0 0; text-align: center; font-weight: 600;">低电价</div>
+                        <div style="padding: 16px; border: 1px solid #52c41a; border-top: none; border-radius: 0 0 6px 6px;">
+                            <div style="margin-bottom: 12px;">
+                                <label style="display: block; margin-bottom: 4px; font-size: 14px; color: #666;">买入价</label>
+                                <input type="number" value="1" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 4px; font-size: 14px; color: #666;">卖出价</label>
+                                <input type="number" value="1" style="width: 100%; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 时间段设置 -->
+            <div>
+                <h3 style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px;">时间段设置</h3>
+                <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                    <button class="time-period-btn active" data-period="high">设置高电价时间段</button>
+                    <button class="time-period-btn" data-period="normal">设置平电价时间段</button>
+                    <button class="time-period-btn" data-period="low">设置低电价时间段</button>
+                </div>
+                
+                <!-- 24小时时间块 -->
+                <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px;">
+                    <!-- 第一行 (0-11点) -->
+                    <div class="time-block low" data-hour="1">1<br>00:00~01:00</div>
+                    <div class="time-block low" data-hour="2">2<br>01:00~02:00</div>
+                    <div class="time-block low" data-hour="3">3<br>02:00~03:00</div>
+                    <div class="time-block low" data-hour="4">4<br>03:00~04:00</div>
+                    <div class="time-block low" data-hour="5">5<br>04:00~05:00</div>
+                    <div class="time-block low" data-hour="6">6<br>05:00~06:00</div>
+                    <div class="time-block normal" data-hour="7">7<br>06:00~07:00</div>
+                    <div class="time-block normal" data-hour="8">8<br>07:00~08:00</div>
+                    <div class="time-block low" data-hour="9">9<br>08:00~09:00</div>
+                    <div class="time-block low" data-hour="10">10<br>09:00~10:00</div>
+                    <div class="time-block low" data-hour="11">11<br>10:00~11:00</div>
+                    <div class="time-block low" data-hour="12">12<br>11:00~12:00</div>
+                    
+                    <!-- 第二行 (12-23点) -->
+                    <div class="time-block normal" data-hour="13">13<br>12:00~13:00</div>
+                    <div class="time-block normal" data-hour="14">14<br>13:00~14:00</div>
+                    <div class="time-block normal" data-hour="15">15<br>14:00~15:00</div>
+                    <div class="time-block normal" data-hour="16">16<br>15:00~16:00</div>
+                    <div class="time-block low" data-hour="17">17<br>16:00~17:00</div>
+                    <div class="time-block low" data-hour="18">18<br>17:00~18:00</div>
+                    <div class="time-block low" data-hour="19">19<br>18:00~19:00</div>
+                    <div class="time-block low" data-hour="20">20<br>19:00~20:00</div>
+                    <div class="time-block normal" data-hour="21">21<br>20:00~21:00</div>
+                    <div class="time-block normal" data-hour="22">22<br>21:00~22:00</div>
+                    <div class="time-block normal" data-hour="23">23<br>22:00~23:00</div>
+                    <div class="time-block normal" data-hour="24">24<br>23:00~24:00</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        /* 模式卡片样式 */
+        .mode-card {
+            background: #fff;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .mode-card:hover {
+            border-color: #1890ff;
+        }
+
+        .mode-card.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .mode-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .mode-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .mode-check {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: #1890ff;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .mode-card.active .mode-check {
+            opacity: 1;
+        }
+
+        /* 充电模式按钮样式 */
+        .charging-mode-btn {
+            padding: 12px 20px;
+            border: 2px solid #f0f0f0;
+            background: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .charging-mode-btn:hover {
+            border-color: #1890ff;
+        }
+
+        .charging-mode-btn.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        /* 时间段按钮样式 */
+        .time-period-btn {
+            padding: 12px 20px;
+            border: 2px solid #f0f0f0;
+            background: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .time-period-btn:hover {
+            border-color: #1890ff;
+        }
+
+        .time-period-btn.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        /* 时间块样式 */
+        .time-block {
+            padding: 12px 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .time-block:hover {
+            border-color: #1890ff;
+        }
+
+        .time-block.low {
+            background: #f6ffed;
+            border-color: #b7eb8f;
+            color: #52c41a;
+        }
+
+        .time-block.normal {
+            background: #fffbe6;
+            border-color: #ffe58f;
+            color: #faad14;
+        }
+
+        .time-block.high {
+            background: #fff2f0;
+            border-color: #ffccc7;
+            color: #ff4d4f;
+        }
+
+        /* 价格设置样式 */
+        .price-setting {
+            border-radius: 6px;
+            overflow: hidden;
+        }
+    </style>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 设置管理功能
+        const SettingsManager = {
+            // 初始化
+            init: function() {
+                this.bindEvents();
+            },
+
+            // 绑定事件
+            bindEvents: function() {
+                // 工作模式选择
+                const modeCards = document.querySelectorAll('.mode-card');
+                modeCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        modeCards.forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        const mode = this.dataset.mode;
+                        DataManager.showNotification(`工作模式已切换到: ${this.querySelector('.mode-title').textContent}`, 'success');
+                    });
+                });
+
+                // 充电模式选择
+                const chargingModeBtns = document.querySelectorAll('.charging-mode-btn');
+                chargingModeBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        chargingModeBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        DataManager.showNotification(`充电模式已切换到: ${this.textContent}`, 'success');
+                    });
+                });
+
+                // 时间段设置按钮
+                const timePeriodBtns = document.querySelectorAll('.time-period-btn');
+                timePeriodBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        timePeriodBtns.forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        const period = this.dataset.period;
+                        DataManager.showNotification(`已选择设置${this.textContent.replace('设置', '').replace('时间段', '')}`, 'info');
+                    });
+                });
+
+                // 时间块点击
+                const timeBlocks = document.querySelectorAll('.time-block');
+                timeBlocks.forEach(block => {
+                    block.addEventListener('click', function() {
+                        const activePeriod = document.querySelector('.time-period-btn.active').dataset.period;
+                        const hour = this.dataset.hour;
+                        
+                        // 移除其他样式类
+                        this.classList.remove('low', 'normal', 'high');
+                        
+                        // 添加对应的样式类
+                        this.classList.add(activePeriod);
+                        
+                        DataManager.showNotification(`时间段 ${hour}:00 已设置为${activePeriod === 'high' ? '高电价' : activePeriod === 'normal' ? '平电价' : '低电价'}`, 'success');
+                    });
+                });
+
+                // 备份滑块
+                const backupSlider = document.getElementById('backupSlider');
+                backupSlider.addEventListener('input', function() {
+                    const value = this.value;
+                    const backupPercent = document.querySelector('.data-panel:nth-of-type(3) .panel-content div:nth-of-type(2) div:first-child div:first-child');
+                    const selfPercent = document.querySelector('.data-panel:nth-of-type(3) .panel-content div:nth-of-type(2) div:first-child div:last-child');
+                    
+                    if (backupPercent) backupPercent.textContent = value + '%';
+                    if (selfPercent) selfPercent.textContent = (100 - value) + '%';
+                });
+            }
+        };
+
+        // 调整输入电流
+        function adjustInputCurrent(delta) {
+            const input = document.getElementById('inputCurrent');
+            const currentValue = parseInt(input.value);
+            const newValue = Math.max(6, Math.min(32, currentValue + delta));
+            input.value = newValue;
+            DataManager.showNotification(`家庭最大输入电流已调整为: ${newValue}A`, 'success');
+        }
+
+        // 调整电池电流
+        function adjustBatteryCurrent(delta) {
+            const input = document.getElementById('batteryCurrent');
+            const currentValue = parseInt(input.value);
+            const newValue = Math.max(5, Math.min(100, currentValue + delta));
+            input.value = newValue;
+            DataManager.showNotification(`电池充电电流已调整为: ${newValue}A`, 'success');
+        }
+
+        // 调整充电功率
+        function adjustChargingPower(delta) {
+            const input = document.getElementById('chargingPower');
+            const currentValue = parseInt(input.value);
+            const newValue = Math.max(6000, Math.min(30000, currentValue + delta));
+            input.value = newValue;
+            DataManager.showNotification(`最大充电功率已调整为: ${newValue}W`, 'success');
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            SettingsManager.init();
+        });
+    </script>
+</body>
+</html>

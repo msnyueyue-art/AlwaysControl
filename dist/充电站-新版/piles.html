@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>充电桩管理 - 电动汽车充电站管理系统</title>
+  <link rel="icon" href="../充电站/logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#007AFF',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            muted: '#6b7280'
+          },
+          boxShadow: {
+            card: '0 2px 8px rgba(0,0,0,0.08)'
+          },
+          borderRadius: {
+            card: '16px'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body{background:#F8F9FA;margin:0}
+    .fixed-header{display:none !important}
+    .fixed-sidebar{display:none !important}
+    .page-wrap{padding-top:0 !important;padding-left:0 !important}
+  </style>
+</head>
+<body>
+  <!-- 顶部导航固定 -->
+  <header class="fixed-header bg-white border-b border-gray-200">
+    <div class="max-w-screen-2xl mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-gray-700 hover:text-gray-900">首页</a>
+        <span class="text-gray-300">/</span>
+        <span class="font-semibold">充电桩管理</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="langToggle" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg">EN/中文</button>
+        <button id="themeToggle" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg">切换主题</button>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-600">管理员</span>
+          <button id="logoutBtn" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg">退出登录</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 左侧菜单固定（示意） -->
+  <aside class="fixed-sidebar hidden lg:block">
+    <nav class="p-3">
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html">首页</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="sites.html">站点管理</a>
+      <a class="block px-3 py-2 rounded-lg bg-blue-50 text-primary" href="piles.html">充电桩管理</a>
+      
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="users.html">用户管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="orders.html">充电订单管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="analytics.html">数据分析</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="alerts.html">告警管理</a>
+      <div class="mt-2 text-xs text-muted px-3">系统管理</div>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/menus">菜单管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/roles">角色管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/users">人员管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/logs">日志管理</a>
+    </nav>
+  </aside>
+
+  <main id="root" class="page-wrap"></main>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script>
+    const { useMemo, useState, useEffect } = React
+
+    // 假数据
+    const SITES = [
+      { id: 'all', name: '全部站点' },
+      { id: 'site-1', name: '虹桥枢纽站' },
+      { id: 'site-2', name: '张江高科站' },
+      { id: 'site-3', name: '徐家汇中心站' }
+    ]
+
+    const CONTROLLERS = {
+      'all': ['SNN3202409118801', 'SNN3202409118802', 'SNN3202409118803', 'SNN3202409118804'],
+      'site-1': ['SNN3202409118801', 'SNN3202409118802'],
+      'site-2': ['SNN3202409118803'],
+      'site-3': ['SNN3202409118804']
+    }
+
+    function genPiles(siteId){
+      const siteName = (SITES.find(s=>s.id===siteId)||SITES[0]).name
+      const list = []
+      for(let i=0;i<25;i++){
+        const isDC = Math.random()>0.5
+        const online = Math.random()>0.25
+        list.push({
+          id: `${siteId==='all'?'XX':siteId.split('-')[1]}-${String(i+1).padStart(3,'0')}`,
+          type: isDC ? '直流' : '交流',
+          gunCount: isDC?2:2,
+          power: isDC?120:7,
+          station: siteName,
+          status: online ? '在线' : '离线',
+          controller: CONTROLLERS[siteId||'all'][i % CONTROLLERS[siteId||'all'].length],
+          guns: [
+            { id: 'A', status: ['插枪充电中','故障','空闲','插枪未充电'][Math.floor(Math.random()*4)] },
+            { id: 'B', status: ['插枪充电中','故障','空闲','插枪未充电'][Math.floor(Math.random()*4)] }
+          ]
+        })
+      }
+      return list
+    }
+
+    const Badge = ({ color, text }) => (
+      React.createElement('span', { className: `inline-flex items-center px-2 py-0.5 rounded text-xs font-medium text-white`, style:{background:color} }, text)
+    )
+
+    function TopBar({ siteId, onSiteChange, onAdd, view, onToggleView }){
+      return (
+        React.createElement('div', { className: 'bg-white shadow-card rounded-card border border-gray-200 p-4 mb-4' },
+          React.createElement('div', { className: 'flex items-center justify-between gap-3' },
+            React.createElement('div', { className: 'flex items-center gap-3' },
+              React.createElement('label', { className: 'text-sm text-gray-600' }, '选择站点'),
+              React.createElement('select', {
+                className: 'h-9 w-52 border border-gray-300 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-primary',
+                value: siteId, onChange: e=>onSiteChange(e.target.value)
+              }, SITES.map(s=>React.createElement('option', { key:s.id, value:s.id }, s.name)))
+            ),
+            React.createElement('div', { className: 'flex items-center gap-2' },
+              React.createElement('button', { className: 'px-4 h-9 bg-green-600 text-white rounded-lg hover:bg-green-700', onClick:onAdd }, '新增充电桩'),
+              React.createElement('button', { title:'切换视图', className: 'w-9 h-9 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50', onClick:onToggleView },
+                view==='list'
+                  ? React.createElement('svg', { className:'w-5 h-5 mx-auto', fill:'none', stroke:'currentColor', viewBox:'0 0 24 24' }, React.createElement('path',{strokeLinecap:'round',strokeLinejoin:'round',strokeWidth:'2', d:'M4 6h16M4 12h16M4 18h16'}))
+                  : React.createElement('svg', { className:'w-5 h-5 mx-auto', fill:'none', stroke:'currentColor', viewBox:'0 0 24 24' }, React.createElement('path',{strokeLinecap:'round',strokeLinejoin:'round',strokeWidth:'2', d:'M4 6h7v7H4V6zm9 0h7v7h-7V6zM4 15h7v7H4v-7zm9 0h7v7h-7v-7z'}))
+              )
+            )
+          )
+        )
+      )
+    }
+
+    function QueryBar({ onQuery, onReset }){
+      const [type, setType] = useState('')
+      const [status, setStatus] = useState('')
+      const [code, setCode] = useState('')
+      return (
+        React.createElement('div', { className: 'bg-white shadow-card rounded-card border border-gray-200 p-4 mb-4' },
+          React.createElement('div', { className:'flex items-end justify-between gap-4 flex-wrap' },
+            React.createElement('div', { className:'flex-1 grid grid-cols-1 md:grid-cols-3 gap-4' },
+              React.createElement('div', {},
+                React.createElement('label', { className:'block text-sm text-gray-600 mb-2' }, '充电桩类型'),
+                React.createElement('select', { className:'w-52 h-9 border border-gray-300 rounded-lg px-3', value:type, onChange:e=>setType(e.target.value) },
+                  React.createElement('option',{value:''},'全部'),
+                  React.createElement('option',{value:'交流'},'交流'),
+                  React.createElement('option',{value:'直流'},'直流')
+                )
+              ),
+              React.createElement('div', {},
+                React.createElement('label', { className:'block text-sm text-gray-600 mb-2' }, '充电桩状态'),
+                React.createElement('select', { className:'w-52 h-9 border border-gray-300 rounded-lg px-3', value:status, onChange:e=>setStatus(e.target.value) },
+                  React.createElement('option',{value:''},'全部'),
+                  React.createElement('option',{value:'在线'},'在线'),
+                  React.createElement('option',{value:'离线'},'离线')
+                )
+              ),
+              React.createElement('div', {},
+                React.createElement('label', { className:'block text-sm text-gray-600 mb-2' }, '充电桩编号'),
+                React.createElement('input', { className:'w-52 h-9 border border-gray-300 rounded-lg px-3', placeholder:'请输入编号', value:code, onChange:e=>setCode(e.target.value) })
+              )
+            ),
+            React.createElement('div', { className:'flex items-center gap-2' },
+              React.createElement('button', { className:'w-20 h-9 bg-primary text-white rounded-lg hover:bg-blue-600', onClick:()=>onQuery({type,status,code}) }, '查询'),
+              React.createElement('button', { className:'w-20 h-9 bg-gray-500 text-white rounded-lg hover:bg-gray-600', onClick:()=>{setType('');setStatus('');setCode('');onReset()} }, '重置')
+            )
+          )
+        )
+      )
+    }
+
+    function ControllerMenu({ controllers, active, onChange }){
+      return (
+        React.createElement('div', { className:'w-60 shrink-0' },
+          React.createElement('div', { className:'bg-white shadow-card rounded-card border border-gray-200 overflow-hidden' },
+            React.createElement('div', { className:'px-4 py-3 border-b text-sm font-medium bg-gray-50' }, '智能控制器'),
+            React.createElement('button', { className:`w-full text-left px-4 py-3 hover:bg-blue-50 ${active==='all'?'text-primary':''}`, onClick:()=>onChange('all') }, '全部'),
+            controllers.map(id => React.createElement('button', { key:id, onClick:()=>onChange(id), className:`w-full text-left px-4 py-3 hover:bg-blue-50 ${active===id?'text-primary':''}` }, id))
+          )
+        )
+      )
+    }
+
+    function ListView({ data, onDetail }){
+      return (
+        React.createElement('div', { className:'bg-white shadow-card rounded-card border border-gray-200 overflow-hidden flex-1' },
+          React.createElement('div', { className:'bg-gray-100 px-4 py-3 grid grid-cols-7 text-[16px] font-medium' },
+            React.createElement('div', null, '充电桩编号'),
+            React.createElement('div', null, '充电桩类型'),
+            React.createElement('div', null, '充电枪数量'),
+            React.createElement('div', null, '充电桩功率'),
+            React.createElement('div', null, '归属充电站'),
+            React.createElement('div', null, '当前状态'),
+            React.createElement('div', null, '操作')
+          ),
+          React.createElement('div', { className:'divide-y' }, data.map(item => (
+            React.createElement('div', { key:item.id, className:'grid grid-cols-7 items-center px-4 h-14 text-center' },
+              React.createElement('div', { className:'text-sm text-gray-900' }, item.id),
+              React.createElement('div', { className:'text-sm' }, item.type),
+              React.createElement('div', { className:'text-sm' }, item.gunCount),
+              React.createElement('div', { className:'text-sm' }, item.power + ' kW'),
+              React.createElement('div', { className:'text-sm truncate' }, item.station),
+              React.createElement('div', null, item.status === '在线' ? React.createElement(Badge,{color:'#10b981',text:'在线'}) : React.createElement(Badge,{color:'#6b7280',text:'离线'})),
+              React.createElement('div', null, React.createElement('button', { className:'px-3 py-1 text-sm bg-primary text-white rounded-lg', onClick:()=>onDetail(item) }, '详情'))
+            )
+          )))
+        )
+      )
+    }
+
+    function CardView({ data, onDetail }){
+      const colorByGunStatus = s => ({'插枪充电中':'#10b981','故障':'#ef4444','空闲':'#6b7280','插枪未充电':'#f59e0b'}[s]||'#6b7280')
+      return (
+        React.createElement('div', { className:'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 flex-1' }, data.map(item => (
+          React.createElement('div', { key:item.id, className:'bg-white shadow-card rounded-card border border-gray-200 p-4' },
+            React.createElement('div', { className:'flex items-center justify-between mb-2' },
+              React.createElement('div', { className:'font-semibold' }, item.id),
+              item.status === '在线' ? React.createElement(Badge,{color:'#10b981',text:'在线'}) : React.createElement(Badge,{color:'#6b7280',text:'离线'})
+            ),
+            React.createElement('div', { className:'text-sm text-muted mb-2' }, '类型：', item.type),
+            React.createElement('div', { className:'h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-3 text-muted' }, '设备占位图'),
+            React.createElement('div', { className:'mb-3' },
+              React.createElement('div', { className:'text-sm font-medium mb-1' }, '充电枪状态'),
+              React.createElement('div', { className:'flex items-center gap-3' }, item.guns.map(g => (
+                React.createElement('div', { key:g.id, className:'flex items-center gap-1 text-xs' },
+                  React.createElement('span', { className:'inline-block w-2.5 h-2.5 rounded-full', style:{background:colorByGunStatus(g.status)} }),
+                  React.createElement('span', null, `${g.id}: ${g.status}`)
+                )
+              )))
+            ),
+            React.createElement('div', { className:'text-sm text-muted' }, `功率：${item.power} kW · 归属：${item.station}`),
+            React.createElement('div', { className:'mt-3' }, React.createElement('button', { className:'w-full h-9 bg-primary text-white rounded-lg', onClick:()=>onDetail(item) }, '详情'))
+          )
+        )))
+      )
+    }
+
+    function Pagination({ total, page, pageSize, onChange }){
+      const totalPages = Math.max(1, Math.ceil(total / pageSize))
+      const pages = []
+      for(let i=1;i<=totalPages;i++) pages.push(i)
+      return (
+        React.createElement('div', { className:'flex items-center justify-between bg-white shadow-card rounded-card border border-gray-200 p-3 mt-4' },
+          React.createElement('div', { className:'text-sm text-muted' }, `共 ${total} 条记录`),
+          React.createElement('div', { className:'flex items-center gap-2' },
+            React.createElement('button', { className:'px-3 h-9 border rounded-lg text-sm', disabled:page===1, onClick:()=>onChange(page-1) }, '上一页'),
+            pages.slice(Math.max(0,page-3), Math.max(0,page-3)+5).map(p => (
+              React.createElement('button', { key:p, className:`px-3 h-9 rounded-lg text-sm ${p===page?'bg-primary text-white':'border'}`, onClick:()=>onChange(p) }, p)
+            )),
+            React.createElement('button', { className:'px-3 h-9 border rounded-lg text-sm', disabled:page===totalPages, onClick:()=>onChange(page+1) }, '下一页')
+          )
+        )
+      )
+    }
+
+    function App(){
+      const [siteId, setSiteId] = useState('all')
+      const [controller, setController] = useState('all')
+      const [view, setView] = useState('list')
+      const [query, setQuery] = useState({})
+      const [page, setPage] = useState(1)
+      const pageSize = 10
+
+      const allData = useMemo(()=>genPiles(siteId), [siteId])
+      const controllerIds = useMemo(()=>CONTROLLERS[siteId]||CONTROLLERS['all'], [siteId])
+      const filtered = useMemo(()=>{
+        let list = allData
+        if(controller !== 'all') list = list.filter(i=>i.controller===controller)
+        if(query.type) list = list.filter(i=>i.type===query.type)
+        if(query.status) list = list.filter(i=>i.status===query.status)
+        if(query.code) list = list.filter(i=>i.id.includes(query.code))
+        return list
+      }, [allData, controller, query])
+
+      const pageData = useMemo(()=>{
+        const start = (page-1)*pageSize
+        return filtered.slice(start, start+pageSize)
+      }, [filtered, page])
+
+      useEffect(()=>{ setController('all'); setPage(1) }, [siteId])
+      useEffect(()=>{ setPage(1) }, [controller, query])
+
+      return (
+        React.createElement('div', { className:'max-w-screen-2xl mx-auto p-4 lg:p-6' },
+          React.createElement(TopBar, { siteId, onSiteChange:setSiteId, onAdd:()=>alert('跳转新增充电桩页面'), view, onToggleView:()=>setView(view==='list'?'card':'list') }),
+          React.createElement(QueryBar, { onQuery:setQuery, onReset:()=>setQuery({}) }),
+          React.createElement('div', { className:'grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-4 items-start' },
+            React.createElement(ControllerMenu, { controllers:controllerIds, active:controller, onChange:setController }),
+            view==='list' ? React.createElement(ListView, { data:pageData, onDetail:(item)=>alert('跳转详情: '+item.id) })
+                          : React.createElement(CardView, { data:pageData, onDetail:(item)=>alert('跳转详情: '+item.id) })
+          ),
+          React.createElement(Pagination, { total:filtered.length, page, pageSize, onChange:setPage })
+        )
+      )
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App))
+    
+    // Header button events
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      const isEn = document.documentElement.getAttribute('lang') === 'en'
+      document.documentElement.setAttribute('lang', isEn ? 'zh-CN' : 'en')
+    });
+    
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark')
+    });
+    
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      if(confirm('确定要退出登录吗？')) {
+        alert('已退出登录')
+        // window.location.href = 'login.html'
+      }
+    });
+  </script>
+</body>
+</html>
+
+

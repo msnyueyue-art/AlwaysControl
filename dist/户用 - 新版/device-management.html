@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备管理 - 户用家庭储能-能源管理系统</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="logo">Always Control Technology</div>
+        <div class="header-center">
+            <div class="date-display">2025/09/23</div>
+            <select class="language-selector">
+                <option value="zh-CN">简体中文</option>
+                <option value="en-US">English</option>
+            </select>
+        </div>
+        <div class="header-actions">
+            <div class="action-item">
+                <div class="action-icon">+</div>
+                <div class="action-text">添加设备</div>
+            </div>
+            <div class="action-item">
+                <div class="action-icon">🔔</div>
+                <div class="action-text">信息通知</div>
+            </div>
+            <div class="action-item">
+                <div class="action-icon">📖</div>
+                <div class="action-text">新手教程</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+        <div class="user-profile">
+            <div class="user-avatar">👤</div>
+            <div class="user-name">user_demo</div>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <span>首页</span>
+            </a>
+            <a href="historical-data.html" class="nav-item">
+                <div class="nav-icon">📊</div>
+                <span>历史数据</span>
+            </a>
+            <a href="message-center.html" class="nav-item">
+                <div class="nav-icon">🔔</div>
+                <span>消息中心</span>
+            </a>
+            <a href="help-support.html" class="nav-item">
+                <div class="nav-icon">❓</div>
+                <span>帮助与支持</span>
+            </a>
+            <a href="device-management.html" class="nav-item active">
+                <div class="nav-icon">🏢</div>
+                <span>设备管理</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <div class="nav-icon">⚙️</div>
+                <span>设置</span>
+            </a>
+        </div>
+        <div class="version-info">
+            <span>版本号 1.0.12</span>
+            <span>▼</span>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <!-- Neuron编号和全局操作 -->
+        <div style="background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h2 style="font-size: 18px; font-weight: 600; color: #333; margin-bottom: 8px;">Neuron编号: EN09774600-9961FT</h2>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-secondary">固件更新</button>
+                    <button class="btn btn-secondary">解绑Neuron</button>
+                    <button class="btn btn-danger">一键解绑所有下挂设备</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设备卡片网格 -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+            <!-- 充电桩1 -->
+            <div class="device-card">
+                <div class="device-header">
+                    <div class="device-info">
+                        <div class="device-icon" style="background: #faad14;">🚗</div>
+                        <div>
+                            <div class="device-title">充电桩</div>
+                            <div class="device-id">设备编号: SN07889670009</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">解绑</button>
+                </div>
+                <div class="device-status">
+                    <span class="device-label">设备状态:</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="status-text">启用</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 充电桩2 -->
+            <div class="device-card">
+                <div class="device-header">
+                    <div class="device-info">
+                        <div class="device-icon" style="background: #faad14;">🚗</div>
+                        <div>
+                            <div class="device-title">充电桩</div>
+                            <div class="device-id">设备编号: SN07889678821</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">解绑</button>
+                </div>
+                <div class="device-status">
+                    <span class="device-label">设备状态:</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="status-text">启用</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 逆变器集成设备 -->
+            <div class="device-card integrated-device">
+                <div class="device-header">
+                    <div class="device-info">
+                        <div class="device-icon" style="background: #1890ff;">⚡</div>
+                        <div>
+                            <div class="device-title">逆变器: 110920041128770X(集成设备)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 子设备列表 -->
+                <div class="sub-devices">
+                    <!-- 光伏子设备 -->
+                    <div class="sub-device">
+                        <div class="sub-device-header">
+                            <div class="device-info">
+                                <div class="device-icon" style="background: #faad14;">☀️</div>
+                                <div>
+                                    <div class="device-title">光伏</div>
+                                    <div class="device-id">设备编号: PV00912307788P</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">解绑</button>
+                        </div>
+                        <div class="device-status">
+                            <span class="device-label">设备状态:</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="status-indicator status-online">
+                                    <span class="status-dot"></span>
+                                    在线
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 电池子设备 -->
+                    <div class="sub-device">
+                        <div class="sub-device-header">
+                            <div class="device-info">
+                                <div class="device-icon" style="background: #52c41a;">🔋</div>
+                                <div>
+                                    <div class="device-title">电池</div>
+                                    <div class="device-id">设备编号: BT0079885F</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 12px;">解绑</button>
+                        </div>
+                        <div class="device-status">
+                            <span class="device-label">设备状态:</span>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="status-indicator status-online">
+                                    <span class="status-dot"></span>
+                                    在线
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        /* 设备卡片样式 */
+        .device-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #f0f0f0;
+        }
+
+        .device-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .device-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .device-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .device-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .device-id {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .device-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .device-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* 集成设备样式 */
+        .integrated-device {
+            grid-column: span 2;
+        }
+
+        .sub-devices {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .sub-device {
+            background: #fafafa;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .sub-device-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .sub-device .device-icon {
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+        }
+
+        .sub-device .device-title {
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .sub-device .device-id {
+            font-size: 12px;
+        }
+
+        .sub-device .device-status {
+            padding-top: 12px;
+            border-top: 1px solid #e8e8e8;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .integrated-device {
+                grid-column: span 1;
+            }
+            
+            .sub-devices {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 设备管理功能
+        const DeviceManager = {
+            // 初始化
+            init: function() {
+                this.bindEvents();
+            },
+
+            // 绑定事件
+            bindEvents: function() {
+                // 设备开关切换
+                const switches = document.querySelectorAll('.switch input[type="checkbox"]');
+                switches.forEach(switchEl => {
+                    switchEl.addEventListener('change', function() {
+                        const statusText = this.parentNode.parentNode.querySelector('.status-text');
+                        if (statusText) {
+                            statusText.textContent = this.checked ? '启用' : '禁用';
+                        }
+                        DataManager.showNotification(
+                            `设备已${this.checked ? '启用' : '禁用'}`,
+                            this.checked ? 'success' : 'warning'
+                        );
+                    });
+                });
+
+                // 解绑按钮
+                const unbindButtons = document.querySelectorAll('.btn:contains("解绑")');
+                document.querySelectorAll('button').forEach(button => {
+                    if (button.textContent.includes('解绑')) {
+                        button.addEventListener('click', function() {
+                            DeviceManager.showUnbindConfirm(this);
+                        });
+                    }
+                });
+
+                // 固件更新
+                const firmwareBtn = document.querySelector('.btn:contains("固件更新")');
+                document.querySelectorAll('button').forEach(button => {
+                    if (button.textContent.includes('固件更新')) {
+                        button.addEventListener('click', function() {
+                            DeviceManager.updateFirmware();
+                        });
+                    }
+                });
+            },
+
+            // 显示解绑确认对话框
+            showUnbindConfirm: function(button) {
+                const deviceCard = button.closest('.device-card, .sub-device');
+                const deviceTitle = deviceCard.querySelector('.device-title').textContent;
+                const deviceId = deviceCard.querySelector('.device-id').textContent;
+                
+                if (confirm(`确定要解绑设备吗？\n\n设备: ${deviceTitle}\n${deviceId}`)) {
+                    this.unbindDevice(button);
+                }
+            },
+
+            // 解绑设备
+            unbindDevice: function(button) {
+                // 模拟解绑操作
+                button.textContent = '解绑中...';
+                button.disabled = true;
+                
+                setTimeout(() => {
+                    const deviceCard = button.closest('.device-card, .sub-device');
+                    deviceCard.style.opacity = '0.5';
+                    deviceCard.style.pointerEvents = 'none';
+                    button.textContent = '已解绑';
+                    DataManager.showNotification('设备解绑成功', 'success');
+                }, 2000);
+            },
+
+            // 固件更新
+            updateFirmware: function() {
+                if (confirm('确定要进行固件更新吗？更新过程中设备将暂时离线。')) {
+                    DataManager.showNotification('开始固件更新...', 'info');
+                    
+                    // 模拟更新过程
+                    setTimeout(() => {
+                        DataManager.showNotification('固件更新完成', 'success');
+                    }, 5000);
+                }
+            }
+        };
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            DeviceManager.init();
+        });
+    </script>
+</body>
+</html>

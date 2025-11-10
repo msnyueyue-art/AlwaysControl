@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录 - AlwaysControl Technology</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <!-- 左侧品牌展示区 -->
+        <div class="login-brand">
+            <div class="brand-content">
+                <img src="images/logo.png" alt="AlwaysControl" class="brand-logo">
+                <h2 class="brand-slogan">随心可行电子能源解决方案</h2>
+            </div>
+        </div>
+
+        <!-- 右侧登录表单区 -->
+        <div class="login-form-section">
+            <div class="login-form-container">
+                <h1 class="login-title">用户登录</h1>
+                <p class="login-subtitle">
+                    <a href="#" class="switch-mode">使用邮箱登录</a>
+                    <span class="separator">|</span>
+                    <a href="register.html" class="switch-mode">点击这里去注册</a>
+                </p>
+
+                <form class="login-form" id="loginForm">
+                    <!-- 用户名/手机号 -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required-star">*</span>用户名或手机号
+                        </label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="username"
+                            placeholder="请输入用户名或手机号"
+                            required
+                        >
+                    </div>
+
+                    <!-- 密码 -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required-star">*</span>密码
+                        </label>
+                        <div class="password-input-wrapper">
+                            <input
+                                type="password"
+                                class="form-input"
+                                id="password"
+                                placeholder="请输入密码"
+                                required
+                            >
+                            <button type="button" class="toggle-password" aria-label="显示/隐藏密码">
+                                <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 验证码 -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required-star">*</span>验证码
+                        </label>
+                        <div class="captcha-wrapper">
+                            <input
+                                type="text"
+                                class="form-input captcha-input"
+                                id="captcha"
+                                placeholder="请输入验证码"
+                                maxlength="6"
+                                required
+                            >
+                            <div class="captcha-display" id="captchaDisplay">
+                                <span class="captcha-text">ABCD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 记住密码选项 -->
+                    <div class="form-checkbox">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span class="checkbox-text">记住密码 (有效期30天)</span>
+                        </label>
+                    </div>
+
+                    <!-- 登录按钮 -->
+                    <button type="submit" class="btn-login">登 录</button>
+
+                    <!-- 忘记密码 -->
+                    <div class="form-footer">
+                        <a href="#" class="forgot-password" id="forgotPassword">忘记密码?</a>
+                    </div>
+                </form>
+
+                <!-- 页脚信息 -->
+                <div class="login-footer">
+                    <p>AlwaysControl一家远在电子能源方向发力的公司！</p>
+                    <p>联系方式：(0551) 合肥市XX · 杭州ICP资11111111号-13 · 联系方式：13xxxxxxxxx@contact.net</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 忘记密码弹窗 -->
+    <div class="modal" id="forgotPasswordModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>重置密码</h3>
+                <button type="button" class="modal-close" id="closeModal">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="resetPasswordForm">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required-star">*</span>手机号
+                        </label>
+                        <input
+                            type="tel"
+                            class="form-input"
+                            id="resetPhone"
+                            placeholder="请输入注册时的手机号"
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required-star">*</span>验证码
+                        </label>
+                        <div class="sms-code-wrapper">
+                            <input
+                                type="text"
+                                class="form-input"
+                                id="smsCode"
+                                placeholder="请输入短信验证码"
+                                maxlength="6"
+                                required
+                            >
+                            <button type="button" class="btn-send-code" id="sendCode">发送验证码</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="required-star">*</span>新密码
+                        </label>
+                        <input
+                            type="password"
+                            class="form-input"
+                            id="newPassword"
+                            placeholder="请输入新密码"
+                            required
+                        >
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" id="cancelReset">取消</button>
+                        <button type="submit" class="btn-primary">确认重置</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html>

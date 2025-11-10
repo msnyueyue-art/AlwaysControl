@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息中心 - 户用家庭储能-能源管理系统</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="logo">Always Control Technology</div>
+        <div class="header-center">
+            <div class="date-display">2025/09/23</div>
+            <select class="language-selector">
+                <option value="zh-CN">简体中文</option>
+                <option value="en-US">English</option>
+            </select>
+        </div>
+        <div class="header-actions">
+            <div class="action-item">
+                <div class="action-icon">+</div>
+                <div class="action-text">添加设备</div>
+            </div>
+            <div class="action-item">
+                <div class="action-icon">🔔</div>
+                <div class="action-text">信息通知</div>
+            </div>
+            <div class="action-item">
+                <div class="action-icon">📖</div>
+                <div class="action-text">新手教程</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+        <div class="user-profile">
+            <div class="user-avatar">👤</div>
+            <div class="user-name">user_demo</div>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html" class="nav-item">
+                <div class="nav-icon">🏠</div>
+                <span>首页</span>
+            </a>
+            <a href="historical-data.html" class="nav-item">
+                <div class="nav-icon">📊</div>
+                <span>历史数据</span>
+            </a>
+            <a href="message-center.html" class="nav-item active">
+                <div class="nav-icon">🔔</div>
+                <span>消息中心</span>
+            </a>
+            <a href="help-support.html" class="nav-item">
+                <div class="nav-icon">❓</div>
+                <span>帮助与支持</span>
+            </a>
+            <a href="device-management.html" class="nav-item">
+                <div class="nav-icon">🏢</div>
+                <span>设备管理</span>
+            </a>
+            <a href="settings.html" class="nav-item">
+                <div class="nav-icon">⚙️</div>
+                <span>设置</span>
+            </a>
+        </div>
+        <div class="version-info">
+            <span>版本号 1.0.12</span>
+            <span>▼</span>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <!-- 消息中心标题 -->
+        <div class="data-panel">
+            <h1 style="font-size: 24px; font-weight: 600; color: #333; margin-bottom: 20px;">消息中心</h1>
+            
+            <!-- 操作按钮 -->
+            <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                <button class="btn btn-primary" id="markAllReadBtn">标记已读</button>
+                <button class="btn btn-danger" id="deleteBtn">删除</button>
+            </div>
+
+            <!-- 消息表格 -->
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" style="margin-right: 8px;">
+                            </th>
+                            <th>通知标题</th>
+                            <th>通知内容</th>
+                            <th>时间</th>
+                            <th>类型</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="messageTableBody">
+                        <!-- 消息数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分页 -->
+            <div class="pagination">
+                <button onclick="previousPage()" id="prevBtn">‹</button>
+                <button onclick="goToPage(1)" class="active" id="page1">1</button>
+                <button onclick="goToPage(2)" id="page2">2</button>
+                <button onclick="goToPage(3)" id="page3">3</button>
+                <button onclick="goToPage(4)" id="page4">4</button>
+                <button onclick="goToPage(5)" id="page5">5</button>
+                <span>...</span>
+                <button onclick="goToPage(14)" id="page14">14</button>
+                <button onclick="nextPage()" id="nextBtn">›</button>
+            </div>
+            
+            <!-- 分页信息 -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; font-size: 14px; color: #666;">
+                <span>第 1-10 条/总共 140 条</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span>10条/页</span>
+                    <select style="padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/common.js"></script>
+    <script>
+        // 消息管理
+        const MessageManager = {
+            currentPage: 1,
+            totalPages: 14,
+            messagesPerPage: 10,
+            
+            // 模拟消息数据
+            messages: [
+                {
+                    id: 1,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-22 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 2,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-22 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 3,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-21 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 4,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-21 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 5,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-20 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 6,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-20 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 7,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-19 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 8,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-19 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 9,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-18 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 10,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-18 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 11,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-17 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 12,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-17 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 13,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-16 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 14,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-16 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 15,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-15 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 16,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-15 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 17,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-14 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 18,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-14 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 19,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-13 07:50:00",
+                    type: "电池通知",
+                    status: "unread"
+                },
+                {
+                    id: 20,
+                    title: "电池通知",
+                    content: "您的电池正在充电",
+                    time: "2025-09-13 07:45:00",
+                    type: "电池通知",
+                    status: "unread"
+                }
+            ],
+
+            // 初始化
+            init: function() {
+                this.renderMessages();
+                this.bindEvents();
+            },
+
+            // 渲染消息列表
+            renderMessages: function() {
+                const tbody = document.getElementById('messageTableBody');
+                const startIndex = (this.currentPage - 1) * this.messagesPerPage;
+                const endIndex = startIndex + this.messagesPerPage;
+                const pageMessages = this.messages.slice(startIndex, endIndex);
+
+                tbody.innerHTML = '';
+
+                pageMessages.forEach(message => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="message-checkbox" data-id="${message.id}">
+                        </td>
+                        <td>${message.title}</td>
+                        <td>${message.content}</td>
+                        <td>${message.time}</td>
+                        <td>${message.type}</td>
+                        <td>
+                            <span class="status-indicator ${message.status === 'unread' ? 'status-offline' : 'status-online'}">
+                                <span class="status-dot"></span>
+                                ${message.status === 'unread' ? '未读' : '已读'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" onclick="MessageManager.markAsRead(${message.id})" style="padding: 4px 8px; font-size: 12px;">
+                                标记已读
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                this.updatePaginationInfo();
+            },
+
+            // 更新分页信息
+            updatePaginationInfo: function() {
+                const startItem = (this.currentPage - 1) * this.messagesPerPage + 1;
+                const endItem = Math.min(this.currentPage * this.messagesPerPage, this.messages.length);
+                
+                const paginationInfo = document.querySelector('.pagination').nextElementSibling;
+                if (paginationInfo) {
+                    paginationInfo.innerHTML = `
+                        <span>第 ${startItem}-${endItem} 条/总共 ${this.messages.length} 条</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span>10条/页</span>
+                            <select style="padding: 4px 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                                <option>10</option>
+                                <option>20</option>
+                                <option>50</option>
+                            </select>
+                        </div>
+                    `;
+                }
+            },
+
+            // 绑定事件
+            bindEvents: function() {
+                // 全选/取消全选
+                document.getElementById('selectAll').addEventListener('change', (e) => {
+                    const checkboxes = document.querySelectorAll('.message-checkbox');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = e.target.checked;
+                    });
+                });
+
+                // 标记全部已读
+                document.getElementById('markAllReadBtn').addEventListener('click', () => {
+                    this.markAllAsRead();
+                });
+
+                // 删除选中
+                document.getElementById('deleteBtn').addEventListener('click', () => {
+                    this.deleteSelected();
+                });
+            },
+
+            // 标记为已读
+            markAsRead: function(messageId) {
+                const message = this.messages.find(m => m.id === messageId);
+                if (message) {
+                    message.status = 'read';
+                    this.renderMessages();
+                    DataManager.showNotification('消息已标记为已读', 'success');
+                }
+            },
+
+            // 标记全部已读
+            markAllAsRead: function() {
+                this.messages.forEach(message => {
+                    message.status = 'read';
+                });
+                this.renderMessages();
+                DataManager.showNotification('所有消息已标记为已读', 'success');
+            },
+
+            // 删除选中的消息
+            deleteSelected: function() {
+                const selectedCheckboxes = document.querySelectorAll('.message-checkbox:checked');
+                const selectedIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.dataset.id));
+                
+                if (selectedIds.length === 0) {
+                    DataManager.showNotification('请选择要删除的消息', 'warning');
+                    return;
+                }
+
+                if (confirm(`确定要删除选中的 ${selectedIds.length} 条消息吗？`)) {
+                    this.messages = this.messages.filter(message => !selectedIds.includes(message.id));
+                    this.renderMessages();
+                    DataManager.showNotification(`已删除 ${selectedIds.length} 条消息`, 'success');
+                }
+            }
+        };
+
+        // 分页函数
+        function goToPage(page) {
+            if (page >= 1 && page <= MessageManager.totalPages) {
+                MessageManager.currentPage = page;
+                MessageManager.renderMessages();
+                updatePaginationButtons();
+            }
+        }
+
+        function previousPage() {
+            if (MessageManager.currentPage > 1) {
+                goToPage(MessageManager.currentPage - 1);
+            }
+        }
+
+        function nextPage() {
+            if (MessageManager.currentPage < MessageManager.totalPages) {
+                goToPage(MessageManager.currentPage + 1);
+            }
+        }
+
+        function updatePaginationButtons() {
+            // 更新分页按钮状态
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`page${i}`);
+                if (btn) {
+                    btn.classList.toggle('active', MessageManager.currentPage === i);
+                }
+            }
+            
+            // 更新前后按钮状态
+            document.getElementById('prevBtn').disabled = MessageManager.currentPage === 1;
+            document.getElementById('nextBtn').disabled = MessageManager.currentPage === MessageManager.totalPages;
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            MessageManager.init();
+        });
+    </script>
+</body>
+</html>

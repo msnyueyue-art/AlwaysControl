@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据分析 - 电动汽车充电站管理系统</title>
+  <link rel="icon" href="../充电站/logo.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#007AFF',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            muted: '#6b7280'
+          },
+          boxShadow: {
+            card: '0 2px 8px rgba(0,0,0,0.08)',
+            glow: '0 0 20px rgba(0,122,255,0.1)'
+          },
+          borderRadius: {
+            card: '16px'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body{background:#F8F9FA;margin:0}
+    .fixed-header{display:none !important}
+    .fixed-sidebar{display:none !important}
+    .page-wrap{padding-top:0 !important;padding-left:0 !important}
+    .gradient-card{background:linear-gradient(135deg,#007AFF 0%,#0056CC 100%)}
+    .gradient-card-2{background:linear-gradient(135deg,#10b981 0%,#059669 100%)}
+    .gradient-card-3{background:linear-gradient(135deg,#f59e0b 0%,#d97706 100%)}
+    .gradient-card-4{background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%)}
+  </style>
+</head>
+<body>
+  <!-- 顶部固定导航 -->
+  <header class="fixed-header bg-white border-b border-gray-200">
+    <div class="max-w-screen-2xl mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="text-gray-700 hover:text-gray-900">首页</a>
+        <span class="text-gray-300">/</span>
+        <span class="font-semibold">数据分析</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="langToggle" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg">EN/中文</button>
+        <button id="themeToggle" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg">切换主题</button>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-600">管理员</span>
+          <button id="logoutBtn" class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg">退出登录</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 左侧固定菜单 -->
+  <aside class="fixed-sidebar hidden lg:block">
+    <nav class="p-3">
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html">首页</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="sites.html">站点管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="piles.html">充电桩管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="users.html">用户管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="orders.html">充电订单管理</a>
+      <a class="block px-3 py-2 rounded-lg bg-blue-50 text-primary" href="analytics.html">数据分析</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="alerts.html">告警管理</a>
+      <div class="mt-2 text-xs text-gray-500 px-3">系统管理</div>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/menus">菜单管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/roles">角色管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/users">人员管理</a>
+      <a class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-50" href="index.html#/system/logs">日志管理</a>
+    </nav>
+  </aside>
+
+  <!-- 主体内容容器 -->
+  <main class="page-wrap">
+    <div id="root" class="min-h-screen p-6"></div>
+  </main>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script>
+    const { useMemo, useState, useEffect, useRef } = React
+
+    // 假数据
+    const STATIONS = [
+      { id: 'all', name: '全部站点' },
+      { id: 'site-1', name: '虹桥枢纽站' },
+      { id: 'site-2', name: '张江高科站' },
+      { id: 'site-3', name: '徐家汇中心站' },
+      { id: 'site-4', name: '外滩观光站' },
+      { id: 'site-5', name: '临港新片区站' }
+    ]
+
+    const MOCK_DATA = {
+      'all': {
+        totalUsers: 24560,
+        yesterdayUsers: 23,
+        todayUsers: 18,
+        totalRevenue: 4234560,
+        yesterdayRevenue: 4560,
+        todayRevenue: 3820,
+        totalEnergy: 3567890,
+        yesterdayEnergy: 3820,
+        todayEnergy: 3200,
+        totalOrders: 120345,
+        yesterdayOrders: 126,
+        todayOrders: 98
+      },
+      'site-1': {
+        totalUsers: 8560,
+        yesterdayUsers: 8,
+        todayUsers: 6,
+        totalRevenue: 1456780,
+        yesterdayRevenue: 1520,
+        todayRevenue: 1280,
+        totalEnergy: 1234560,
+        yesterdayEnergy: 1280,
+        todayEnergy: 1050,
+        totalOrders: 42156,
+        yesterdayOrders: 45,
+        todayOrders: 32
+      },
+      'site-2': {
+        totalUsers: 6890,
+        yesterdayUsers: 6,
+        todayUsers: 4,
+        totalRevenue: 1123450,
+        yesterdayRevenue: 1180,
+        todayRevenue: 980,
+        totalEnergy: 987650,
+        yesterdayEnergy: 980,
+        todayEnergy: 820,
+        totalOrders: 32145,
+        yesterdayOrders: 32,
+        todayOrders: 25
+      },
+      'site-3': {
+        totalUsers: 5430,
+        yesterdayUsers: 5,
+        todayUsers: 3,
+        totalRevenue: 876540,
+        yesterdayRevenue: 920,
+        todayRevenue: 760,
+        totalEnergy: 765430,
+        yesterdayEnergy: 760,
+        todayEnergy: 630,
+        totalOrders: 25678,
+        yesterdayOrders: 26,
+        todayOrders: 20
+      },
+      'site-4': {
+        totalUsers: 4320,
+        yesterdayUsers: 4,
+        todayUsers: 3,
+        totalRevenue: 678920,
+        yesterdayRevenue: 720,
+        todayRevenue: 600,
+        totalEnergy: 543210,
+        yesterdayEnergy: 600,
+        todayEnergy: 500,
+        totalOrders: 19876,
+        yesterdayOrders: 20,
+        todayOrders: 15
+      },
+      'site-5': {
+        totalUsers: 3260,
+        yesterdayUsers: 3,
+        todayUsers: 2,
+        totalRevenue: 512870,
+        yesterdayRevenue: 540,
+        todayRevenue: 450,
+        totalEnergy: 432100,
+        yesterdayEnergy: 450,
+        todayEnergy: 380,
+        totalOrders: 15490,
+        yesterdayOrders: 15,
+        todayOrders: 12
+      }
+    }
+
+    // 生成图表数据
+    function generateChartData(siteId) {
+      const baseData = MOCK_DATA[siteId] || MOCK_DATA['all']
+      const multiplier = siteId === 'all' ? 1 : 0.3 + Math.random() * 0.4
+      
+      return {
+        orderData: Array.from({length: 30}, (_, i) => ({
+          date: new Date(Date.now() - (29-i) * 24 * 60 * 60 * 1000).toISOString().slice(5,10),
+          value: Math.floor(baseData.todayOrders * (0.5 + Math.random()) * multiplier)
+        })),
+        userData: {
+          thisWeek: Array.from({length: 7}, (_, i) => Math.floor(baseData.todayUsers * (0.3 + Math.random() * 0.4) * multiplier)),
+          lastWeek: Array.from({length: 7}, (_, i) => Math.floor(baseData.todayUsers * (0.2 + Math.random() * 0.3) * multiplier))
+        },
+        revenueData: Array.from({length: 30}, (_, i) => ({
+          date: new Date(Date.now() - (29-i) * 24 * 60 * 60 * 1000).toISOString().slice(5,10),
+          value: Math.floor(baseData.todayRevenue * (0.5 + Math.random()) * multiplier)
+        })),
+        energyData: Array.from({length: 30}, (_, i) => ({
+          date: new Date(Date.now() - (29-i) * 24 * 60 * 60 * 1000).toISOString().slice(5,10),
+          value: Math.floor(baseData.todayEnergy * (0.5 + Math.random()) * multiplier)
+        }))
+      }
+    }
+
+    function StatCard({ title, value, yesterday, today, icon, gradientClass }) {
+      return (
+        React.createElement('div', { className: `rounded-card shadow-glow p-6 text-white ${gradientClass}` },
+          React.createElement('div', { className: 'flex items-center justify-between mb-4' },
+            React.createElement('div', { className: 'text-lg font-medium opacity-90' }, title),
+            React.createElement('div', { className: 'text-2xl' }, icon)
+          ),
+          React.createElement('div', { className: 'text-3xl font-bold mb-2' }, value.toLocaleString()),
+          React.createElement('div', { className: 'flex justify-between text-sm opacity-80' },
+            React.createElement('span', null, `昨日: ${yesterday.toLocaleString()}`),
+            React.createElement('span', null, `今日: ${today.toLocaleString()}`)
+          )
+        )
+      )
+    }
+
+    function ChartCard({ title, children, className = '' }) {
+      return (
+        React.createElement('div', { className: `bg-white rounded-card shadow-card border border-gray-200 p-6 ${className}` },
+          React.createElement('h3', { className: 'text-lg font-semibold text-gray-900 mb-4' }, title),
+          children
+        )
+      )
+    }
+
+    function OrderChart({ data, siteId }) {
+      const chartRef = useRef(null)
+      const chartInstance = useRef(null)
+
+      useEffect(() => {
+        if (!chartRef.current) return
+
+        if (chartInstance.current) {
+          chartInstance.current.dispose()
+        }
+
+        chartInstance.current = echarts.init(chartRef.current)
+        
+        const option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' }
+          },
+          legend: {
+            data: ['订单数量'],
+            top: 10
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: data.map(item => item.date),
+            axisLabel: { rotate: 45 }
+          },
+          yAxis: {
+            type: 'value',
+            name: '订单数'
+          },
+          series: [{
+            name: '订单数量',
+            type: 'bar',
+            data: data.map(item => item.value),
+            itemStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: '#007AFF' },
+                { offset: 1, color: '#0056CC' }
+              ])
+            }
+          }]
+        }
+
+        chartInstance.current.setOption(option)
+
+        const handleResize = () => chartInstance.current?.resize()
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+      }, [data, siteId])
+
+      return React.createElement('div', { ref: chartRef, className: 'w-full h-80' })
+    }
+
+    function UserChart({ data, siteId }) {
+      const chartRef = useRef(null)
+      const chartInstance = useRef(null)
+
+      useEffect(() => {
+        if (!chartRef.current) return
+
+        if (chartInstance.current) {
+          chartInstance.current.dispose()
+        }
+
+        chartInstance.current = echarts.init(chartRef.current)
+        
+        const option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' }
+          },
+          legend: {
+            data: ['本周', '上周'],
+            top: 10
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+          },
+          yAxis: {
+            type: 'value',
+            name: '用户数'
+          },
+          series: [
+            {
+              name: '本周',
+              type: 'bar',
+              data: data.thisWeek,
+              itemStyle: { color: '#10b981' }
+            },
+            {
+              name: '上周',
+              type: 'bar',
+              data: data.lastWeek,
+              itemStyle: { color: '#6b7280' }
+            }
+          ]
+        }
+
+        chartInstance.current.setOption(option)
+
+        const handleResize = () => chartInstance.current?.resize()
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+      }, [data, siteId])
+
+      return React.createElement('div', { ref: chartRef, className: 'w-full h-80' })
+    }
+
+    function LineChart({ data, siteId, title, unit }) {
+      const chartRef = useRef(null)
+      const chartInstance = useRef(null)
+
+      useEffect(() => {
+        if (!chartRef.current) return
+
+        if (chartInstance.current) {
+          chartInstance.current.dispose()
+        }
+
+        chartInstance.current = echarts.init(chartRef.current)
+        
+        const option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross' }
+          },
+          legend: {
+            data: [title],
+            top: 10
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: data.map(item => item.date),
+            axisLabel: { rotate: 45 }
+          },
+          yAxis: {
+            type: 'value',
+            name: unit
+          },
+          series: [{
+            name: title,
+            type: 'line',
+            data: data.map(item => item.value),
+            smooth: true,
+            lineStyle: { color: '#007AFF' },
+            areaStyle: {
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(0,122,255,0.3)' },
+                { offset: 1, color: 'rgba(0,122,255,0.1)' }
+              ])
+            }
+          }]
+        }
+
+        chartInstance.current.setOption(option)
+
+        const handleResize = () => chartInstance.current?.resize()
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+      }, [data, siteId, title, unit])
+
+      return React.createElement('div', { ref: chartRef, className: 'w-full h-80' })
+    }
+
+    function App() {
+      const [selectedSite, setSelectedSite] = useState('all')
+      const [chartData, setChartData] = useState(generateChartData('all'))
+
+      useEffect(() => {
+        setChartData(generateChartData(selectedSite))
+      }, [selectedSite])
+
+      const currentData = MOCK_DATA[selectedSite] || MOCK_DATA['all']
+
+      return (
+        React.createElement('div', { className: 'max-w-screen-2xl mx-auto space-y-6' },
+          // 筛选条件
+          React.createElement('div', { className: 'bg-white rounded-card shadow-card border border-gray-200 p-6' },
+            React.createElement('div', { className: 'flex items-center gap-4' },
+              React.createElement('label', { className: 'text-sm font-medium text-gray-700' }, '选择站点:'),
+              React.createElement('select', {
+                className: 'w-48 h-10 border border-gray-300 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-primary',
+                value: selectedSite,
+                onChange: e => setSelectedSite(e.target.value)
+              }, STATIONS.map(station => 
+                React.createElement('option', { key: station.id, value: station.id }, station.name)
+              ))
+            )
+          ),
+
+          // 统计卡片
+          React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6' },
+            React.createElement(StatCard, {
+              title: '累计注册用户数',
+              value: currentData.totalUsers,
+              yesterday: currentData.yesterdayUsers,
+              today: currentData.todayUsers,
+              icon: '👥',
+              gradientClass: 'gradient-card'
+            }),
+            React.createElement(StatCard, {
+              title: '累计充电金额',
+              value: currentData.totalRevenue,
+              yesterday: currentData.yesterdayRevenue,
+              today: currentData.todayRevenue,
+              icon: '💰',
+              gradientClass: 'gradient-card-2'
+            }),
+            React.createElement(StatCard, {
+              title: '累计充电度数',
+              value: currentData.totalEnergy,
+              yesterday: currentData.yesterdayEnergy,
+              today: currentData.todayEnergy,
+              icon: '⚡',
+              gradientClass: 'gradient-card-3'
+            }),
+            React.createElement(StatCard, {
+              title: '累计订单数量',
+              value: currentData.totalOrders,
+              yesterday: currentData.yesterdayOrders,
+              today: currentData.todayOrders,
+              icon: '📋',
+              gradientClass: 'gradient-card-4'
+            })
+          ),
+
+          // 图表区域
+          React.createElement('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-6' },
+            React.createElement(ChartCard, { title: '订单数量统计' },
+              React.createElement(OrderChart, { data: chartData.orderData, siteId: selectedSite })
+            ),
+            React.createElement(ChartCard, { title: '新注册用户统计' },
+              React.createElement(UserChart, { data: chartData.userData, siteId: selectedSite })
+            ),
+            React.createElement(ChartCard, { title: '收益统计' },
+              React.createElement(LineChart, { 
+                data: chartData.revenueData, 
+                siteId: selectedSite, 
+                title: '收益金额', 
+                unit: '元' 
+              })
+            ),
+            React.createElement(ChartCard, { title: '充电量趋势' },
+              React.createElement(LineChart, { 
+                data: chartData.energyData, 
+                siteId: selectedSite, 
+                title: '充电量', 
+                unit: 'kWh' 
+              })
+            )
+          )
+        )
+      )
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App))
+    
+    // Header button events
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      const isEn = document.documentElement.getAttribute('lang') === 'en'
+      document.documentElement.setAttribute('lang', isEn ? 'zh-CN' : 'en')
+    });
+    
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
+      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark')
+    });
+    
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      if(confirm('确定要退出登录吗？')) {
+        alert('已退出登录')
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目集 - Project Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", sans-serif;
+            background: #fff;
+            color: #000;
+            line-height: 1.5;
+        }
+
+        /* 头部 */
+        .header {
+            padding: 60px 20px 40px;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* Tab导航 */
+        .tabs {
+            max-width: 900px;
+            margin: 0 auto 40px;
+            padding: 0 20px;
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 8px 0;
+            border: none;
+            background: none;
+            font-size: 15px;
+            color: #999;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color 0.2s;
+            position: relative;
+        }
+
+        .tab:hover {
+            color: #333;
+        }
+
+        .tab.active {
+            color: #000;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #000;
+        }
+
+        /* 内容区 */
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* 卡片网格 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        /* 分类标题 */
+        .category-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin: 32px 0 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e5e7;
+        }
+
+        .category-title:first-child {
+            margin-top: 0;
+        }
+
+        .card {
+            border: 1px solid #e5e5e7;
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .card:hover {
+            border-color: #000;
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: #999;
+        }
+
+        /* 响应式 */
+        @media (max-width: 640px) {
+            .title {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <div class="header">
+        <h1 class="title">旭衡业务销售工具</h1>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="tabs">
+        <button class="tab active" data-tab="ueh">VPP生态</button>
+        <button class="tab" data-tab="beineng">BMS后台</button>
+        <button class="tab" data-tab="gongshangchu">工商储</button>
+        <button class="tab" data-tab="chongdianzhan">充电站</button>
+        <button class="tab" data-tab="huyongchuneng">户用储能</button>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="content">
+        <!-- 虚拟电厂 -->
+        <div class="tab-panel active" id="ueh">
+            <div class="category-title">虚拟电厂</div>
+            <div class="grid">
+                <div class="card" onclick="window.open('../UEH - 免费版/vpp-login.html', '_blank')">
+                    <div class="card-title">VPP后台 - 基础版</div>
+                    <div class="card-desc">Web · HTML原型</div>
+                </div>
+                <div class="card" onclick="window.open('../UEH/vpp-login.html', '_blank')">
+                    <div class="card-title">VPP后台 - 专业版</div>
+                    <div class="card-desc">Web · HTML原型</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 北能 -->
+        <div class="tab-panel" id="beineng">
+            <div class="category-title">后台管理</div>
+            <div class="grid">
+                <div class="card" onclick="window.open('../北能BMS后台 - 免费版2/index.html', '_blank')">
+                    <div class="card-title">BMS 管理后台 - 基础版</div>
+                    <div class="card-desc">Web · HTML原型</div>
+                </div>
+                <div class="card" onclick="window.open('../北能BMS后台-专业版2/index.html', '_blank')">
+                    <div class="card-title">BMS 管理后台 - 专业版</div>
+                    <div class="card-desc">Web · HTML原型</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工商储 -->
+        <div class="tab-panel" id="gongshangchu">
+            <div class="category-title">工商储管理</div>
+            <div class="grid">
+                <div class="card" onclick="window.open('https://ess.alwayscontrol.net/map', '_blank')">
+                    <div class="card-title">工商储管理系统 - 基础版</div>
+                    <div class="card-desc">Web · HTML原型</div>
+                </div>
+                <div class="card" onclick="window.open('../储能柜/index.html', '_blank')">
+                    <div class="card-title">工商储管理系统 - 专业版</div>
+                    <div class="card-desc">Web · HTML原型</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 充电站 -->
+        <div class="tab-panel" id="chongdianzhan">
+            <div class="category-title">充电站管理</div>
+            <div class="grid">
+                <div class="card" onclick="window.open('../充电站-新版/index.html', '_blank')">
+                    <div class="card-title">充电站管理系统 - 专业版</div>
+                    <div class="card-desc">Web · HTML原型</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 户用储能 -->
+        <div class="tab-panel" id="huyongchuneng">
+            <div class="category-title">户用储能</div>
+            <div class="grid">
+                <div class="card" onclick="window.open('https://hems.alwayscontrol.net/home', '_blank')">
+                    <div class="card-title">户用储能系统 - 基础版</div>
+                    <div class="card-desc">Web · HTML原型</div>
+                </div>
+                <div class="card" onclick="window.open('https://mobile.alwayscontrol.net/account/login', '_blank')">
+                    <div class="card-title">户用储能 - APP</div>
+                    <div class="card-desc">Mobile · 移动应用</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换
+        const tabs = document.querySelectorAll('.tab');
+        const panels = document.querySelectorAll('.tab-panel');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetId = tab.dataset.tab;
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                panels.forEach(p => p.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

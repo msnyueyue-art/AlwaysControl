@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人员管理 - 充电站管理系统</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/app.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 隐藏重复的 header 和 sidebar */
+        .header { display: none !important; }
+        .sidebar { display: none !important; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+            margin: 0 !important;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .page-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .search-filter-section {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .search-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        .search-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            min-width: 140px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3562E3;
+            box-shadow: 0 0 0 3px rgba(53, 98, 227, 0.1);
+        }
+
+        .search-button, .reset-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-button {
+            background: #3562E3;
+            color: white;
+            border: 1px solid #3562E3;
+        }
+
+        .search-button:hover {
+            background: #2951d3;
+        }
+
+        .reset-button {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        .reset-button:hover {
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        .table-action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 0;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.375rem 0.75rem;
+            border: 1px solid;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn.primary {
+            background: #3562E3;
+            color: white;
+            border-color: #3562E3;
+        }
+
+        .action-btn.primary:hover {
+            background: #2951d3;
+        }
+
+        .action-btn.secondary {
+            background: white;
+            color: #6b7280;
+            border-color: #d1d5db;
+        }
+
+        .action-btn.secondary:hover {
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        .device-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .device-table th {
+            padding: 0.625rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.8125rem;
+        }
+
+        .device-table td {
+            padding: 0.625rem;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.8125rem;
+        }
+
+        .device-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 0;
+        }
+
+        #list-view-content {
+            padding: 1.5rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #6b7280;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-badge.inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .site-permissions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .site-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            background: #fef3c7;
+            color: #d97706;
+            white-space: nowrap;
+        }
+
+        .site-count {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 500;
+            background: #e5e7eb;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .site-count:hover {
+            background: #d1d5db;
+        }
+
+        .status-badge.enabled {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-badge.disabled {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table-action {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.375rem;
+            border-radius: 0.25rem;
+            color: #374151;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-action:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .table-action svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 20px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .menu-trigger {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #64748b;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .menu-trigger:hover {
+            background: #f3f4f6;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo img {
+            height: 32px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .theme-btn,
+        .lang-btn {
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #64748b;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .theme-btn:hover,
+        .lang-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .notification-badge {
+            position: relative;
+            color: #64748b;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .notification-badge:hover {
+            background: #f3f4f6;
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .user-menu:hover {
+            background: #f3f4f6;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #374151;
+            text-decoration: none;
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: #f8fafc;
+        }
+
+        .dropdown-item i {
+            width: 16px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .dropdown-divider {
+            border-top: 1px solid #e2e8f0;
+            margin: 4px 0;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 220px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            z-index: 30;
+            overflow-y: auto;
+        }
+
+        .menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #64748b;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: #f8fafc;
+            color: #3b82f6;
+        }
+
+        .menu-item.active {
+            background: #eff6ff;
+            color: #3b82f6;
+            border-left-color: #3b82f6;
+        }
+
+        .menu-item-group {
+            margin-bottom: 8px;
+        }
+
+        .submenu {
+            background: #f8fafc;
+            margin-left: 0;
+        }
+
+        .submenu .menu-item {
+            padding-left: 40px;
+            font-size: 14px;
+        }
+
+        .submenu .menu-item.active {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .page-wrap {
+            padding-top: 60px;
+            padding-left: 220px;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                display: none;
+            }
+            .page-wrap {
+                padding-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="header-left">
+            <button class="menu-trigger" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo">
+                <img src="logo.png" alt="充电站管理系统" />
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="theme-btn" onclick="toggleTheme()" title="切换主题">
+                <i class="fas fa-moon" id="headerThemeIcon"></i>
+            </button>
+            <button class="lang-btn" onclick="toggleLanguage()" title="切换语言">
+                <i class="fas fa-globe"></i>
+            </button>
+            <a href="alerts.html" class="notification-badge" style="text-decoration: none;">
+                <i class="fas fa-bell" style="font-size: 18px; color: #64748b;"></i>
+            </a>
+            <div class="user-menu" onclick="toggleUserDropdown(event)">
+                <div class="avatar">A</div>
+                <span class="user-name" id="userName">管理员</span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="account-settings.html" class="dropdown-item">
+                        <i class="fas fa-user-cog"></i>
+                        <span>账号设置</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item" onclick="confirmLogout(event)">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>退出登录</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 侧边栏 -->
+    <nav class="sidebar" id="sidebar">
+        <div class="menu">
+            <a href="index.html" class="menu-item" data-menu="dashboard">
+                <span style="font-size: 18px; margin-right: 12px;">📊</span>
+                <span>首页</span>
+            </a>
+            <a href="sites.html" class="menu-item" data-menu="sites">
+                <span style="font-size: 18px; margin-right: 12px;">🏢</span>
+                <span>站点管理</span>
+            </a>
+            <a href="piles.html" class="menu-item" data-menu="piles">
+                <span style="font-size: 18px; margin-right: 12px;">⚡</span>
+                <span>充电桩管理</span>
+            </a>
+            <a href="users.html" class="menu-item" data-menu="users">
+                <span style="font-size: 18px; margin-right: 12px;">👥</span>
+                <span>用户管理</span>
+            </a>
+            <a href="orders.html" class="menu-item" data-menu="orders">
+                <span style="font-size: 18px; margin-right: 12px;">📋</span>
+                <span>充电订单管理</span>
+            </a>
+            <a href="analytics.html" class="menu-item" data-menu="analytics">
+                <span style="font-size: 18px; margin-right: 12px;">📈</span>
+                <span>数据分析</span>
+            </a>
+            <a href="alerts.html" class="menu-item" data-menu="alerts">
+                <span style="font-size: 18px; margin-right: 12px;">🔔</span>
+                <span>告警管理</span>
+            </a>
+            <div class="menu-item-group">
+                <a href="javascript:void(0)" class="menu-item active" data-menu="settings" onclick="toggleSubmenu(this)">
+                    <span style="font-size: 18px; margin-right: 12px;">⚙️</span>
+                    <span>系统管理</span>
+                    <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 12px;"></i>
+                </a>
+                <div class="submenu" style="display: block;">
+                    <a href="menu-management.html" class="menu-item submenu-item">
+                        <span style="font-size: 16px; margin-right: 10px;">📋</span>
+                        <span>菜单管理</span>
+                    </a>
+                    <a href="role-management.html" class="menu-item submenu-item">
+                        <span style="font-size: 16px; margin-right: 10px;">👥</span>
+                        <span>角色管理</span>
+                    </a>
+                    <a href="user-management.html" class="menu-item submenu-item active">
+                        <span style="font-size: 16px; margin-right: 10px;">👤</span>
+                        <span>人员管理</span>
+                    </a>
+                    <a href="log-management.html" class="menu-item submenu-item">
+                        <span style="font-size: 16px; margin-right: 10px;">📄</span>
+                        <span>日志管理</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-wrap">
+        <div class="content">
+            <div class="page-content">
+                <!-- 页面头部 -->
+                <div class="page-header">
+                    <h1>人员管理</h1>
+                </div>
+
+                <!-- 筛选面板 -->
+                <div class="search-filter-section">
+                    <div class="search-row">
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div class="search-group">
+                                    <label class="search-label">用户状态：</label>
+                                    <select class="search-input" id="status-filter">
+                                        <option value="">全部状态</option>
+                                        <option value="active">活跃</option>
+                                        <option value="inactive">禁用</option>
+                                    </select>
+                                </div>
+                                <div class="search-group">
+                                    <label class="search-label">用户角色：</label>
+                                    <select class="search-input" id="role-filter">
+                                        <option value="">全部角色</option>
+                                        <option value="admin">管理员</option>
+                                        <option value="operator">操作员</option>
+                                        <option value="viewer">查看者</option>
+                                    </select>
+                                </div>
+                                <div class="search-group">
+                                    <label class="search-label">关键词：</label>
+                                    <input type="text" class="search-input" id="keyword-search" placeholder="搜索用户名或邮箱">
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="search-button" onclick="searchUsers()">
+                                    <span>搜索</span>
+                                </button>
+                                <button class="reset-button" onclick="resetSearch()">
+                                    <span>重置</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 用户管理卡片 -->
+                <div class="content-card">
+                    <div class="table-action-bar">
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="action-btn primary" onclick="addUser()">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>新增用户</span>
+                            </button>
+                            <button class="action-btn secondary" onclick="importUsers()">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 4V13M4 10L7 13L10 10M1 2V4C1 4.55228 1.44772 5 2 5H12C12.5523 5 13 4.55228 13 4V2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>导入</span>  
+                            </button>
+                            <button class="action-btn secondary" onclick="inviteUser()">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M7 1L10 4H8V7H6V4H4L7 1Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M2 13H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <span>邀请用户</span>  
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 用户列表 -->
+                    <div id="list-view-content" class="table-container">
+                        <table class="device-table">
+                            <thead>
+                                <tr>
+                                    <th>昵称</th>
+                                    <th>账号</th>
+                                    <th>邮箱</th>
+                                    <th>角色</th>
+                                    <th>状态</th>
+                                    <th>站点权限</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <!-- 用户列表将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let users = [
+            {
+                id: 'user1',
+                nickname: '张工程师',
+                username: 'zhang.engineer',
+                email: 'zhang.engineer@company.com',
+                role: 'admin',
+                status: 'enabled',
+                sitePermissions: ['station1', 'station2', 'station3', 'station4', 'station5', 'station6'],
+                remark: '技术负责人',
+                lastLogin: '2024-01-24 14:30',
+                createTime: '2024-01-01 09:00'
+            },
+            {
+                id: 'user2',
+                nickname: '李运维',
+                username: 'li.operator',
+                email: 'li.operator@company.com',
+                role: 'operator',
+                status: 'enabled',
+                sitePermissions: ['station1', 'station2'],
+                remark: '日常运维负责',
+                lastLogin: '2024-01-24 11:15',
+                createTime: '2024-01-05 14:20'
+            }
+        ];
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('用户管理页面初始化完成');
+            renderUserTable();
+        });
+
+        // 渲染用户表格
+        function renderUserTable() {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+            
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                
+                // 处理站点权限显示
+                const sitePermissionsHtml = user.sitePermissions.length > 2 
+                    ? `<div class="site-permissions">
+                        ${user.sitePermissions.slice(0, 2).map(site => `<span class="site-badge">${getSiteName(site)}</span>`).join('')}
+                        <span class="site-count">+${user.sitePermissions.length - 2}</span>
+                       </div>`
+                    : `<div class="site-permissions">
+                        ${user.sitePermissions.map(site => `<span class="site-badge">${getSiteName(site)}</span>`).join('')}
+                       </div>`;
+                
+                row.innerHTML = `
+                    <td>${user.nickname || ''}</td>
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td><span class="role-badge">${getRoleName(user.role)}</span></td>
+                    <td><span class="status-badge ${user.status}">${user.status === 'enabled' ? '开启' : '禁用'}</span></td>
+                    <td>${sitePermissionsHtml}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="table-action" onclick="editUser('${user.id}')" title="编辑">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="table-action" onclick="resetPassword('${user.id}')" title="重置密码">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                    <circle cx="12" cy="16" r="1"></circle>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                </svg>
+                            </button>
+                            <button class="table-action" onclick="deleteUser('${user.id}')" title="删除">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3,6 5,6 21,6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 搜索用户
+        function searchUsers() {
+            const status = document.getElementById('status-filter').value;
+            const role = document.getElementById('role-filter').value;
+            const keyword = document.getElementById('keyword-search').value;
+            
+            console.log('搜索用户:', { status, role, keyword });
+            alert('用户搜索完成');
+        }
+
+        // 重置搜索
+        function resetSearch() {
+            document.getElementById('status-filter').value = '';
+            document.getElementById('role-filter').value = '';
+            document.getElementById('keyword-search').value = '';
+            alert('搜索条件已重置');
+        }
+
+        // 新增用户
+        function addUser() {
+            alert('新增用户功能开发中...');
+        }
+
+        // 编辑用户
+        function editUser(userId) {
+            alert('编辑用户功能开发中...');
+        }
+
+        // 重置密码
+        function resetPassword(userId) {
+            alert('重置密码功能开发中...');
+        }
+
+        // 删除用户
+        function deleteUser(userId) {
+            if (confirm('确定要删除该用户吗？')) {
+                alert('删除用户功能开发中...');
+            }
+        }
+
+        // 导入用户
+        function importUsers() {
+            alert('导入用户功能开发中...');
+        }
+
+        // 邀请用户
+        function inviteUser() {
+            alert('邀请用户功能开发中...');
+        }
+
+        // 获取站点名称
+        function getSiteName(siteId) {
+            const siteMap = {
+                'station1': '北京充电站',
+                'station2': '上海充电站',
+                'station3': '深圳充电站',
+                'station4': '广州充电站',
+                'station5': '杭州充电站',
+                'station6': '成都充电站'
+            };
+            return siteMap[siteId] || siteId;
+        }
+
+        // 获取角色名称
+        function getRoleName(role) {
+            const roleMap = {
+                'admin': '管理员',
+                'operator': '操作员',
+                'viewer': '查看者'
+            };
+            return roleMap[role] || role;
+        }
+
+        // ==================== 侧边栏功能 ====================
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleSubmenu(element) {
+            const submenu = element.nextElementSibling;
+            if (submenu && submenu.classList.contains('submenu')) {
+                submenu.style.display = submenu.style.display === 'none' ? 'block' : 'none';
+                
+                // 切换箭头方向
+                const arrow = element.querySelector('.fa-chevron-down');
+                if (arrow) {
+                    arrow.style.transform = submenu.style.display === 'none' ? 'rotate(0deg)' : 'rotate(180deg)';
+                }
+            }
+        }
+
+        function toggleUserDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function toggleTheme() {
+            const icon = document.getElementById('headerThemeIcon');
+            if (icon.classList.contains('fa-moon')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        function toggleLanguage() {
+            // 语言切换功能
+        }
+
+        function confirmLogout(event) {
+            event.preventDefault();
+            if (confirm('确定要退出登录吗？')) {
+                // 执行退出逻辑
+                window.location.href = 'login.html';
+            }
+        }
+
+        // 点击外部关闭下拉菜单
+        document.addEventListener('click', function() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.remove('show');
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,280 @@
+/* ========================================
+   EnerShare 登录页面自定义样式
+   ======================================== */
+
+/* 全局字体优化 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Microsoft YaHei', sans-serif;
+}
+
+/* 平滑滚动 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 输入框聚焦动画增强 */
+input:focus {
+    box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.1);
+}
+
+/* 自定义复选框样式 */
+input[type="checkbox"]:checked {
+    background-color: #2ECC71;
+    border-color: #2ECC71;
+}
+
+input[type="checkbox"]:focus {
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.2);
+}
+
+/* 按钮点击反馈 */
+button:active {
+    transform: scale(0.98) translateY(0);
+}
+
+/* 表单组动画 */
+.form-group {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.form-group:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.form-group:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 页面加载动画 */
+.bg-white {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 能源图标脉冲效果 */
+.energy-icon {
+    animation: pulse 2s ease-in-out infinite;
+    transform-origin: center;
+}
+
+.energy-icon:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.energy-icon:nth-child(2) {
+    animation-delay: 0.3s;
+}
+
+.energy-icon:nth-child(3) {
+    animation-delay: 0.6s;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* 链接悬停下划线效果 */
+a {
+    position: relative;
+}
+
+a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: #2ECC71;
+    transition: width 0.3s ease;
+}
+
+a:hover::after {
+    width: 100%;
+}
+
+/* 语言切换按钮动画 */
+#langToggle {
+    transition: all 0.3s ease;
+}
+
+#langToggle:active {
+    transform: scale(0.95);
+}
+
+/* 响应式优化 */
+@media (max-width: 1024px) {
+    .lg\\:grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    body {
+        padding: 1rem;
+    }
+
+    .text-3xl {
+        font-size: 1.75rem;
+    }
+
+    .text-5xl {
+        font-size: 2.5rem;
+    }
+}
+
+/* 阴影优化 */
+.shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(46, 204, 113, 0.15);
+}
+
+/* 渐变背景动画 */
+.bg-gradient-to-br {
+    background-size: 200% 200%;
+    animation: gradientShift 10s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* 输入框图标动画 */
+.form-group svg {
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus + svg,
+.form-group input:focus ~ svg {
+    color: #2ECC71;
+    transform: scale(1.1);
+}
+
+/* 加载状态（可用于未来扩展） */
+.loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 错误提示样式（可用于表单验证） */
+.error-message {
+    color: #e74c3c;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+input.error {
+    border-color: #e74c3c;
+}
+
+input.error:focus {
+    ring-color: #e74c3c;
+    box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.1);
+}
+
+/* 成功提示样式 */
+.success-message {
+    color: #2ECC71;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+input.success {
+    border-color: #2ECC71;
+}
+
+/* 禁用状态 */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* 打印样式 */
+@media print {
+    .bg-gradient-to-br {
+        background: white;
+    }
+
+    button,
+    a {
+        display: none;
+    }
+}
+
+/* 深色模式支持（预留） */
+@media (prefers-color-scheme: dark) {
+    /* 暂不启用，保持浅色主题 */
+}
+
+/* 辅助功能增强 */
+*:focus-visible {
+    outline: 2px solid #2ECC71;
+    outline-offset: 2px;
+}
+
+/* 减少动画（尊重用户偏好） */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
