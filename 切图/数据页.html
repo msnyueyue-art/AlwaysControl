@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据页PNG资源生成器 - 10寸</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .asset-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .asset-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .canvas-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80px;
+        }
+
+        .download-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .download-btn:hover {
+            background: #0056b3;
+        }
+
+        .specs {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* 10寸屏幕尺寸：1280x800 */
+        .bg-canvas { width: 320px; height: 200px; }
+        .data-card-canvas { width: 300px; height: 200px; }
+        .chart-container-canvas { width: 600px; height: 400px; }
+        .tab-button-canvas { width: 120px; height: 40px; }
+        .particle-canvas { width: 40px; height: 40px; }
+
+        /* 从data.html复制的样式 */
+        .data-card {
+            background: rgba(15, 25, 42, 0.6);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .data-card:hover {
+            border-color: rgba(0, 150, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 150, 255, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .data-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00d4ff 0%, #0096ff 100%);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .data-card h3 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .data-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .data-card .unit {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .data-card .trend {
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .trend.up {
+            color: #10b981;
+        }
+
+        .trend.down {
+            color: #ef4444;
+        }
+
+        .trend.stable {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 图表容器样式 */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            height: 40px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(45deg, #0096ff, #00d4ff);
+            border-radius: 2px;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .time-selector {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .time-selector:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 标签页样式 */
+        .data-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #00d4ff 0%, #0096ff 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* OTA升级按钮样式 */
+        .ota-upgrade-box {
+            margin-top: auto;
+            margin-bottom: 15px;
+        }
+        
+        .ota-upgrade-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #0096ff 0%, #00d4ff 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 150, 255, 0.3);
+        }
+        
+        .ota-upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 150, 255, 0.4);
+        }
+        
+        .ota-upgrade-btn:active {
+            transform: translateY(0);
+        }
+        
+        .ota-upgrade-btn i {
+            font-size: 18px;
+        }
+
+        /* Component item 样式 */
+        .component-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        .component-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 150, 255, 0.15), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .component-item:hover {
+            color: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 150, 255, 0.4);
+            transform: translateX(5px);
+        }
+
+        .component-item.active {
+            color: #00d4ff;
+            background: rgba(0, 150, 255, 0.15);
+            border-color: rgba(0, 150, 255, 0.5);
+            box-shadow: inset 0 0 20px rgba(0, 150, 255, 0.2);
+        }
+
+        .component-item.active::before {
+            opacity: 1;
+        }
+
+        /* Canvas样式 */
+        .component-canvas {
+            width: 280px;
+            height: 60px;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .ota-button-canvas {
+            width: 200px;
+            height: 50px;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* 工具函数：绘制圆角矩形 */
+        .roundRect {
+            /* CSS辅助类，JS中会使用 */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>数据页PNG资源 - 10寸屏幕</h1>
+        
+        <div class="asset-grid">
+            
+            <!-- 背景 -->
+            <div class="asset-card">
+                <div class="asset-title">数据页背景</div>
+                <div class="canvas-container">
+                    <canvas id="backgroundCanvas" class="bg-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('backgroundCanvas', 'data-background.png')">
+                    下载背景
+                </button>
+                <div class="specs">尺寸: 1280x800px</div>
+            </div>
+
+
+
+
+
+
+            <!-- 整机组件 - 选中状态 -->
+            <div class="asset-card">
+                <div class="asset-title">整机组件 - 选中状态 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="wholeSystemActive" class="component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('wholeSystemActive', 'whole-system-active.png')">
+                    下载选中状态整机组件
+                </button>
+                <div class="specs">尺寸: 280x60px (直接从HTML渲染，不显示文字)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalWholeSystemActive" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="component-item active" style="width: 280px; opacity: 1;">
+                        <span style="visibility: hidden;">整机</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 整机组件 - 未选中状态 -->
+            <div class="asset-card">
+                <div class="asset-title">整机组件 - 未选中状态 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="wholeSystemInactive" class="component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('wholeSystemInactive', 'whole-system-inactive.png')">
+                    下载未选中状态整机组件
+                </button>
+                <div class="specs">尺寸: 280x60px (直接从HTML渲染，不显示文字)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalWholeSystemInactive" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="component-item" style="width: 280px; opacity: 1;">
+                        <span style="visibility: hidden;">整机</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OTA升级按钮 -->
+            <div class="asset-card">
+                <div class="asset-title">OTA升级按钮 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="otaUpgradeBtn" class="ota-button-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('otaUpgradeBtn', 'ota-upgrade-button.png')">
+                    下载OTA升级按钮
+                </button>
+                <div class="specs">尺寸: 200x50px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalOtaUpgradeBtn" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="ota-upgrade-box" style="width: 200px; margin: 0;">
+                        <button class="ota-upgrade-btn">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>OTA升级</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 工具函数：绘制圆角矩形
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        // 下载资源
+        function downloadAsset(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // 初始化所有画布
+        function initCanvases() {
+            createBackground();
+            
+            // 渲染原始HTML元素
+            renderOriginalHTMLElements();
+        }
+
+        // 创建背景
+        function createBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            
+            // 调整为合适的显示尺寸
+            const displayWidth = 320;
+            const displayHeight = 200;
+            
+            canvas.width = displayWidth * dpr;
+            canvas.height = displayHeight * dpr;
+            canvas.style.width = displayWidth + 'px';
+            canvas.style.height = displayHeight + 'px';
+            ctx.scale(dpr, dpr);
+            
+            // 绘制深色科技风背景
+            const bgGradient = ctx.createRadialGradient(displayWidth/2, displayHeight/2, 0, displayWidth/2, displayHeight/2, displayWidth/2);
+            bgGradient.addColorStop(0, '#1a2332');
+            bgGradient.addColorStop(1, '#0a0e1a');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, displayWidth, displayHeight);
+            
+            // 绘制网格背景
+            ctx.strokeStyle = 'rgba(0, 150, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            // 垂直线
+            for (let x = 0; x <= displayWidth; x += 25) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, displayHeight);
+                ctx.stroke();
+            }
+            
+            // 水平线
+            for (let y = 0; y <= displayHeight; y += 25) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(displayWidth, y);
+                ctx.stroke();
+            }
+            
+            // 添加光效
+            const lightGradient = ctx.createRadialGradient(displayWidth/2, displayHeight/2, 0, displayWidth/2, displayHeight/2, displayWidth/3);
+            lightGradient.addColorStop(0, 'rgba(0, 150, 255, 0.15)');
+            lightGradient.addColorStop(1, 'transparent');
+            ctx.fillStyle = lightGradient;
+            ctx.fillRect(0, 0, displayWidth, displayHeight);
+        }
+
+        // 渲染原始HTML元素
+        async function renderOriginalHTMLElements() {
+            try {
+                // 定义所有元素的映射
+                const elementMappings = [
+                    { sourceId: '#originalWholeSystemActive .component-item', targetId: 'wholeSystemActive', name: '整机组件-选中状态', width: 280, height: 60 },
+                    { sourceId: '#originalWholeSystemInactive .component-item', targetId: 'wholeSystemInactive', name: '整机组件-未选中状态', width: 280, height: 60 },
+                    { sourceId: '#originalOtaUpgradeBtn .ota-upgrade-btn', targetId: 'otaUpgradeBtn', name: 'OTA升级按钮', width: 200, height: 50 }
+                ];
+
+                // 为每个元素渲染
+                for (const mapping of elementMappings) {
+                    await renderSingleElement(mapping);
+                }
+                
+                console.log('所有原始HTML元素渲染完成');
+            } catch (error) {
+                console.error('渲染原始HTML元素失败:', error);
+            }
+        }
+
+        // 渲染单个元素
+        async function renderSingleElement(mapping) {
+            const element = document.querySelector(mapping.sourceId);
+            if (!element) {
+                console.error(`找不到${mapping.name}元素:`, mapping.sourceId);
+                return;
+            }
+
+            try {
+                // 使用html2canvas渲染元素
+                const canvas = await html2canvas(element, {
+                    backgroundColor: null, // 透明背景
+                    scale: 2, // 高分辨率
+                    width: mapping.width,
+                    height: mapping.height,
+                    useCORS: true,
+                    allowTaint: true
+                });
+
+                // 将结果绘制到目标canvas
+                const targetCanvas = document.getElementById(mapping.targetId);
+                if (!targetCanvas) {
+                    console.error(`找不到目标canvas:`, mapping.targetId);
+                    return;
+                }
+                
+                const targetCtx = targetCanvas.getContext('2d');
+                
+                // 设置目标canvas尺寸
+                const dpr = window.devicePixelRatio || 1;
+                targetCanvas.width = mapping.width * dpr;
+                targetCanvas.height = mapping.height * dpr;
+                targetCanvas.style.width = mapping.width + 'px';
+                targetCanvas.style.height = mapping.height + 'px';
+                targetCtx.scale(dpr, dpr);
+                
+                // 清除并绘制
+                targetCtx.clearRect(0, 0, mapping.width, mapping.height);
+                targetCtx.drawImage(canvas, 0, 0, mapping.width, mapping.height);
+                
+                console.log(`${mapping.name}渲染完成`);
+            } catch (error) {
+                console.error(`渲染${mapping.name}失败:`, error);
+            }
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            initCanvases();
+        };
+    </script>
+</body>
+</html>

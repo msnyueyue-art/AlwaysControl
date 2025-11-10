@@ -1,0 +1,214 @@
+{
+  "芯片选择": {
+    "芯片选择": {
+      "value": "M",
+      "disabled": true,
+      "type": "select-one"
+    }
+  },
+  "充电过流二级": {
+    "充电过流2告警 (A)": {
+      "value": "100",
+      "disabled": true,
+      "type": "number"
+    },
+    "充电过流2保护 (A)": {
+      "value": "120",
+      "disabled": true,
+      "type": "number"
+    },
+    "充电过流2告警延时 (S)": {
+      "value": "5",
+      "disabled": true,
+      "type": "number"
+    },
+    "充电过流2保护延时 (S)": {
+      "value": "10",
+      "disabled": true,
+      "type": "number"
+    },
+    "充电过流2恢复延时 (S)": {
+      "value": "15",
+      "disabled": true,
+      "type": "number"
+    },
+    "充电过流2保护次数": {
+      "value": "3",
+      "disabled": true,
+      "type": "number"
+    }
+  },
+  "放电过流二级": {
+    "放电过流2告警 (A)": {
+      "value": "150",
+      "disabled": false,
+      "type": "number"
+    },
+    "放电过流2保护 (A)": {
+      "value": "180",
+      "disabled": true,
+      "type": "number"
+    },
+    "放电过流2告警延时 (S)": {
+      "value": "3",
+      "disabled": true,
+      "type": "number"
+    },
+    "放电过流2保护延时 (S)": {
+      "value": "8",
+      "disabled": true,
+      "type": "number"
+    },
+    "放电过流2恢复延时 (S)": {
+      "value": "12",
+      "disabled": true,
+      "type": "number"
+    },
+    "放电过流2保护次数": {
+      "value": "3",
+      "disabled": true,
+      "type": "number"
+    },
+    "MOS切断电流 (A)": {
+      "value": "200",
+      "disabled": true,
+      "type": "number"
+    },
+    "MOS切断告警延时 (ms)": {
+      "value": "100",
+      "disabled": true,
+      "type": "number"
+    },
+    "MOS切断保护延时 (ms)": {
+      "value": "200",
+      "disabled": true,
+      "type": "number"
+    },
+    "MOS切断恢复延时 (ms)": {
+      "value": "300",
+      "disabled": true,
+      "type": "number"
+    },
+    "MOS切断保护次数": {
+      "value": "5",
+      "disabled": true,
+      "type": "number"
+    },
+    "SC恢复延时 (S)": {
+      "value": "60",
+      "disabled": true,
+      "type": "number"
+    }
+  },
+  "过压二级": {
+    "单体过压2告警 (mV)": {
+      "value": "3700",
+      "disabled": true,
+      "type": "number"
+    },
+    "单体过压2保护 (mV)": {
+      "value": "3800",
+      "disabled": false,
+      "type": "number"
+    },
+    "单体过压2告警延时 (S)": {
+      "value": "2",
+      "disabled": true,
+      "type": "number"
+    },
+    "单体过压2保护延时 (S)": {
+      "value": "5",
+      "disabled": true,
+      "type": "number"
+    },
+    "单体过压2恢复延时 (S)": {
+      "value": "10",
+      "disabled": false,
+      "type": "number"
+    },
+    "单体过压2保护次数": {
+      "value": "3",
+      "disabled": true,
+      "type": "number"
+    },
+    "单体过压2恢复值 (mV)": {
+      "value": "3650",
+      "disabled": true,
+      "type": "number"
+    },
+    "单体过压均衡值 (mV)": {
+      "value": "3500",
+      "disabled": false,
+      "type": "number"
+    }
+  },
+  "欠压二级": {
+    "单体欠压2告警 (mV)": {
+      "value": "2800",
+      "disabled": false,
+      "type": "number"
+    },
+    "单体欠压2保护 (mV)": {
+      "value": "2700",
+      "disabled": true,
+      "type": "number"
+    },
+    "单体欠压2告警延时 (S)": {
+      "value": "3",
+      "disabled": false,
+      "type": "number"
+    },
+    "单体欠压2保护延时 (S)": {
+      "value": "6",
+      "disabled": true,
+      "type": "number"
+    },
+    "单体欠压2恢复延时 (S)": {
+      "value": "12",
+      "disabled": true,
+      "type": "number"
+    },
+    "单体欠压2保护次数": {
+      "value": "3",
+      "disabled": false,
+      "type": "number"
+    },
+    "单体欠压2恢复值 (mV)": {
+      "value": "2850",
+      "disabled": true,
+      "type": "number"
+    },
+    "单体欠压均衡值 (mV)": {
+      "value": "3000",
+      "disabled": true,
+      "type": "number"
+    }
+  },
+  "短路保护": {
+    "短路保护 (A)": {
+      "value": "500",
+      "disabled": false,
+      "type": "number"
+    },
+    "短路告警延时 (us)": {
+      "value": "50",
+      "disabled": false,
+      "type": "number"
+    },
+    "短路保护延时 (us)": {
+      "value": "100",
+      "disabled": false,
+      "type": "number"
+    },
+    "短路恢复延时 (S)": {
+      "value": "30",
+      "disabled": false,
+      "type": "number"
+    },
+    "短路保护次数": {
+      "value": "5",
+      "disabled": false,
+      "type": "number"
+    }
+  }
+}

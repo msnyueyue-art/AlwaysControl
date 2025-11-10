@@ -1,0 +1,4019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>北能能源管理 - 移动端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #0A0A0B;
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 手机框架容器 */
+        .phone-container {
+            width: 100%;
+            max-width: 414px;
+            height: 100vh;
+            max-height: 896px;
+            margin: 0 auto;
+            background: #0A0A0B;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px rgba(147, 51, 234, 0.3);
+        }
+        
+        /* 状态栏 */
+        .status-bar {
+            height: 44px;
+            background: transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 14px;
+            border-bottom: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+        
+        .status-time {
+            font-weight: 600;
+        }
+        
+        .status-icons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .battery {
+            width: 24px;
+            height: 12px;
+            border: 1px solid #fff;
+            border-radius: 2px;
+            position: relative;
+            padding: 1px;
+        }
+        
+        .battery::after {
+            content: '';
+            position: absolute;
+            right: -3px;
+            top: 3px;
+            width: 2px;
+            height: 6px;
+            background: #fff;
+            border-radius: 0 1px 1px 0;
+        }
+        
+        .battery-level {
+            width: 47%;
+            height: 100%;
+            background: #fff;
+            border-radius: 1px;
+        }
+        
+        /* 主容器 */
+        .app-container {
+            height: 100vh;
+            max-height: 896px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* 页面内容 */
+        .page-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            position: relative;
+        }
+        
+        /* 设备容器添加顶部间距 */
+        .devices-container {
+            padding-top: 10px;
+        }
+        
+        /* 头部 */
+        .header {
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: 45px;
+            left: 0;
+            right: 0;
+            background: transparent;
+            z-index: 1002;
+            border-bottom: none;
+        }
+        
+        .station-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .station-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #22C55E, #16A34A);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 8px rgba(34, 197, 94, 0.4);
+            border: 2px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .station-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .station-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .dropdown-icon {
+            width: 20px;
+            height: 20px;
+            fill: #71717A;
+        }
+        
+        .add-btn {
+            position: absolute;
+            top: 5px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(39, 39, 42, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            z-index: 1500;
+        }
+        
+        .add-btn:active {
+            transform: scale(0.95);
+            background: rgba(63, 63, 70, 0.9);
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            min-height: 400px;
+        }
+        
+        .empty-icon {
+            width: 160px;
+            height: 160px;
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(147, 51, 234, 0.3);
+        }
+        
+        .empty-text {
+            color: #71717A;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .add-device-btn {
+            width: 100%;
+            max-width: 280px;
+            height: 56px;
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            border: none;
+            border-radius: 28px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(147, 51, 234, 0.3);
+        }
+        
+        .add-device-btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* 设备卡片 */
+        .devices-container {
+            padding: 0 20px;
+            display: none;
+        }
+        
+        .devices-container.active {
+            display: block;
+        }
+        
+        .device-card {
+            background: linear-gradient(135deg, #9333EA15, #6B46C115);
+            border: 1px solid #27272A;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .device-card:active {
+            transform: scale(0.98);
+            background: linear-gradient(135deg, #9333EA25, #6B46C125);
+        }
+        
+        .device-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .device-icon {
+            width: 32px;
+            height: 32px;
+            fill: #9333EA;
+        }
+        
+        .device-status {
+            width: 8px;
+            height: 8px;
+            background: #22C55E;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+        
+        .device-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .device-power {
+            font-size: 32px;
+            font-weight: 700;
+            color: #9333EA;
+            margin-bottom: 5px;
+        }
+        
+        .device-energy {
+            color: #71717A;
+            font-size: 14px;
+        }
+        
+        /* 底部导航已删除 */
+        
+        /* 数据页面 */
+        .data-page {
+            display: none;
+            padding: 20px;
+        }
+        
+        .data-page.active {
+            display: block;
+        }
+        
+        .period-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: #18181B;
+            padding: 4px;
+            border-radius: 12px;
+        }
+        
+        .period-tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: #71717A;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .period-tab.active {
+            background: #9333EA;
+            color: #fff;
+        }
+        
+        .chart-container {
+            background: #18181B;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .chart-placeholder {
+            height: 200px;
+            background: linear-gradient(135deg, #9333EA20, #6B46C120);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #71717A;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #9333EA15, #6B46C115);
+            border: 1px solid #27272A;
+            border-radius: 16px;
+            padding: 15px;
+        }
+        
+        .stat-icon-small {
+            width: 24px;
+            height: 24px;
+            fill: #9333EA;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #71717A;
+        }
+        
+        /* 设置页面 */
+        .settings-page {
+            display: none;
+            padding: 20px;
+        }
+        
+        .settings-page.active {
+            display: block;
+        }
+        
+        .user-card {
+            background: #18181B;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .user-avatar {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            z-index: 1500;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .user-avatar:active {
+            transform: scale(0.95);
+        }
+        
+        .settings-page .user-avatar {
+            position: static;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+        }
+        
+        /* 左抽屉弹窗 */
+        .drawer-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .drawer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 280px;
+            max-width: 75%;
+            background: #0A0A0B;
+            transform: translateX(-100%);
+            transition: transform 0.3s;
+            z-index: 2001;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #27272A;
+        }
+        
+        .drawer.active {
+            transform: translateX(0);
+        }
+        
+        .drawer-header {
+            padding: 40px 20px 30px;
+            background: linear-gradient(135deg, #9333EA20, #6B46C120);
+            border-bottom: 1px solid #27272A;
+        }
+        
+        .drawer-user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .drawer-user-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 24px;
+        }
+        
+        .drawer-user-details h3 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 4px;
+        }
+        
+        .drawer-user-details p {
+            color: #71717A;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        .drawer-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+        
+        .drawer-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+            width: 100%;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .drawer-menu-item:hover {
+            background: rgba(147, 51, 234, 0.1);
+        }
+        
+        .drawer-menu-item:active {
+            background: rgba(147, 51, 234, 0.2);
+        }
+        
+        .drawer-menu-icon {
+            width: 24px;
+            height: 24px;
+            color: #71717A;
+        }
+        
+        .drawer-menu-text {
+            flex: 1;
+            text-align: left;
+        }
+        
+        .drawer-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            background: rgba(39, 39, 42, 0.8);
+            border: none;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2002;
+            color: #71717A;
+        }
+        
+        .drawer-close:active {
+            background: rgba(39, 39, 42, 1);
+        }
+        
+        /* 模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: #0A0A0B;
+            border: 1px solid #27272A;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 20px 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #27272A;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #71717A;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        
+        .modal-close:hover {
+            background: rgba(39, 39, 42, 0.5);
+        }
+        
+        .modal-content {
+            padding: 0 20px 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #18181B;
+            border: 1px solid #27272A;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #9333EA;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #7C2D92, #553C9A);
+        }
+        
+        .btn-secondary {
+            background: #27272A;
+            color: #fff;
+            border: 1px solid #3F3F46;
+        }
+        
+        .btn-secondary:hover {
+            background: #3F3F46;
+        }
+        
+        .language-options {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .language-option {
+            padding: 16px;
+            background: #18181B;
+            border: 1px solid #27272A;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .language-option:hover {
+            background: rgba(147, 51, 234, 0.1);
+            border-color: #9333EA;
+        }
+        
+        .language-option.active {
+            background: rgba(147, 51, 234, 0.2);
+            border-color: #9333EA;
+        }
+        
+        .about-content {
+            text-align: center;
+        }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .app-name {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .app-version {
+            color: #71717A;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .app-description {
+            color: #71717A;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .logout-content {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .logout-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(220, 38, 38, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #DC2626;
+        }
+        
+        .logout-message {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .logout-description {
+            color: #71717A;
+            margin-bottom: 24px;
+        }
+        
+        /* 修改密码页面 */
+        .change-password-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0A0A0B;
+            z-index: 2500;
+            flex-direction: column;
+        }
+        
+        .password-header {
+            padding: 20px;
+            border-bottom: 1px solid #27272A;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .password-back-btn {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #71717A;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .password-back-btn:hover {
+            background: rgba(39, 39, 42, 0.5);
+        }
+        
+        .password-title {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .password-content {
+            flex: 1;
+            padding: 30px 20px;
+            overflow-y: auto;
+        }
+        
+        .password-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .password-field {
+            margin-bottom: 24px;
+        }
+        
+        .password-label {
+            display: block;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: #18181B;
+            border: 1px solid #27272A;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        
+        .password-input:focus {
+            outline: none;
+            border-color: #9333EA;
+        }
+        
+        .password-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 40px;
+        }
+        
+        .password-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .password-btn-cancel {
+            background: #27272A;
+            color: #fff;
+            border: 1px solid #3F3F46;
+        }
+        
+        .password-btn-cancel:hover {
+            background: #3F3F46;
+        }
+        
+        .password-btn-save {
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            color: #fff;
+        }
+        
+        .password-btn-save:hover {
+            background: linear-gradient(135deg, #7C2D92, #553C9A);
+        }
+        
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        /* 设备操作区域 */
+        .device-action-section {
+            padding: 20px 0;
+            margin-top: 20px;
+        }
+        
+        .delete-device-action-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid #DC2626;
+            border-radius: 12px;
+            color: #DC2626;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .delete-device-action-btn:hover {
+            background: rgba(220, 38, 38, 0.2);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        
+        .delete-device-action-btn:active {
+            background: rgba(220, 38, 38, 0.3);
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+        }
+        
+        /* 删除确认弹窗 */
+        .delete-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 4000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .delete-confirm-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .delete-confirm-modal {
+            background: #0A0A0B;
+            border: 1px solid #27272A;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 350px;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .delete-confirm-overlay.active .delete-confirm-modal {
+            transform: scale(1);
+        }
+        
+        .delete-confirm-header {
+            padding: 24px 20px 16px;
+            text-align: center;
+        }
+        
+        .delete-confirm-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(220, 38, 38, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #DC2626;
+        }
+        
+        .delete-confirm-title {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .delete-confirm-content {
+            padding: 0 20px 24px;
+            text-align: center;
+        }
+        
+        .delete-confirm-message {
+            color: #71717A;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        
+        .delete-confirm-device {
+            color: #DC2626;
+            font-weight: 600;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+        
+        .delete-confirm-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .delete-confirm-btn {
+            flex: 1;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .delete-confirm-btn-cancel {
+            background: #27272A;
+            color: #fff;
+            border: 1px solid #3F3F46;
+        }
+        
+        .delete-confirm-btn-cancel:hover {
+            background: #3F3F46;
+        }
+        
+        .delete-confirm-btn-delete {
+            background: #DC2626;
+            color: #fff;
+        }
+        
+        .delete-confirm-btn-delete:hover {
+            background: #B91C1C;
+        }
+        
+        .delete-confirm-btn-delete:active {
+            transform: scale(0.95);
+        }
+        
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .user-email {
+            font-size: 14px;
+            color: #71717A;
+        }
+        
+        .settings-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            color: #71717A;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding-left: 5px;
+        }
+        
+        .setting-item {
+            background: #18181B;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .setting-item:active {
+            background: #27272A;
+        }
+        
+        .setting-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .setting-icon {
+            width: 22px;
+            height: 22px;
+            fill: #71717A;
+        }
+        
+        .setting-label {
+            font-size: 16px;
+        }
+        
+        .setting-value {
+            color: #71717A;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            width: 100%;
+            height: 50px;
+            background: #DC2626;
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:active {
+            transform: scale(0.98);
+            background: #B91C1C;
+        }
+        
+        /* 动画效果 */
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        
+        /* 添加设备页面 */
+        .add-device-page {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0A0A0B;
+            z-index: 2000;
+            animation: slideUp 0.3s ease-out;
+            overflow-y: auto;
+        }
+        
+        .add-device-page.active {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .add-device-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border-bottom: 1px solid #27272A;
+            background: #0A0A0B;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .add-device-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+        
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .add-device-title {
+            font-size: 18px;
+            font-weight: 600;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .scan-section {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .scan-hint {
+            color: #71717A;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .scanning-animation {
+            width: 200px;
+            height: 200px;
+            margin: 40px auto;
+            border: 3px solid #27272A;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #9333EA, transparent);
+            animation: scan 2s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        
+        .scan-phone-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 120px;
+            border: 2px solid #3F3F46;
+            border-radius: 12px;
+            background: #18181B;
+        }
+        
+        .scan-phone-icon::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: #3F3F46;
+            border-radius: 2px;
+        }
+        
+        .scan-status {
+            color: #9333EA;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        
+        .scan-options {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        
+        .scan-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .scan-option:active {
+            transform: scale(0.95);
+        }
+        
+        .scan-option-icon {
+            width: 60px;
+            height: 60px;
+            background: #27272A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .scan-option-text {
+            color: #71717A;
+            font-size: 14px;
+        }
+        
+        .manual-add-section {
+            padding: 20px;
+            border-top: 1px solid #27272A;
+        }
+        
+        .manual-add-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .device-type-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .device-type-item {
+            background: #18181B;
+            border: 1px solid #27272A;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .device-type-item:active {
+            background: #27272A;
+            border-color: #9333EA;
+        }
+        
+        .device-type-icon {
+            width: 40px;
+            height: 40px;
+            background: #27272A;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .device-type-name {
+            font-size: 14px;
+            color: #fff;
+        }
+        
+        .found-devices {
+            padding: 20px;
+        }
+        
+        .found-devices-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .found-device-item {
+            background: #18181B;
+            border: 1px solid #27272A;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .found-device-item:active {
+            background: #27272A;
+        }
+        
+        .found-device-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .found-device-icon {
+            width: 40px;
+            height: 40px;
+            background: #27272A;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .found-device-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .found-device-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #fff;
+        }
+        
+        .found-device-id {
+            font-size: 12px;
+            color: #71717A;
+        }
+        
+        .add-device-confirm-btn {
+            width: 80px;
+            height: 32px;
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            border: none;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* 设备详情页面 */
+        .device-detail-page {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0A0A0B;
+            z-index: 1500;
+            flex-direction: column;
+        }
+        
+        .device-detail-page.active {
+            display: flex;
+        }
+        
+        .device-detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border-bottom: 1px solid #27272A;
+            background: #0A0A0B;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .device-detail-content {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 100px;
+        }
+        
+        .device-detail-tabs {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 60px;
+            background: rgba(24, 24, 27, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid #27272A;
+            border-radius: 30px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        .detail-tab {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            color: #71717A;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 30px;
+            position: relative;
+        }
+        
+        .detail-tab.active {
+            color: #fff;
+            background: rgba(147, 51, 234, 0.2);
+        }
+        
+        .detail-tab.active .detail-tab-icon {
+            color: #9333EA;
+        }
+        
+        .detail-tab-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .detail-tab-text {
+            font-size: 12px;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .device-image {
+            width: 100%;
+            height: 240px;
+            background: linear-gradient(135deg, #9333EA20, #6B46C120);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .connection-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #22C55E;
+            font-weight: 500;
+        }
+        
+        .connection-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .connection-status.cloud {
+            color: #22C55E;
+        }
+        
+        .connection-status.bluetooth {
+            color: #3B82F6;
+        }
+        
+        .bms-data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .bms-data-item {
+            background: #18181B;
+            border: 1px solid #27272A;
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .bms-data-label {
+            color: #71717A;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .bms-data-value {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .bms-data-unit {
+            color: #71717A;
+            font-size: 14px;
+            margin-left: 4px;
+        }
+        
+        .history-chart {
+            background: #18181B;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            color: #71717A;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin: 0;
+        }
+        
+        .date-selector-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #27272A;
+            border: none;
+            border-radius: 8px;
+            color: #71717A;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .date-selector-btn:active {
+            background: #3F3F46;
+        }
+        
+        .chart-container {
+            flex: 1;
+            position: relative;
+            height: 200px;
+            width: 100%;
+            overflow: visible;
+            padding: 0 15px 0 25px;
+        }
+        
+        .chart-container canvas {
+            width: calc(100% + 70px) !important;
+            max-width: calc(100% + 70px);
+            height: 200px !important;
+            max-height: 200px !important;
+            margin-left: -35px;
+        }
+        
+        #deviceHistoryChart {
+            height: 200px !important;
+            max-height: 200px !important;
+        }
+        
+        /* 产品轮播图样式 - 全屏从状态栏开始 */
+        .product-banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            margin: 0;
+            border-radius: 0;
+            overflow: hidden;
+        }
+        
+        .banner-slider {
+            position: relative;
+            height: 320px;
+            padding-top: 0;
+            display: flex;
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .banner-slide {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+            cursor: pointer;
+            border-radius: 16px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .banner-slide.active {
+            display: block;
+        }
+        
+        .banner-content {
+            position: absolute;
+            top: 110px;
+            left: 20px;
+            z-index: 2;
+            color: white;
+        }
+        
+        .banner-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .banner-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .banner-product-image {
+            position: absolute;
+            right: 20px;
+            top: 55%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .product-icon {
+            font-size: 40px;
+            opacity: 0.8;
+        }
+        
+        .banner-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 0 0 50px 50px;
+        }
+        
+        
+        .banner-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 0;
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            z-index: 1003;
+            background: transparent;
+        }
+        
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .indicator.active {
+            background: rgba(255, 255, 255, 0.8);
+            transform: scale(1.2);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+            border: 1px solid rgba(147, 51, 234, 0.8);
+        }
+        
+        /* 产品弹窗样式 */
+        .product-popup-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 5000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .product-popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .product-popup {
+            background: #18181B;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px;
+            max-width: 280px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #27272A;
+            position: relative;
+            transform: scale(0.9);
+            transition: all 0.3s;
+        }
+        
+        .product-popup-overlay.active .product-popup {
+            transform: scale(1);
+        }
+        
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #27272A;
+            border: none;
+            border-radius: 50%;
+            color: #71717A;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .popup-close:active {
+            background: #3F3F46;
+            transform: scale(0.95);
+        }
+        
+        .popup-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        
+        .popup-subtitle {
+            font-size: 14px;
+            color: #71717A;
+            margin-bottom: 25px;
+        }
+        
+        .popup-message {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+        
+        .popup-qr {
+            width: 120px;
+            height: 120px;
+            background: #fff;
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .qr-placeholder {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, #9333EA, #6B46C1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .popup-contact {
+            font-size: 14px;
+            color: #71717A;
+        }
+        
+        .info-section {
+            background: #18181B;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #27272A;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #71717A;
+            font-size: 14px;
+        }
+        
+        .info-value {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .edit-name-btn {
+            background: #27272A;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 12px;
+            color: #9333EA;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .name-input {
+            background: #27272A;
+            border: 1px solid #9333EA;
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: #fff;
+            font-size: 14px;
+            width: 150px;
+        }
+        
+        /* 日期选择器 */
+        .date-selector-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #27272A;
+            border: 1px solid #3F3F46;
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .date-selector-btn:active {
+            background: #3F3F46;
+        }
+        
+        /* 底部抽屉 */
+        .bottom-drawer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #18181B;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            z-index: 3000;
+            height: 75%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .bottom-drawer.active {
+            transform: translateY(0);
+        }
+        
+        .drawer-handle {
+            width: 40px;
+            height: 4px;
+            background: #3F3F46;
+            border-radius: 2px;
+            margin: 12px auto 8px;
+        }
+        
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #27272A;
+        }
+        
+        .drawer-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .drawer-close-btn {
+            background: transparent;
+            border: none;
+            color: #71717A;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .drawer-content {
+            flex: 1;
+            overflow: hidden;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .date-picker-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            gap: 15px;
+        }
+        
+        #calendarContainer {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .date-range-tabs {
+            display: flex;
+            gap: 10px;
+            background: #27272A;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        
+        .date-range-tab {
+            flex: 1;
+            padding: 8px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: #71717A;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .date-range-tab.active {
+            background: #9333EA;
+            color: #fff;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            flex: 1;
+        }
+        
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-month {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .calendar-nav-btn {
+            width: 32px;
+            height: 32px;
+            background: #27272A;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #71717A;
+        }
+        
+        .calendar-day-label {
+            text-align: center;
+            font-size: 12px;
+            color: #71717A;
+            padding: 8px 0;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .calendar-day:hover {
+            background: #27272A;
+        }
+        
+        .calendar-day.selected {
+            background: #9333EA;
+            color: #fff;
+        }
+        
+        .calendar-day.today {
+            border-color: #9333EA;
+        }
+        
+        .calendar-day.disabled {
+            color: #3F3F46;
+            cursor: not-allowed;
+        }
+        
+        .date-confirm-btn {
+            width: 100%;
+            height: 48px;
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            border: none;
+            border-radius: 24px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+        
+        .drawer-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 2999;
+        }
+        
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* 小弹窗 */
+        .mini-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #18181B;
+            border: 1px solid #27272A;
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 280px;
+            z-index: 4000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .mini-popup.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .mini-popup-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .mini-popup-input {
+            width: 100%;
+            background: #27272A;
+            border: 1px solid #3F3F46;
+            border-radius: 8px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .mini-popup-input:focus {
+            outline: none;
+            border-color: #9333EA;
+        }
+        
+        .mini-popup-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .mini-popup-btn {
+            flex: 1;
+            height: 40px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mini-popup-btn.cancel {
+            background: #27272A;
+            color: #71717A;
+        }
+        
+        .mini-popup-btn.cancel:active {
+            background: #3F3F46;
+        }
+        
+        .mini-popup-btn.save {
+            background: linear-gradient(135deg, #9333EA, #6B46C1);
+            color: #fff;
+        }
+        
+        .mini-popup-btn.save:active {
+            transform: scale(0.95);
+        }
+        
+        .mini-popup-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 3999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .mini-popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* 响应式适配 */
+        @media (min-width: 768px) {
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                background: linear-gradient(135deg, #0A0A0B, #18181B);
+            }
+            
+            .phone-container {
+                border-radius: 40px;
+                border: 8px solid #27272A;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-time">13:34</div>
+            <div class="status-icons">
+                <svg width="18" height="18" fill="#fff" viewBox="0 0 20 20">
+                    <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                </svg>
+                <svg width="18" height="18" fill="#fff" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M17.778 8.222c-4.296-4.296-11.26-4.296-15.556 0A1 1 0 01.808 6.808c5.076-5.077 13.308-5.077 18.384 0a1 1 0 01-1.414 1.414zM14.95 11.05a7 7 0 00-9.9 0 1 1 0 01-1.414-1.414 9 9 0 0112.728 0 1 1 0 01-1.414 1.414zM12.12 13.88a3 3 0 00-4.242 0 1 1 0 01-1.415-1.415 5 5 0 017.072 0 1 1 0 01-1.415 1.415zM9 16a1 1 0 011-1v0a1 1 0 110 2v0a1 1 0 01-1-1z"></path>
+                </svg>
+                <div class="battery">
+                    <div class="battery-level"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主容器 -->
+        <div class="app-container">
+            <!-- 页面内容 -->
+            <div class="page-content">
+                <!-- 首页 -->
+                <div id="homePage" class="home-page">
+                    <!-- 头部 -->
+                    <div class="header">
+                        <button class="add-btn" onclick="openAddDevicePage()">
+                            <svg width="28" height="28" fill="#fff" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                </div>
+                
+                <!-- 用户头像 - 浮动在所有内容之上 -->
+                <div class="user-avatar" onclick="openDrawer(); event.stopPropagation();">用</div>
+                
+                <!-- 产品轮播图 - 全屏 -->
+                <div class="product-banner">
+                    <div class="banner-slider" id="bannerSlider">
+                            <div class="banner-slide active" onclick="openProductPopup('inverter')">
+                                <div class="banner-content">
+                                    <div class="banner-title">北能逆变器</div>
+                                    <div class="banner-subtitle">高效转换 稳定可靠</div>
+                                </div>
+                                <div class="banner-product-image">
+                                    <div class="product-icon">⚡</div>
+                                </div>
+                                <div class="banner-bg" style="background: linear-gradient(135deg, #FF6B6B, #4ECDC4);"></div>
+                            </div>
+                            <div class="banner-slide" onclick="openProductPopup('solar')">
+                                <div class="banner-content">
+                                    <div class="banner-title">光伏组件</div>
+                                    <div class="banner-subtitle">绿色能源 未来之光</div>
+                                </div>
+                                <div class="banner-product-image">
+                                    <div class="product-icon">☀️</div>
+                                </div>
+                                <div class="banner-bg" style="background: linear-gradient(135deg, #45B7D1, #96CEB4);"></div>
+                            </div>
+                            <div class="banner-slide" onclick="openProductPopup('storage')">
+                                <div class="banner-content">
+                                    <div class="banner-title">储能系统</div>
+                                    <div class="banner-subtitle">智能管理 持久动力</div>
+                                </div>
+                                <div class="banner-product-image">
+                                    <div class="product-icon">🔋</div>
+                                </div>
+                                <div class="banner-bg" style="background: linear-gradient(135deg, #9333EA, #6B46C1);"></div>
+                            </div>
+                        </div>
+                        <div class="banner-indicators">
+                            <span class="indicator active" onclick="goToSlide(0)"></span>
+                            <span class="indicator" onclick="goToSlide(1)"></span>
+                            <span class="indicator" onclick="goToSlide(2)"></span>
+                        </div>
+                    </div>
+                
+                <div class="page-content" style="margin-top: 360px;">
+                    <!-- 设备列表 -->
+                    <div class="devices-container active" id="devicesContainer">
+                        <div class="device-card" onclick="openDeviceDetail('储能系统 A01', 'SN2024012345', true)">
+                            <div class="device-header" style="justify-content: space-between;">
+                                <div class="device-name">储能系统 A01</div>
+                                <span style="color: #22C55E; font-size: 14px;">● 在线</span>
+                            </div>
+                            <div style="margin-top: 15px; padding: 15px; background: #27272A; border-radius: 10px; display: flex; justify-content: space-around;">
+                                <div style="text-align: center;">
+                                    <div style="color: #71717A; font-size: 12px; margin-bottom: 8px;">状态</div>
+                                    <div style="color: #fff; font-size: 20px; font-weight: 700;">充电</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: #71717A; font-size: 12px; margin-bottom: 8px;">SOC</div>
+                                    <div style="color: #fff; font-size: 20px; font-weight: 700;">85%</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: #71717A; font-size: 12px; margin-bottom: 8px;">SOH</div>
+                                    <div style="color: #fff; font-size: 20px; font-weight: 700;">98%</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="device-card" onclick="openDeviceDetail('储能系统 B02', 'SN2024012346', false)">
+                            <div class="device-header" style="justify-content: space-between;">
+                                <div class="device-name">储能系统 B02</div>
+                                <span style="color: #71717A; font-size: 14px;">● 离线</span>
+                            </div>
+                            <div style="margin-top: 15px; padding: 15px; background: #27272A; border-radius: 10px; display: flex; justify-content: space-around;">
+                                <div style="text-align: center;">
+                                    <div style="color: #71717A; font-size: 12px; margin-bottom: 8px;">状态</div>
+                                    <div style="color: #fff; font-size: 20px; font-weight: 700;">放电</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: #71717A; font-size: 12px; margin-bottom: 8px;">SOC</div>
+                                    <div style="color: #fff; font-size: 20px; font-weight: 700;">92%</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="color: #71717A; font-size: 12px; margin-bottom: 8px;">SOH</div>
+                                    <div style="color: #fff; font-size: 20px; font-weight: 700;">96%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 数据页面已删除 -->
+                <div id="dataPage" class="data-page" style="display: none;">
+                    <div class="period-tabs">
+                        <button class="period-tab active">日</button>
+                        <button class="period-tab">周</button>
+                        <button class="period-tab">月</button>
+                        <button class="period-tab">年</button>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-title">发电功率曲线</div>
+                        <div class="chart-placeholder">
+                            <canvas id="mobileChart" width="300" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <svg class="stat-icon-small" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"></path>
+                            </svg>
+                            <div class="stat-value">125.6</div>
+                            <div class="stat-label">今日发电 (kWh)</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <svg class="stat-icon-small" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"></path>
+                            </svg>
+                            <div class="stat-value">3,856</div>
+                            <div class="stat-label">本月发电 (kWh)</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <svg class="stat-icon-small" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                            </svg>
+                            <div class="stat-value">45.2</div>
+                            <div class="stat-label">总发电 (MWh)</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <svg class="stat-icon-small" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.935-1.18 4.455a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.935 1.18-4.455A1 1 0 0112 2z"></path>
+                            </svg>
+                            <div class="stat-value">18.5</div>
+                            <div class="stat-label">CO₂减排 (吨)</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-title">设备详情</div>
+                        <div class="setting-item" style="background: transparent; padding: 10px 0;">
+                            <div class="setting-left">
+                                <span class="setting-label">逆变器效率</span>
+                            </div>
+                            <div class="setting-value">97.8%</div>
+                        </div>
+                        <div class="setting-item" style="background: transparent; padding: 10px 0;">
+                            <div class="setting-left">
+                                <span class="setting-label">系统运行时间</span>
+                            </div>
+                            <div class="setting-value">1,256 小时</div>
+                        </div>
+                        <div class="setting-item" style="background: transparent; padding: 10px 0;">
+                            <div class="setting-left">
+                                <span class="setting-label">最大功率</span>
+                            </div>
+                            <div class="setting-value">5.8 kW</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设置页面已删除 -->
+                <div id="settingsPage" class="settings-page" style="display: none;">
+                    <div class="user-card">
+                        <div class="user-avatar">用</div>
+                        <div class="user-info">
+                            <div class="user-name">用户名称</div>
+                            <div class="user-email">user@example.com</div>
+                        </div>
+                        <svg width="20" height="20" fill="#71717A" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
+                        </svg>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="section-title">账户</div>
+                        <div class="setting-item">
+                            <div class="setting-left">
+                                <svg class="setting-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+                                </svg>
+                                <span class="setting-label">个人信息</span>
+                            </div>
+                            <svg width="20" height="20" fill="#71717A" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-left">
+                                <svg class="setting-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path>
+                                </svg>
+                                <span class="setting-label">安全设置</span>
+                            </div>
+                            <svg width="20" height="20" fill="#71717A" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-left">
+                                <svg class="setting-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+                                </svg>
+                                <span class="setting-label">通知设置</span>
+                            </div>
+                            <svg width="20" height="20" fill="#71717A" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="section-title">设备管理</div>
+                        <div class="setting-item">
+                            <div class="setting-left">
+                                <svg class="setting-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 7H7v6h6V7z"></path>
+                                    <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2z"></path>
+                                </svg>
+                                <span class="setting-label">设备列表</span>
+                            </div>
+                            <svg width="20" height="20" fill="#71717A" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-left">
+                                <svg class="setting-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"></path>
+                                </svg>
+                                <span class="setting-label">添加设备</span>
+                            </div>
+                            <svg width="20" height="20" fill="#71717A" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="section-title">系统</div>
+                        <div class="setting-item">
+                            <div class="setting-left">
+                                <svg class="setting-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M7 2a1 1 0 011 1v1a1 1 0 01-1 1H5.5A1.5 1.5 0 004 6.5V8a1 1 0 01-1 1 1 1 0 00-1 1v4a1 1 0 001 1 1 1 0 011 1v1.5A1.5 1.5 0 005.5 19H7a1 1 0 011 1 1 1 0 102 0 1 1 0 011-1h1.5a1.5 1.5 0 001.5-1.5V17a1 1 0 011-1 1 1 0 001-1v-4a1 1 0 00-1-1 1 1 0 01-1-1V6.5A1.5 1.5 0 0014.5 5H13a1 1 0 01-1-1V3a1 1 0 10-2 0v1a1 1 0 01-1 1H7.5A1.5 1.5 0 006 6.5V8a1 1 0 01-1 1z"></path>
+                                </svg>
+                                <span class="setting-label">语言设置</span>
+                            </div>
+                            <span class="setting-value">简体中文</span>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-left">
+                                <svg class="setting-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                                </svg>
+                                <span class="setting-label">深色模式</span>
+                            </div>
+                            <span class="setting-value">开启</span>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-left">
+                                <svg class="setting-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                                </svg>
+                                <span class="setting-label">关于</span>
+                            </div>
+                            <span class="setting-value">v1.0.0</span>
+                        </div>
+                    </div>
+
+                    <button class="logout-btn">退出登录</button>
+                </div>
+            </div>
+
+            <!-- 底部导航已删除 -->
+            
+            
+            <!-- 设备详情页面 -->
+            <div id="deviceDetailPage" class="device-detail-page">
+                <div class="device-detail-header">
+                    <button class="back-btn" onclick="closeDeviceDetail()">
+                        <svg width="24" height="24" fill="#fff" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"></path>
+                        </svg>
+                    </button>
+                    <div class="add-device-title" id="deviceDetailTitle">设备详情</div>
+                    <div style="width: 40px;"></div>
+                </div>
+                
+                <div class="device-detail-content">
+                    <!-- 实时数据标签页 -->
+                    <div id="realtimeTab" class="tab-content active">
+                        <div class="device-image">
+                            <!-- 连接状态显示 -->
+                            <div class="connection-status cloud">
+                                <svg class="connection-icon" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"></path>
+                                </svg>
+                                <span>云连接</span>
+                            </div>
+                            <img src="image.png" alt="储能设备" style="width: 200px; height: 200px; object-fit: contain; margin: auto; display: block;">
+                        </div>
+                        
+                        <h3 style="color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 15px;">BMS 实时数据</h3>
+                        <div class="bms-data-grid">
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">电池电压</div>
+                                <div>
+                                    <span class="bms-data-value">48.5</span>
+                                    <span class="bms-data-unit">V</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">电池电流</div>
+                                <div>
+                                    <span class="bms-data-value">12.3</span>
+                                    <span class="bms-data-unit">A</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">电池温度</div>
+                                <div>
+                                    <span class="bms-data-value">28</span>
+                                    <span class="bms-data-unit">°C</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">充放电功率</div>
+                                <div>
+                                    <span class="bms-data-value">596</span>
+                                    <span class="bms-data-unit">W</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">SOC</div>
+                                <div>
+                                    <span class="bms-data-value">85</span>
+                                    <span class="bms-data-unit">%</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">SOH</div>
+                                <div>
+                                    <span class="bms-data-value">98</span>
+                                    <span class="bms-data-unit">%</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">循环次数</div>
+                                <div>
+                                    <span class="bms-data-value">125</span>
+                                    <span class="bms-data-unit">次</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">剩余容量</div>
+                                <div>
+                                    <span class="bms-data-value">42.5</span>
+                                    <span class="bms-data-unit">Ah</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 历史数据标签页 -->
+                    <div id="historyTab" class="tab-content">
+                        <div class="history-chart">
+                            <div class="chart-header">
+                                <h3 class="chart-title">SOC&功率趋势</h3>
+                                <button class="date-selector-btn" onclick="openDatePicker()">
+                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"></path>
+                                    </svg>
+                                    <span id="selectedDateText">今天</span>
+                                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <canvas id="deviceHistoryChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <h3 style="color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 15px;">历史统计</h3>
+                        <div class="bms-data-grid">
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">今日充电量</div>
+                                <div>
+                                    <span class="bms-data-value">125.6</span>
+                                    <span class="bms-data-unit">kWh</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">今日放电量</div>
+                                <div>
+                                    <span class="bms-data-value">98.3</span>
+                                    <span class="bms-data-unit">kWh</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">累计充电量</div>
+                                <div>
+                                    <span class="bms-data-value">1,248</span>
+                                    <span class="bms-data-unit">kWh</span>
+                                </div>
+                            </div>
+                            <div class="bms-data-item">
+                                <div class="bms-data-label">累计放电量</div>
+                                <div>
+                                    <span class="bms-data-value">1,165</span>
+                                    <span class="bms-data-unit">kWh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 设备信息标签页 -->
+                    <div id="infoTab" class="tab-content">
+                        <div class="info-section">
+                            <h3 style="color: #fff; font-size: 16px; font-weight: 600; margin-bottom: 15px;">基础信息</h3>
+                            <div class="info-item" style="cursor: pointer;" onclick="openNameEditPopup()">
+                                <span class="info-label">设备名称</span>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="info-value" id="deviceNameValue">储能系统 A01</span>
+                                    <svg width="16" height="16" fill="#71717A" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">设备SN</span>
+                                <span class="info-value">SN2024012345</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">设备类型</span>
+                                <span class="info-value">储能设备</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">额定容量</span>
+                                <span class="info-value">50 kWh</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">额定功率</span>
+                                <span class="info-value">10 kW</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 删除设备按钮 -->
+                        <div class="device-action-section">
+                            <button class="delete-device-action-btn" onclick="showDeleteDeviceConfirm()">
+                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>删除设备</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 底部标签栏 -->
+                <div class="device-detail-tabs">
+                    <button class="detail-tab active" onclick="switchDetailTab('realtime', this)">
+                        <svg class="detail-tab-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                        <span class="detail-tab-text">实时</span>
+                    </button>
+                    <button class="detail-tab" onclick="switchDetailTab('history', this)">
+                        <svg class="detail-tab-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"></path>
+                        </svg>
+                        <span class="detail-tab-text">历史</span>
+                    </button>
+                    <button class="detail-tab" onclick="switchDetailTab('info', this)">
+                        <svg class="detail-tab-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path>
+                        </svg>
+                        <span class="detail-tab-text">信息</span>
+                    </button>
+                </div>
+                
+                <!-- 编辑名称小弹窗 -->
+                <div class="mini-popup-overlay" onclick="closeNameEditPopup()"></div>
+                <div id="nameEditPopup" class="mini-popup">
+                    <div class="mini-popup-title">修改设备名称</div>
+                    <input type="text" id="nameEditInput" class="mini-popup-input" placeholder="请输入新的设备名称">
+                    <div class="mini-popup-buttons">
+                        <button class="mini-popup-btn cancel" onclick="closeNameEditPopup()">取消</button>
+                        <button class="mini-popup-btn save" onclick="saveDeviceName()">保存</button>
+                    </div>
+                </div>
+                
+                <!-- 日期选择抽屉 -->
+                <div class="drawer-overlay" onclick="closeDatePicker()"></div>
+                <div id="datePickerDrawer" class="bottom-drawer">
+                    <div class="drawer-handle"></div>
+                    <div class="drawer-header">
+                        <div class="drawer-title">选择日期</div>
+                        <button class="drawer-close-btn" onclick="closeDatePicker()">取消</button>
+                    </div>
+                    <div class="drawer-content">
+                        <div class="date-picker-container">
+                            <div id="calendarContainer">
+                                <div class="calendar-header">
+                                    <button class="calendar-nav-btn" onclick="previousMonth()">
+                                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"></path>
+                                        </svg>
+                                    </button>
+                                    <div class="calendar-month" id="calendarMonth">2024年12月</div>
+                                    <button class="calendar-nav-btn" onclick="nextMonth()">
+                                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                                
+                                <div class="calendar-grid">
+                                    <div class="calendar-day-label">日</div>
+                                    <div class="calendar-day-label">一</div>
+                                    <div class="calendar-day-label">二</div>
+                                    <div class="calendar-day-label">三</div>
+                                    <div class="calendar-day-label">四</div>
+                                    <div class="calendar-day-label">五</div>
+                                    <div class="calendar-day-label">六</div>
+                                </div>
+                                
+                                <div class="calendar-grid" id="calendarDays">
+                                    <!-- Calendar days will be generated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <button class="date-confirm-btn" onclick="confirmDateSelection()">确定</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 添加设备页面 -->
+            <div id="addDevicePage" class="add-device-page">
+            <div class="add-device-header">
+                <button class="back-btn" onclick="closeAddDevicePage()">
+                    <svg width="24" height="24" fill="#fff" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"></path>
+                    </svg>
+                </button>
+                <div class="add-device-title">添加设备</div>
+                <div style="width: 40px;"></div>
+            </div>
+            
+            <div class="add-device-content">
+                <div class="scan-section">
+                <div class="scan-hint">扫描附近设备</div>
+                <div class="scan-hint" style="color: #71717A; font-size: 13px;">持续自动搜索中...</div>
+                
+                <div class="scanning-animation">
+                    <div class="scan-line"></div>
+                    <div class="scan-phone-icon"></div>
+                </div>
+                
+                <div class="scan-status">请将手机尽量靠近要添加的设备</div>
+            </div>
+            
+            <div id="foundDevicesSection" class="found-devices" style="display: none;">
+                <div class="found-devices-title">发现 <span id="deviceCount">0</span> 个设备</div>
+                <div id="foundDevicesList"></div>
+            </div>
+            
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // 切换功能已删除，因为没有底部导航了
+        
+        
+        // 打开添加设备页面
+        function openAddDevicePage() {
+            document.getElementById('addDevicePage').classList.add('active');
+            // 模拟扫描设备
+            setTimeout(() => {
+                showFoundDevices();
+            }, 2000);
+        }
+        
+        // 关闭添加设备页面
+        function closeAddDevicePage() {
+            document.getElementById('addDevicePage').classList.remove('active');
+        }
+        
+        // 显示发现的设备
+        function showFoundDevices() {
+            const foundDevicesSection = document.getElementById('foundDevicesSection');
+            const foundDevicesList = document.getElementById('foundDevicesList');
+            const deviceCount = document.getElementById('deviceCount');
+            
+            // 模拟发现的设备
+            const devices = [
+                { name: '储能系统 F06', id: 'SN2024012345', type: 'energy' },
+                { name: '逆变器 G07', id: 'SN2024012346', type: 'inverter' },
+                { name: '充电桩 H08', id: 'SN2024012347', type: 'charger' }
+            ];
+            
+            deviceCount.textContent = devices.length;
+            foundDevicesList.innerHTML = '';
+            
+            devices.forEach((device, index) => {
+                const deviceItem = document.createElement('div');
+                deviceItem.className = 'found-device-item';
+                deviceItem.innerHTML = `
+                    <div class="found-device-info">
+                        <div class="found-device-icon">
+                            <svg width="24" height="24" fill="#9333EA" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"></path>
+                            </svg>
+                        </div>
+                        <div class="found-device-details">
+                            <div class="found-device-name">${device.name}</div>
+                            <div class="found-device-id">${device.id}</div>
+                        </div>
+                    </div>
+                    <div id="add-status-${index}">
+                        <button class="add-device-confirm-btn" onclick="confirmAddDevice('${device.id}', ${index})">添加</button>
+                    </div>
+                `;
+                foundDevicesList.appendChild(deviceItem);
+            });
+            
+            foundDevicesSection.style.display = 'block';
+        }
+        
+        // 确认添加设备
+        function confirmAddDevice(deviceId, index) {
+            // 显示成功提示
+            showSuccessToast('添加成功');
+            
+            // 改变按钮为已添加文本
+            const statusDiv = document.getElementById(`add-status-${index}`);
+            statusDiv.innerHTML = '<span style="color: #22C55E; font-size: 14px;">已添加</span>';
+        }
+        
+        // 显示成功提示
+        function showSuccessToast(message) {
+            // 创建提示元素
+            const toast = document.createElement('div');
+            toast.className = 'success-toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(34, 197, 94, 0.9);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 16px;
+                z-index: 9999;
+                animation: fadeInOut 2s ease-in-out;
+            `;
+            
+            // 添加动画样式
+            if (!document.getElementById('toast-style')) {
+                const style = document.createElement('style');
+                style.id = 'toast-style';
+                style.textContent = `
+                    @keyframes fadeInOut {
+                        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                        20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                        80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(toast);
+            
+            // 2秒后移除提示
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+        
+
+        // 打开设备详情
+        function openDeviceDetail(deviceName, deviceSN, isOnline = true) {
+            document.getElementById('deviceDetailPage').classList.add('active');
+            document.getElementById('deviceDetailTitle').textContent = deviceName;
+            document.getElementById('deviceNameValue').textContent = deviceName;
+            
+            // 根据设备在线状态设置连接方式
+            const statusElement = document.querySelector('.connection-status');
+            if (statusElement) {
+                if (isOnline) {
+                    statusElement.className = 'connection-status cloud';
+                    statusElement.innerHTML = `
+                        <svg class="connection-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5.5 16a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 16h-8z"></path>
+                        </svg>
+                        <span>云连接</span>
+                    `;
+                } else {
+                    statusElement.className = 'connection-status bluetooth';
+                    statusElement.innerHTML = `
+                        <svg class="connection-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8 2l4 4-2.5 2.5L11 10l-3 3V7L5.5 9.5 2 6l6-4v5l2.5-2.5L8 2zm0 10.5L9.5 11 8 9.5v3z"></path>
+                        </svg>
+                        <span>蓝牙连接</span>
+                    `;
+                }
+            }
+            
+            // 初始化历史图表
+            setTimeout(() => {
+                initDeviceHistoryChart();
+            }, 300);
+        }
+        
+        // 关闭设备详情
+        function closeDeviceDetail() {
+            document.getElementById('deviceDetailPage').classList.remove('active');
+        }
+        
+        // 切换详情标签
+        function switchDetailTab(tabName, tabElement) {
+            // 移除所有active类
+            document.querySelectorAll('.detail-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 添加active类到当前选中的标签
+            tabElement.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // 如果切换到历史标签，初始化图表
+            if (tabName === 'history') {
+                setTimeout(() => {
+                    initDeviceHistoryChart();
+                }, 100);
+            }
+        }
+        
+        // 打开编辑名称弹窗
+        function openNameEditPopup() {
+            const currentName = document.getElementById('deviceNameValue').textContent;
+            document.getElementById('nameEditInput').value = currentName;
+            document.getElementById('nameEditPopup').classList.add('active');
+            document.querySelector('.mini-popup-overlay').classList.add('active');
+            
+            // 聚焦输入框并选中文本
+            setTimeout(() => {
+                const input = document.getElementById('nameEditInput');
+                input.focus();
+                input.select();
+            }, 100);
+        }
+        
+        // 关闭编辑名称弹窗
+        function closeNameEditPopup() {
+            document.getElementById('nameEditPopup').classList.remove('active');
+            document.querySelector('.mini-popup-overlay').classList.remove('active');
+        }
+        
+        // 保存设备名称
+        function saveDeviceName() {
+            const newName = document.getElementById('nameEditInput').value.trim();
+            if (newName) {
+                document.getElementById('deviceNameValue').textContent = newName;
+                document.getElementById('deviceDetailTitle').textContent = newName;
+                closeNameEditPopup();
+                showSuccessToast('名称修改成功');
+            }
+        }
+        
+        // 初始化设备历史图表
+        function initDeviceHistoryChart() {
+            const ctx = document.getElementById('deviceHistoryChart');
+            if (ctx) {
+                // 如果图表已存在，先销毁
+                if (ctx.chart) {
+                    ctx.chart.destroy();
+                }
+                
+                ctx.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                        datasets: [{
+                            label: 'SOC (%)',
+                            data: [45, 52, 68, 85, 78, 65, 55],
+                            borderColor: '#22C55E',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            yAxisID: 'y',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }, {
+                            label: '功率 (kW)',
+                            data: [2.5, 3.2, 5.8, 4.2, -2.1, -3.5, -1.8],
+                            borderColor: '#9333EA',
+                            backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                            tension: 0.4,
+                            fill: false,
+                            yAxisID: 'y1',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    color: '#71717A',
+                                    font: {
+                                        size: 12
+                                    },
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: '#27272A',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    color: '#71717A',
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            },
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'SOC (%)',
+                                    color: '#22C55E',
+                                    font: {
+                                        size: 12
+                                    }
+                                },
+                                grid: {
+                                    color: '#27272A',
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    color: '#22C55E',
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                min: 0,
+                                max: 100
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '功率 (kW)',
+                                    color: '#9333EA',
+                                    font: {
+                                        size: 12
+                                    }
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    color: '#9333EA',
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 日期选择器相关
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let selectedDate = new Date();
+        
+        // 打开日期选择器
+        function openDatePicker() {
+            document.getElementById('datePickerDrawer').classList.add('active');
+            document.querySelector('.drawer-overlay').classList.add('active');
+            renderCalendar();
+        }
+        
+        // 关闭日期选择器
+        function closeDatePicker() {
+            document.getElementById('datePickerDrawer').classList.remove('active');
+            document.querySelector('.drawer-overlay').classList.remove('active');
+        }
+        
+        // 渲染日历
+        function renderCalendar() {
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const today = new Date();
+            
+            // 更新月份显示
+            const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            document.getElementById('calendarMonth').textContent = `${currentYear}年${monthNames[currentMonth]}`;
+            
+            // 生成日历天数
+            let html = '';
+            
+            // 添加空白天
+            for (let i = 0; i < firstDay; i++) {
+                html += '<div></div>';
+            }
+            
+            // 添加日期
+            for (let day = 1; day <= daysInMonth; day++) {
+                const isToday = today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+                const isSelected = selectedDate.getDate() === day && selectedDate.getMonth() === currentMonth && selectedDate.getFullYear() === currentYear;
+                
+                let className = 'calendar-day';
+                if (isToday) className += ' today';
+                if (isSelected) className += ' selected';
+                
+                html += `<div class="${className}" onclick="selectDate(${day})">${day}</div>`;
+            }
+            
+            document.getElementById('calendarDays').innerHTML = html;
+        }
+        
+        // 选择日期
+        function selectDate(day) {
+            selectedDate = new Date(currentYear, currentMonth, day);
+            renderCalendar();
+        }
+        
+        // 上一个月
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+        
+        // 下一个月
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+        
+        // 确认日期选择
+        function confirmDateSelection() {
+            // 更新显示文本
+            const today = new Date();
+            const isToday = selectedDate.toDateString() === today.toDateString();
+            
+            if (isToday) {
+                document.getElementById('selectedDateText').textContent = '今天';
+            } else {
+                const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+                document.getElementById('selectedDateText').textContent = 
+                    `${selectedDate.getFullYear()}年${monthNames[selectedDate.getMonth()]}${selectedDate.getDate()}日`;
+            }
+            
+            closeDatePicker();
+            
+            // 重新加载图表数据
+            if (document.getElementById('deviceHistoryChart').chart) {
+                showSuccessToast('数据已更新');
+            }
+        }
+        
+        // 周期选择
+        document.querySelectorAll('.period-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 初始化图表
+        function initChart() {
+            const ctx = document.getElementById('mobileChart');
+            if (ctx && !ctx.chart) {
+                ctx.chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '06:00', '12:00', '18:00', '24:00'],
+                        datasets: [{
+                            label: '发电功率',
+                            data: [0, 2.5, 5.8, 3.2, 0.5],
+                            borderColor: '#9333EA',
+                            backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: '#27272A'
+                                },
+                                ticks: {
+                                    color: '#71717A',
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    color: '#27272A'
+                                },
+                                ticks: {
+                                    color: '#71717A',
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 模拟实时数据更新 - SOC值变化
+        setInterval(() => {
+            const socElements = document.querySelectorAll('.device-metric-value');
+            // 更新第一个设备的SOC值（索引为1的元素）
+            if (socElements[1]) {
+                const currentSOC = parseInt(socElements[1].textContent);
+                const newSOC = Math.max(0, Math.min(100, currentSOC + (Math.random() - 0.5) * 2));
+                socElements[1].textContent = Math.round(newSOC) + '%';
+            }
+            // 更新第二个设备的功率值（索引为7的元素）
+            if (socElements[7]) {
+                const power = (2.5 + Math.random() * 0.6).toFixed(1);
+                socElements[7].textContent = power + 'kW';
+            }
+        }, 3000);
+        
+        // 轮播图功能
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.banner-slide');
+        const indicators = document.querySelectorAll('.indicator');
+        let slideInterval;
+        
+        // 切换到指定幻灯片
+        function goToSlide(index) {
+            // 移除当前active类
+            slides[currentSlide].classList.remove('active');
+            indicators[currentSlide].classList.remove('active');
+            
+            // 设置新的当前幻灯片
+            currentSlide = index;
+            slides[currentSlide].classList.add('active');
+            indicators[currentSlide].classList.add('active');
+        }
+        
+        // 自动切换幻灯片
+        function nextSlide() {
+            const next = (currentSlide + 1) % slides.length;
+            goToSlide(next);
+        }
+        
+        // 启动自动轮播
+        function startSlideShow() {
+            slideInterval = setInterval(nextSlide, 6000); // 每6秒切换
+        }
+        
+        // 停止自动轮播
+        function stopSlideShow() {
+            if (slideInterval) {
+                clearInterval(slideInterval);
+            }
+        }
+        
+        // 产品弹窗功能
+        const productInfo = {
+            inverter: {
+                title: '北能逆变器',
+                subtitle: '高效转换 稳定可靠'
+            },
+            solar: {
+                title: '光伏组件',
+                subtitle: '绿色能源 未来之光'
+            },
+            storage: {
+                title: '储能系统',
+                subtitle: '智能管理 持久动力'
+            }
+        };
+        
+        // 打开产品弹窗
+        function openProductPopup(productType) {
+            const info = productInfo[productType];
+            if (info) {
+                document.getElementById('popupTitle').textContent = info.title;
+                document.getElementById('popupSubtitle').textContent = info.subtitle;
+                document.getElementById('productPopupOverlay').classList.add('active');
+                stopSlideShow(); // 停止轮播
+            }
+        }
+        
+        // 关闭产品弹窗
+        function closeProductPopup() {
+            document.getElementById('productPopupOverlay').classList.remove('active');
+            startSlideShow(); // 重新启动轮播
+        }
+        
+        // 页面加载完成后启动轮播
+        document.addEventListener('DOMContentLoaded', function() {
+            startSlideShow();
+        });
+        
+        // 触摸滑动支持
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        function handleSwipe() {
+            const swipeDistance = touchEndX - touchStartX;
+            const minSwipeDistance = 50; // 最小滑动距离
+            
+            if (Math.abs(swipeDistance) > minSwipeDistance) {
+                if (swipeDistance > 0) {
+                    // 向右滑动 - 上一张
+                    const prev = currentSlide === 0 ? slides.length - 1 : currentSlide - 1;
+                    goToSlide(prev);
+                } else {
+                    // 向左滑动 - 下一张
+                    const next = (currentSlide + 1) % slides.length;
+                    goToSlide(next);
+                }
+                // 重置自动轮播
+                stopSlideShow();
+                setTimeout(startSlideShow, 3000);
+            }
+        }
+        
+        // 当轮播图区域被触摸或鼠标悬停时停止自动轮播，离开时重新启动
+        const bannerElement = document.querySelector('.product-banner');
+        if (bannerElement) {
+            bannerElement.addEventListener('mouseenter', stopSlideShow);
+            bannerElement.addEventListener('mouseleave', startSlideShow);
+            
+            // 触摸事件
+            bannerElement.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                stopSlideShow();
+            });
+            
+            bannerElement.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+            
+            // 阻止默认滑动行为
+            bannerElement.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+        }
+        
+        // 左抽屉弹窗功能
+        function openDrawer() {
+            console.log('开启抽屉弹窗');
+            document.getElementById('drawerOverlay').classList.add('active');
+            document.getElementById('drawer').classList.add('active');
+        }
+        
+        function closeDrawer() {
+            document.getElementById('drawerOverlay').classList.remove('active');
+            document.getElementById('drawer').classList.remove('active');
+        }
+        
+        // 个人信息
+        function showPersonalInfo() {
+            closeDrawer();
+            alert('个人信息页面正在开发中...');
+        }
+        
+        // 修改密码
+        function showChangePassword() {
+            closeDrawer();
+            setTimeout(() => {
+                document.getElementById('changePasswordPage').style.display = 'block';
+                console.log('修改密码页面已打开');
+            }, 300);
+        }
+        
+        // 取消修改密码，返回抽屉
+        function cancelChangePassword() {
+            document.getElementById('changePasswordPage').style.display = 'none';
+            // 清空表单
+            document.getElementById('oldPasswordInput').value = '';
+            document.getElementById('newPasswordInput').value = '';
+            document.getElementById('confirmPasswordInput').value = '';
+            // 重新打开抽屉
+            setTimeout(() => {
+                openDrawer();
+            }, 100);
+        }
+        
+        // 保存密码修改
+        function savePasswordChange() {
+            const oldPassword = document.getElementById('oldPasswordInput').value;
+            const newPassword = document.getElementById('newPasswordInput').value;
+            const confirmPassword = document.getElementById('confirmPasswordInput').value;
+            
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                alert('请填写所有密码字段');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('新密码和确认密码不一致');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                alert('密码长度至少6位');
+                return;
+            }
+            
+            // 这里可以添加实际的密码修改逻辑
+            alert('密码修改成功！');
+            
+            // 关闭页面并返回抽屉
+            cancelChangePassword();
+        }
+        
+        // 语言设置
+        function showLanguageSettings() {
+            closeDrawer();
+            setTimeout(() => {
+                const modal = document.getElementById('languageModal');
+                if (modal) {
+                    modal.classList.add('active');
+                    console.log('语言设置模态框已打开');
+                } else {
+                    console.error('找不到语言设置模态框元素');
+                }
+            }, 300);
+        }
+        
+        // 关于App
+        function showAboutApp() {
+            closeDrawer();
+            setTimeout(() => {
+                const modal = document.getElementById('aboutModal');
+                if (modal) {
+                    modal.classList.add('active');
+                    console.log('关于App模态框已打开');
+                } else {
+                    console.error('找不到关于App模态框元素');
+                }
+            }, 300);
+        }
+        
+        // 退出登录
+        function showLogout() {
+            closeDrawer();
+            setTimeout(() => {
+                const modal = document.getElementById('logoutModal');
+                if (modal) {
+                    modal.classList.add('active');
+                    console.log('退出登录模态框已打开');
+                } else {
+                    console.error('找不到退出登录模态框元素');
+                }
+            }, 300);
+        }
+        
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        
+        // 语言切换
+        function changeLanguage(lang) {
+            const languageNames = {
+                'zh': '中文',
+                'en': 'English', 
+                'ja': '日本語',
+                'ko': '한국어'
+            };
+            
+            // 这里可以添加实际的语言切换逻辑
+            alert('语言已切换到: ' + languageNames[lang]);
+            closeModal('languageModal');
+            
+            // 更新当前语言显示
+            document.querySelector('.current-language').textContent = languageNames[lang];
+        }
+        
+        // 确认退出登录
+        function confirmLogout() {
+            // 这里可以添加实际的退出登录逻辑
+            alert('已退出登录');
+            closeModal('logoutModal');
+            // window.location.href = '/login';
+        }
+        
+        // 当前设备信息
+        let currentDeviceName = '';
+        
+        // 显示删除设备确认弹窗
+        function showDeleteDeviceConfirm() {
+            console.log('删除按钮被点击!');
+            
+            // 检查当前是否在info标签页
+            const infoTab = document.getElementById('infoTab');
+            const isInfoTabActive = infoTab && infoTab.classList.contains('active');
+            console.log('Info标签页是否激活:', isInfoTabActive);
+            
+            if (!isInfoTabActive) {
+                console.warn('删除按钮只在信息标签页可见，请先切换到信息标签页');
+                alert('请先点击"信息"标签页查看设备信息');
+                return;
+            }
+            
+            // 获取当前设备信息
+            const deviceNameElement = document.getElementById('deviceNameValue');
+            if (deviceNameElement) {
+                currentDeviceName = deviceNameElement.textContent;
+                console.log('当前设备名称:', currentDeviceName);
+            } else {
+                currentDeviceName = '未知设备';
+                console.log('找不到设备名称元素');
+            }
+            
+            // 更新弹窗内容
+            const deleteDeviceNameElement = document.getElementById('deleteDeviceName');
+            if (deleteDeviceNameElement) {
+                deleteDeviceNameElement.textContent = currentDeviceName;
+            }
+            
+            // 显示弹窗
+            const overlayElement = document.getElementById('deleteConfirmOverlay');
+            if (overlayElement) {
+                overlayElement.classList.add('active');
+                console.log('删除确认弹窗已显示');
+            } else {
+                console.error('找不到删除确认弹窗元素');
+            }
+        }
+        
+        // 关闭删除确认弹窗
+        function closeDeleteConfirm() {
+            document.getElementById('deleteConfirmOverlay').classList.remove('active');
+        }
+        
+        // 确认删除设备
+        function confirmDeleteDevice() {
+            // 这里可以添加实际的删除设备逻辑
+            alert('设备 "' + currentDeviceName + '" 已删除！');
+            
+            // 关闭确认弹窗
+            closeDeleteConfirm();
+            
+            // 关闭设备详情页面，返回主页
+            closeDeviceDetail();
+            
+            // 这里可以刷新设备列表或从列表中移除已删除的设备
+            // removeDeviceFromList(currentDeviceId);
+        }
+        
+    </script>
+    
+    <!-- 产品弹窗 -->
+    <div id="productPopupOverlay" class="product-popup-overlay" onclick="closeProductPopup()">
+        <div class="product-popup" onclick="event.stopPropagation()">
+            <button class="popup-close" onclick="closeProductPopup()">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"></path>
+                </svg>
+            </button>
+            
+            <div class="popup-title" id="popupTitle">逆变器</div>
+            <div class="popup-subtitle" id="popupSubtitle">高效能源转换</div>
+            
+            <div class="popup-message">
+                想了解更多？<br>
+                请联系北能经销商
+            </div>
+            
+            <div class="popup-qr">
+                <div class="qr-placeholder">
+                    北能经销商<br>
+                    联系二维码
+                </div>
+            </div>
+            
+            <div class="popup-contact">扫描二维码获取联系方式</div>
+        </div>
+    </div>
+
+    <!-- 左抽屉弹窗 -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+        <button class="drawer-close" onclick="closeDrawer()">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+        
+        <div class="drawer-header">
+            <div class="drawer-user-info">
+                <div class="drawer-user-avatar">用</div>
+                <div class="drawer-user-details">
+                    <h3>北能用户</h3>
+                    <p>user@beineng.com</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="drawer-menu">
+            <button class="drawer-menu-item" onclick="showPersonalInfo()">
+                <svg class="drawer-menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="drawer-menu-text">个人信息</span>
+            </button>
+            
+            <button class="drawer-menu-item" onclick="showChangePassword()">
+                <svg class="drawer-menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="drawer-menu-text">修改密码</span>
+            </button>
+            
+            <button class="drawer-menu-item" onclick="showLanguageSettings()">
+                <svg class="drawer-menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733A18.992 18.992 0 013 12a1 1 0 110-2c1.296 0 2.496-.289 3.578-.824C5.618 7.243 5.087 5.583 5.087 4H4a1 1 0 110-2h3V1a1 1 0 011 1zm3.5 6.2c.2-.8.4-1.6.4-2.2a1 1 0 112 0c0 .6-.2 1.4-.4 2.2a1 1 0 11-2 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="drawer-menu-text">语言设置</span>
+                <svg width="16" height="16" fill="#71717A" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+            
+            <button class="drawer-menu-item" onclick="showAboutApp()">
+                <svg class="drawer-menu-icon" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="drawer-menu-text">关于App</span>
+            </button>
+            
+            <button class="drawer-menu-item" onclick="showLogout()" style="margin-top: auto; color: #DC2626;">
+                <svg class="drawer-menu-icon" fill="currentColor" viewBox="0 0 20 20" style="color: #DC2626;">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="drawer-menu-text">退出登录</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 修改密码页面 -->
+    <div id="changePasswordPage" class="change-password-page">
+        <div class="password-header">
+            <button class="password-back-btn" onclick="cancelChangePassword()">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+            <h1 class="password-title">修改密码</h1>
+        </div>
+        
+        <div class="password-content">
+            <div class="password-form">
+                <div class="password-field">
+                    <label class="password-label">当前密码</label>
+                    <input type="password" id="oldPasswordInput" class="password-input" placeholder="请输入当前密码">
+                </div>
+                
+                <div class="password-field">
+                    <label class="password-label">新密码</label>
+                    <input type="password" id="newPasswordInput" class="password-input" placeholder="请输入新密码（至少6位）">
+                </div>
+                
+                <div class="password-field">
+                    <label class="password-label">确认新密码</label>
+                    <input type="password" id="confirmPasswordInput" class="password-input" placeholder="请再次输入新密码">
+                </div>
+                
+                <div class="password-actions">
+                    <button class="password-btn password-btn-cancel" onclick="cancelChangePassword()">取消</button>
+                    <button class="password-btn password-btn-save" onclick="savePasswordChange()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 语言设置模态框 -->
+    <div id="languageModal" class="modal-overlay" onclick="closeModal('languageModal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">语言设置</h3>
+                <button class="modal-close" onclick="closeModal('languageModal')">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="language-options">
+                    <div class="language-option active" onclick="changeLanguage('zh')">
+                        <span>🇨🇳 中文</span>
+                        <span class="current-language" style="color: #9333EA;">当前</span>
+                    </div>
+                    <div class="language-option" onclick="changeLanguage('en')">
+                        <span>🇺🇸 English</span>
+                    </div>
+                    <div class="language-option" onclick="changeLanguage('ja')">
+                        <span>🇯🇵 日本語</span>
+                    </div>
+                    <div class="language-option" onclick="changeLanguage('ko')">
+                        <span>🇰🇷 한국어</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 关于App模态框 -->
+    <div id="aboutModal" class="modal-overlay" onclick="closeModal('aboutModal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">关于App</h3>
+                <button class="modal-close" onclick="closeModal('aboutModal')">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="about-content">
+                    <div class="app-icon">北</div>
+                    <div class="app-name">北能能源管理系统</div>
+                    <div class="app-version">版本 1.0.0</div>
+                    <div class="app-description">
+                        致力于提供智能化能源管理解决方案，帮助用户更好地管理和监控能源设备，实现高效、安全、可靠的能源管理。
+                    </div>
+                    <div class="app-description">
+                        © 2024 北能科技有限公司<br>
+                        保留所有权利
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 退出登录模态框 -->
+    <div id="logoutModal" class="modal-overlay" onclick="closeModal('logoutModal')">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 class="modal-title">退出登录</h3>
+                <button class="modal-close" onclick="closeModal('logoutModal')">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="logout-content">
+                    <div class="logout-icon">
+                        <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="logout-message">确定要退出登录吗？</div>
+                    <div class="logout-description">退出后需要重新登录才能使用</div>
+                    <div class="modal-buttons">
+                        <button class="btn btn-secondary" onclick="closeModal('logoutModal')">取消</button>
+                        <button class="btn btn-primary" onclick="confirmLogout()">确认退出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除设备确认弹窗 -->
+    <div id="deleteConfirmOverlay" class="delete-confirm-overlay" onclick="closeDeleteConfirm()">
+        <div class="delete-confirm-modal" onclick="event.stopPropagation()">
+            <div class="delete-confirm-header">
+                <div class="delete-confirm-icon">
+                    <svg width="32" height="32" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <h3 class="delete-confirm-title">删除设备</h3>
+            </div>
+            <div class="delete-confirm-content">
+                <div class="delete-confirm-message">确定要删除以下设备吗？</div>
+                <div class="delete-confirm-message">此操作不可撤销。</div>
+                <div class="delete-confirm-device" id="deleteDeviceName">储能系统 A01</div>
+                <div class="delete-confirm-buttons">
+                    <button class="delete-confirm-btn delete-confirm-btn-cancel" onclick="closeDeleteConfirm()">取消</button>
+                    <button class="delete-confirm-btn delete-confirm-btn-delete" onclick="confirmDeleteDevice()">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

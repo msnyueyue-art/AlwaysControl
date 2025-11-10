@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录页面PNG资源生成器 - 10寸</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .asset-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .asset-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .canvas-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1e90ff, #00bfff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .specs {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* 10寸屏幕尺寸：1280x800 */
+        .bg-canvas { width: 640px; height: 400px; }
+        .icon-canvas { width: 80px; height: 80px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>登录页面PNG资源 - 10寸屏幕</h1>
+        
+        <div class="asset-grid">
+            <!-- 登录背景 -->
+            <div class="asset-card">
+                <div class="asset-title">登录背景</div>
+                <div class="canvas-container">
+                    <canvas id="backgroundCanvas" class="bg-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('backgroundCanvas', 'login-background-10inch.png')">
+                    下载背景图片
+                </button>
+                <div class="specs">尺寸: 1280x800px (10寸屏幕)</div>
+            </div>
+
+            <!-- 中文图标 -->
+            <div class="asset-card">
+                <div class="asset-title">中文语言图标</div>
+                <div class="canvas-container">
+                    <canvas id="chineseIcon" class="icon-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('chineseIcon', 'chinese-flag-icon.png')">
+                    下载中文图标
+                </button>
+                <div class="specs">尺寸: 160x160px</div>
+            </div>
+
+            <!-- 英文图标 -->
+            <div class="asset-card">
+                <div class="asset-title">英文语言图标</div>
+                <div class="canvas-container">
+                    <canvas id="englishIcon" class="icon-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('englishIcon', 'english-flag-icon.png')">
+                    下载英文图标
+                </button>
+                <div class="specs">尺寸: 160x160px</div>
+            </div>
+
+            <!-- 全球图标 -->
+            <div class="asset-card">
+                <div class="asset-title">全球语言图标</div>
+                <div class="canvas-container">
+                    <canvas id="globalIcon" class="icon-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('globalIcon', 'global-language-icon.png')">
+                    下载全球图标
+                </button>
+                <div class="specs">尺寸: 160x160px</div>
+            </div>
+
+            <!-- 用户名图标 -->
+            <div class="asset-card">
+                <div class="asset-title">用户名图标</div>
+                <div class="canvas-container">
+                    <canvas id="usernameIcon" class="icon-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('usernameIcon', 'username-icon.png')">
+                    下载用户名图标
+                </button>
+                <div class="specs">尺寸: 160x160px</div>
+            </div>
+
+            <!-- 密码图标 -->
+            <div class="asset-card">
+                <div class="asset-title">密码图标</div>
+                <div class="canvas-container">
+                    <canvas id="passwordIcon" class="icon-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('passwordIcon', 'password-icon.png')">
+                    下载密码图标
+                </button>
+                <div class="specs">尺寸: 160x160px</div>
+            </div>
+
+            <!-- Logo -->
+            <div class="asset-card">
+                <div class="asset-title">Logo</div>
+                <div class="canvas-container">
+                    <canvas id="logoCanvas" class="icon-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('logoCanvas', 'logo.png')">
+                    下载Logo
+                </button>
+                <div class="specs">尺寸: 160x160px</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有画布
+        function initCanvases() {
+            createBackground();
+            createChineseFlag();
+            createEnglishFlag();
+            createGlobalIcon();
+            createUsernameIcon();
+            createPasswordIcon();
+            createLogo();
+        }
+
+        // 创建登录背景 (10寸屏幕 1280x800)
+        function createBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1280;
+            canvas.height = 800;
+
+            // 创建渐变背景
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#0a1628');
+            gradient.addColorStop(1, '#1e3a5f');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 添加动画圆圈背景效果
+            ctx.globalAlpha = 0.1;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            for (let i = 0; i < 5; i++) {
+                const radius = 100 + i * 80;
+                const circleGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+                circleGradient.addColorStop(0, 'rgba(30, 144, 255, 0.3)');
+                circleGradient.addColorStop(1, 'rgba(30, 144, 255, 0)');
+                ctx.fillStyle = circleGradient;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 添加一些光点
+            ctx.globalAlpha = 0.6;
+            ctx.fillStyle = 'rgba(100, 200, 255, 0.8)';
+            for (let i = 0; i < 50; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 3 + 1;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 创建emoji风格的中文旗帜图标 🇨🇳
+        function createChineseFlag() {
+            const canvas = document.getElementById('chineseIcon');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 160;
+            canvas.height = 160;
+
+            // 使用emoji字体渲染
+            ctx.font = '120px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 绘制中国国旗emoji
+            ctx.fillText('🇨🇳', 80, 80);
+        }
+
+        // 创建emoji风格的美国旗帜图标 🇺🇸
+        function createEnglishFlag() {
+            const canvas = document.getElementById('englishIcon');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 160;
+            canvas.height = 160;
+
+            // 使用emoji字体渲染
+            ctx.font = '120px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 绘制美国国旗emoji
+            ctx.fillText('🇺🇸', 80, 80);
+        }
+
+        // 创建emoji风格的全球图标 🌐
+        function createGlobalIcon() {
+            const canvas = document.getElementById('globalIcon');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 160;
+            canvas.height = 160;
+
+            // 使用emoji字体渲染
+            ctx.font = '120px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 绘制地球emoji
+            ctx.fillText('🌐', 80, 80);
+        }
+
+        // 创建emoji风格的用户名图标 👤
+        function createUsernameIcon() {
+            const canvas = document.getElementById('usernameIcon');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 160;
+            canvas.height = 160;
+
+            // 使用emoji字体渲染
+            ctx.font = '120px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 绘制用户图标emoji
+            ctx.fillText('👤', 80, 80);
+        }
+
+        // 创建emoji风格的密码图标 🔐
+        function createPasswordIcon() {
+            const canvas = document.getElementById('passwordIcon');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 160;
+            canvas.height = 160;
+
+            // 使用emoji字体渲染
+            ctx.font = '120px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 绘制锁图标emoji
+            ctx.fillText('🔐', 80, 80);
+        }
+
+        // 加载并显示现有的logo图片
+        function createLogo() {
+            const canvas = document.getElementById('logoCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 160;
+            canvas.height = 160;
+
+            // 白色背景
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 加载现有的logo图片
+            const img = new Image();
+            img.onload = function() {
+                // 计算缩放比例以适应canvas
+                const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                const x = (canvas.width - img.width * scale) / 2;
+                const y = (canvas.height - img.height * scale) / 2;
+                
+                // 绘制logo图片
+                ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+            };
+            img.src = './logo.png'; // 相对路径指向当前文件夹的logo.png
+        }
+
+        // 绘制星星的辅助函数
+        function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            const step = Math.PI / spikes;
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius);
+            
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+            }
+            
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // 下载资源函数
+        function downloadAsset(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // 页面加载时初始化
+        window.onload = initCanvases;
+    </script>
+</body>
+</html>

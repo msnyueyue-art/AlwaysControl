@@ -1,0 +1,2228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备管理 - AlwaysControl</title>
+    <style>
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 主题色系 */
+            --primary-blue: #1E6BFF;
+            --hover-blue: #4589FF;
+            --light-blue: #E8F3FF;
+            --success-green: #52C41A;
+            --warning-orange: #FA8C16;
+            --error-red: #F5222D;
+            --text-dark: #333333;
+            --text-gray: #666666;
+            --text-light: #999999;
+            --border-color: #E5E7EB;
+            --bg-white: #FFFFFF;
+            --bg-gray: #F8F9FA;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 夜间模式 */
+        body.dark-mode {
+            --text-dark: #E5E7EB;
+            --text-gray: #9CA3AF;
+            --text-light: #6B7280;
+            --border-color: #374151;
+            --bg-white: #1F2937;
+            --bg-gray: #111827;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+                         'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: var(--bg-gray);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ===== 顶部导航栏 ===== */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-gray);
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-gray);
+        }
+
+        .icon-btn.has-badge::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--error-red);
+            border-radius: 50%;
+            border: 2px solid var(--bg-white);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .user-menu:hover {
+            background: var(--bg-gray);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), var(--hover-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .dropdown-icon {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-gray);
+            transition: transform 0.2s;
+        }
+
+        .user-menu.active .dropdown-icon {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+        }
+
+        .user-menu.active .user-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+            color: var(--error-red);
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-gray);
+        }
+
+        .dropdown-item svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        /* ===== 左侧菜单栏 ===== */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 240px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border-color);
+            padding: 16px 0;
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .menu-group {
+            margin-bottom: 8px;
+        }
+
+        .menu-parent {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .menu-parent:hover {
+            background: var(--bg-gray);
+        }
+
+        .menu-parent.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .menu-parent-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-parent-left svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .menu-arrow {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-gray);
+            transition: transform 0.3s;
+        }
+
+        .menu-parent.expanded .menu-arrow {
+            transform: rotate(90deg);
+        }
+
+        .menu-children {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .menu-children.show {
+            max-height: 200px;
+        }
+
+        .menu-child {
+            padding: 10px 20px 10px 52px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .menu-child:hover {
+            background: var(--bg-gray);
+            color: var(--text-dark);
+        }
+
+        .menu-child.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+
+        .menu-child svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* ===== 主内容区 ===== */
+        .main-content {
+            margin-left: 240px;
+            margin-top: 60px;
+            padding: 24px;
+            min-height: calc(100vh - 60px);
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .page-breadcrumb {
+            font-size: 14px;
+            color: var(--text-gray);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-breadcrumb a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .page-breadcrumb a:hover {
+            color: var(--hover-blue);
+        }
+
+        /* ===== 内容卡片 ===== */
+        .content-card {
+            background: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+        }
+
+        /* ===== 筛选区 ===== */
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .filter-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-item.search-box {
+            flex: 2;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: var(--text-dark);
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .filter-input,
+        .filter-select {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-dark);
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(30, 107, 255, 0.1);
+        }
+
+        .filter-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .search-input-wrapper {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            fill: var(--text-light);
+            pointer-events: none;
+        }
+
+        .search-input-wrapper .filter-input {
+            padding-left: 36px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .filter-btn {
+            height: 40px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .filter-btn.primary:hover {
+            background: var(--hover-blue);
+            box-shadow: 0 2px 8px rgba(30, 107, 255, 0.3);
+        }
+
+        .filter-btn.default {
+            background: var(--bg-gray);
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-btn.default:hover {
+            background: #E5E7EB;
+        }
+
+        .filter-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* ===== 操作按钮区 ===== */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            height: 40px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .action-btn.primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: var(--hover-blue);
+            box-shadow: 0 2px 8px rgba(30, 107, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .action-btn.success:hover {
+            background: #73D13D;
+            box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .action-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .result-info {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .result-info strong {
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        /* ===== 表格区 ===== */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .device-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .device-table thead {
+            background: var(--bg-gray);
+        }
+
+        .device-table th {
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .device-table td {
+            padding: 16px 12px;
+            font-size: 14px;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .device-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .device-table tbody tr:hover {
+            background: var(--bg-gray);
+        }
+
+        .device-id {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .device-name {
+            color: var(--text-dark);
+        }
+
+        .soc-value,
+        .soh-value {
+            font-weight: 600;
+        }
+
+        .soc-value.high {
+            color: var(--success-green);
+        }
+
+        .soc-value.medium {
+            color: var(--warning-orange);
+        }
+
+        .soc-value.low {
+            color: var(--error-red);
+        }
+
+        .soh-value.good {
+            color: var(--success-green);
+        }
+
+        .soh-value.fair {
+            color: var(--warning-orange);
+        }
+
+        .soh-value.poor {
+            color: var(--error-red);
+        }
+
+        .power-value {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .power-value.charging {
+            color: var(--primary-blue);
+        }
+
+        .power-value.discharging {
+            color: var(--warning-orange);
+        }
+
+        .power-value svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        .mode-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .mode-tag.auto-charge {
+            background: #E6F7FF;
+            color: #1890FF;
+        }
+
+        .mode-tag.auto-discharge {
+            background: #FFF7E6;
+            color: #FA8C16;
+        }
+
+        .mode-tag.standby {
+            background: #F5F5F5;
+            color: #8C8C8C;
+        }
+
+        .mode-tag.manual-charge {
+            background: #F0F5FF;
+            color: #597EF7;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.charging .status-dot {
+            background: var(--primary-blue);
+            box-shadow: 0 0 8px rgba(30, 107, 255, 0.5);
+        }
+
+        .status-indicator.discharging .status-dot {
+            background: var(--warning-orange);
+            box-shadow: 0 0 8px rgba(250, 140, 22, 0.5);
+        }
+
+        .status-indicator.standby .status-dot {
+            background: var(--text-light);
+        }
+
+        .status-indicator.offline .status-dot {
+            background: var(--error-red);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .table-action-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-white);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .table-action-btn:hover {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .table-action-btn.delete:hover {
+            border-color: var(--error-red);
+            background: #FFF1F0;
+        }
+
+        .table-action-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-gray);
+        }
+
+        .table-action-btn:hover svg {
+            fill: var(--primary-blue);
+        }
+
+        .table-action-btn.delete:hover svg {
+            fill: var(--error-red);
+        }
+
+        /* ===== 分页器 ===== */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-white);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .page-btn:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .page-btn.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .page-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .page-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* ===== 响应式设计 ===== */
+        @media (max-width: 1200px) {
+            .filter-section {
+                flex-direction: column;
+            }
+
+            .filter-item,
+            .filter-item.search-box {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .table-container {
+                overflow-x: scroll;
+            }
+        }
+
+        /* ===== 弹框样式 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-container {
+            background: var(--bg-white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+
+        .modal-container.wide {
+            max-width: 800px;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--bg-gray);
+        }
+
+        .modal-close svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-gray);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--error-red);
+            margin-left: 4px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            height: 42px;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            color: var(--text-dark);
+            background: var(--bg-white);
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(30, 107, 255, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .selected-devices-section {
+            background: var(--bg-gray);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .selected-devices-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+
+        .selected-devices-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .selected-device-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--bg-white);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .device-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .device-item-id {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .device-item-details {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .device-item-remove {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .device-item-remove:hover {
+            background: var(--error-red);
+        }
+
+        .device-item-remove svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-gray);
+        }
+
+        .device-item-remove:hover svg {
+            fill: white;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-gray);
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .file-upload-area.dragover {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .file-upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            fill: var(--text-gray);
+        }
+
+        .file-upload-text {
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .file-upload-hint {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--light-blue);
+            border-radius: 6px;
+            margin-top: 12px;
+        }
+
+        .file-info-icon {
+            width: 32px;
+            height: 32px;
+            fill: var(--primary-blue);
+            flex-shrink: 0;
+        }
+
+        .file-info-details {
+            flex: 1;
+        }
+
+        .file-info-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .file-info-size {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        .file-info-remove {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .file-info-remove:hover {
+            background: rgba(245, 34, 45, 0.1);
+        }
+
+        .file-info-remove svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--error-red);
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            height: 40px;
+            padding: 0 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.cancel {
+            background: var(--bg-gray);
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-btn.cancel:hover {
+            background: #E5E7EB;
+        }
+
+        .modal-btn.primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--hover-blue);
+            box-shadow: 0 2px 8px rgba(30, 107, 255, 0.3);
+        }
+
+        .modal-btn.success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .modal-btn.success:hover {
+            background: #73D13D;
+            box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+        }
+
+        .modal-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal-btn:disabled:hover {
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-navbar">
+        <div class="navbar-left">
+            <div class="brand-logo">
+                <img src="logo.png" alt="AlwaysControl Technology" style="height: 40px; object-fit: contain;">
+            </div>
+        </div>
+        <div class="navbar-right">
+            <!-- 夜间模式 -->
+            <button class="icon-btn" id="themeToggle" title="夜间模式" onclick="toggleTheme()">
+                <svg id="sunIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/>
+                </svg>
+                <svg id="moonIcon" style="display: none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 2c-1.05 0-2.05.16-3 .46 4.06 1.27 7 5.06 7 9.54 0 4.48-2.94 8.27-7 9.54.95.3 1.95.46 3 .46 5.52 0 10-4.48 10-10S14.52 2 9 2z"/>
+                </svg>
+            </button>
+            <!-- 语言切换 -->
+            <button class="icon-btn" id="languageToggle" title="语言切换" onclick="toggleLanguage()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
+                </svg>
+            </button>
+            <!-- 用户菜单 -->
+            <div class="user-menu" onclick="toggleUserMenu()">
+                <div class="user-avatar">管</div>
+                <span class="user-name">管理员</span>
+                <svg class="dropdown-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 10l5 5 5-5z"/>
+                </svg>
+                <div class="user-dropdown">
+                    <div class="dropdown-item">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        账号设置
+                    </div>
+                    <div class="dropdown-item" onclick="logout()">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                        </svg>
+                        退出登录
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 左侧菜单栏 -->
+    <aside class="sidebar">
+        <div class="menu-group">
+            <div class="menu-parent expanded active" onclick="toggleMenu(this)">
+                <div class="menu-parent-left">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 20H4v-4h4v4zm0-6H4v-4h4v4zm0-6H4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4z"/>
+                    </svg>
+                    <span>设备管理</span>
+                </div>
+                <svg class="menu-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                </svg>
+            </div>
+            <div class="menu-children show">
+                <div class="menu-child active">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                    </svg>
+                    <span>设备管理</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <h1 class="page-title">设备管理</h1>
+        </div>
+
+        <!-- 内容卡片 -->
+        <div class="content-card">
+            <!-- 筛选区 -->
+            <div class="filter-section">
+                <div class="filter-item search-box">
+                    <label class="filter-label">设备搜索</label>
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        <input type="text" class="filter-input" placeholder="搜索设备ID、名称..." id="searchInput">
+                    </div>
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">设备状态</label>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">全部状态</option>
+                        <option value="charging">充电</option>
+                        <option value="discharging">放电</option>
+                        <option value="standby">待机</option>
+                        <option value="offline">离线</option>
+                    </select>
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn primary" onclick="applyFilters()">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        查询
+                    </button>
+                    <button class="filter-btn default" onclick="resetFilters()">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                        </svg>
+                        重置
+                    </button>
+                </div>
+            </div>
+
+            <!-- 操作按钮区 -->
+            <div class="action-bar">
+                <div class="action-buttons">
+                    <button class="action-btn primary" onclick="addDevice()">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        添加设备
+                    </button>
+                    <button class="action-btn success" onclick="otaUpgrade()">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 4v2h14V4H5zm0 10h4v6h6v-6h4l-7-7-7 7z"/>
+                        </svg>
+                        OTA 升级
+                    </button>
+                </div>
+                <div class="result-info">
+                    共找到 <strong id="totalCount">12</strong> 台设备
+                </div>
+            </div>
+
+            <!-- 表格列表区 -->
+            <div class="table-container">
+                <table class="device-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" style="cursor: pointer;">
+                            </th>
+                            <th>设备ID</th>
+                            <th>名称</th>
+                            <th>SOC</th>
+                            <th>SOH</th>
+                            <th>设备状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deviceTableBody">
+                        <!-- 数据由 JavaScript 动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 分页器 -->
+            <div class="pagination">
+                <div class="pagination-info">
+                    显示 <span id="showingStart">1</span>-<span id="showingEnd">10</span> 条，共 <span id="totalItems">12</span> 条
+                </div>
+                <div class="pagination-controls">
+                    <button class="page-btn" onclick="previousPage()" id="prevBtn">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                        </svg>
+                    </button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn" onclick="nextPage()" id="nextBtn">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===== 添加设备弹框 ===== -->
+    <div class="modal-overlay" id="addDeviceModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">添加设备</h3>
+                <button class="modal-close" onclick="closeAddDeviceModal()">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addDeviceForm">
+                    <div class="form-group">
+                        <label class="form-label required">设备 ID</label>
+                        <input type="text" class="form-input" id="addDeviceId" placeholder="请输入设备 ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">设备名称</label>
+                        <input type="text" class="form-input" id="addDeviceName" placeholder="请输入设备名称" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeAddDeviceModal()">取消</button>
+                <button class="modal-btn primary" onclick="saveNewDevice()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 编辑设备弹框 ===== -->
+    <div class="modal-overlay" id="editDeviceModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">编辑设备</h3>
+                <button class="modal-close" onclick="closeEditDeviceModal()">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editDeviceForm">
+                    <input type="hidden" id="editDeviceOriginalId">
+                    <div class="form-group">
+                        <label class="form-label required">设备 ID</label>
+                        <input type="text" class="form-input" id="editDeviceId" placeholder="请输入设备 ID" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">设备名称</label>
+                        <input type="text" class="form-input" id="editDeviceName" placeholder="请输入设备名称" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeEditDeviceModal()">取消</button>
+                <button class="modal-btn primary" onclick="saveEditedDevice()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== OTA 升级弹框 ===== -->
+    <div class="modal-overlay" id="otaUpgradeModal">
+        <div class="modal-container wide">
+            <div class="modal-header">
+                <h3 class="modal-title">OTA 升级</h3>
+                <button class="modal-close" onclick="closeOtaUpgradeModal()">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- 已选择设备区域 -->
+                <div class="selected-devices-section">
+                    <div class="selected-devices-header">
+                        已选择的设备 <span id="selectedDeviceCount">0</span> 个
+                    </div>
+                    <div class="selected-devices-list" id="selectedDevicesList">
+                        <!-- 动态填充 -->
+                    </div>
+                </div>
+
+                <form id="otaUpgradeForm">
+                    <div class="form-group">
+                        <label class="form-label required">PackSize</label>
+                        <input type="number" class="form-input" id="otaPackSize" placeholder="请输入 PackSize (单位:字节)" required value="512">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Delay</label>
+                        <input type="number" class="form-input" id="otaDelay" placeholder="请输入 Delay (单位:毫秒)" required value="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">固件文件</label>
+                        <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                            <svg class="file-upload-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                            </svg>
+                            <div class="file-upload-text">拖放文件或点击上传</div>
+                            <div class="file-upload-hint">.bin 文件且文件大小少于 500kb</div>
+                        </div>
+                        <input type="file" id="fileInput" accept=".bin" style="display: none;" onchange="handleFileSelect(event)">
+                        <div id="fileInfo" style="display: none;"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeOtaUpgradeModal()">取消</button>
+                <button class="modal-btn success" onclick="startOtaUpgrade()" id="startUpgradeBtn" disabled>升级固件</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 模拟设备数据 =====
+        const mockDevices = [
+            {
+                id: 'BMS001',
+                name: 'BMS - A区 - 01',
+                soc: 85,
+                soh: 98,
+                status: 'charging',
+                createTime: '2024-01-15 08:30:25',
+                version: 'v1.2.3'
+            },
+            {
+                id: 'BMS002',
+                name: 'BMS - A区 - 02',
+                soc: 72,
+                soh: 96,
+                status: 'discharging',
+                createTime: '2024-01-18 09:15:42',
+                version: 'v1.2.3'
+            },
+            {
+                id: 'BMS003',
+                name: 'BMS - B区 - 01',
+                soc: 45,
+                soh: 97,
+                status: 'standby',
+                createTime: '2024-02-05 14:22:11',
+                version: 'v1.2.2'
+            },
+            {
+                id: 'BMS004',
+                name: 'BMS - B区 - 02',
+                soc: 92,
+                soh: 95,
+                status: 'charging',
+                createTime: '2024-02-10 10:48:33',
+                version: 'v1.2.3'
+            },
+            {
+                id: 'BMS005',
+                name: 'BMS - C区 - 01',
+                soc: 28,
+                soh: 89,
+                status: 'offline',
+                createTime: '2024-02-20 16:05:57',
+                version: 'v1.1.8'
+            },
+            {
+                id: 'BMS006',
+                name: 'BMS - C区 - 02',
+                soc: 68,
+                soh: 94,
+                status: 'discharging',
+                createTime: '2024-03-01 11:37:28',
+                version: 'v1.2.3'
+            },
+            {
+                id: 'BMS007',
+                name: 'BMS - D区 - 01',
+                soc: 91,
+                soh: 99,
+                status: 'charging',
+                createTime: '2024-03-08 13:42:16',
+                version: 'v1.2.4'
+            },
+            {
+                id: 'BMS008',
+                name: 'BMS - D区 - 02',
+                soc: 55,
+                soh: 92,
+                status: 'standby',
+                createTime: '2024-03-12 15:19:50',
+                version: 'v1.2.3'
+            },
+            {
+                id: 'BMS009',
+                name: 'BMS - E区 - 01',
+                soc: 78,
+                soh: 97,
+                status: 'discharging',
+                createTime: '2024-03-18 08:55:34',
+                version: 'v1.2.3'
+            },
+            {
+                id: 'BMS010',
+                name: 'BMS - E区 - 02',
+                soc: 88,
+                soh: 96,
+                status: 'charging',
+                createTime: '2024-03-25 12:28:45',
+                version: 'v1.2.4'
+            },
+            {
+                id: 'BMS011',
+                name: 'BMS - F区 - 01',
+                soc: 15,
+                soh: 85,
+                status: 'charging',
+                createTime: '2024-04-02 09:10:22',
+                version: 'v1.2.2'
+            },
+            {
+                id: 'BMS012',
+                name: 'BMS - F区 - 02',
+                soc: 63,
+                soh: 93,
+                status: 'discharging',
+                createTime: '2024-04-08 14:33:17',
+                version: 'v1.2.3'
+            }
+        ];
+
+        let currentDevices = [...mockDevices];
+        let selectedDevices = new Set();
+
+        // ===== 渲染表格 =====
+        function renderTable() {
+            const tbody = document.getElementById('deviceTableBody');
+            tbody.innerHTML = '';
+
+            currentDevices.forEach(device => {
+                const row = document.createElement('tr');
+
+                // SOC 等级样式
+                let socClass = 'high';
+                if (device.soc < 30) socClass = 'low';
+                else if (device.soc < 60) socClass = 'medium';
+
+                // SOH 等级样式
+                let sohClass = 'good';
+                if (device.soh < 85) sohClass = 'poor';
+                else if (device.soh < 92) sohClass = 'fair';
+
+                // 状态显示
+                const statusLabels = {
+                    'charging': '充电',
+                    'discharging': '放电',
+                    'standby': '待机',
+                    'offline': '离线'
+                };
+
+                row.innerHTML = `
+                    <td>
+                        <input type="checkbox" class="device-checkbox" value="${device.id}"
+                               onchange="toggleDeviceSelect(this, '${device.id}')"
+                               ${selectedDevices.has(device.id) ? 'checked' : ''}
+                               style="cursor: pointer;">
+                    </td>
+                    <td><span class="device-id">${device.id}</span></td>
+                    <td><span class="device-name">${device.name}</span></td>
+                    <td><span class="soc-value ${socClass}">${device.soc}%</span></td>
+                    <td><span class="soh-value ${sohClass}">${device.soh}%</span></td>
+                    <td>
+                        <div class="status-indicator ${device.status}">
+                            <span class="status-dot"></span>
+                            <span>${statusLabels[device.status]}</span>
+                        </div>
+                    </td>
+                    <td>${device.createTime || '2024-01-01 00:00:00'}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="table-action-btn" title="查看详情" onclick="viewDevice('${device.id}')">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                </svg>
+                            </button>
+                            <button class="table-action-btn" title="编辑" onclick="editDevice('${device.id}')">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                </svg>
+                            </button>
+                            <button class="table-action-btn delete" title="删除" onclick="deleteDevice('${device.id}')">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            // 更新统计信息
+            document.getElementById('totalCount').textContent = currentDevices.length;
+            document.getElementById('totalItems').textContent = currentDevices.length;
+        }
+
+        // ===== 筛选功能 =====
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            currentDevices = mockDevices.filter(device => {
+                const matchesSearch = !searchTerm ||
+                    device.id.toLowerCase().includes(searchTerm) ||
+                    device.name.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || device.status === statusFilter;
+
+                return matchesSearch && matchesStatus;
+            });
+
+            renderTable();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            currentDevices = [...mockDevices];
+            renderTable();
+        }
+
+        // ===== 操作功能 =====
+        function addDevice() {
+            alert('打开添加设备对话框');
+        }
+
+        function otaUpgrade() {
+            alert('打开 OTA 升级对话框');
+        }
+
+        function viewDevice(id) {
+            alert(`查看设备详情: ${id}`);
+        }
+
+        function editDevice(id) {
+            alert(`编辑设备: ${id}`);
+        }
+
+        function upgradeDevice(id) {
+            alert(`升级设备固件: ${id}`);
+        }
+
+        function deleteDevice(id) {
+            if (confirm(`确定要删除设备 ${id} 吗?`)) {
+                const index = currentDevices.findIndex(d => d.id === id);
+                if (index > -1) {
+                    currentDevices.splice(index, 1);
+                    renderTable();
+                    alert(`设备 ${id} 已删除`);
+                }
+            }
+        }
+
+        // ===== 菜单交互 =====
+        function toggleMenu(element) {
+            const isExpanded = element.classList.contains('expanded');
+            const children = element.nextElementSibling;
+
+            if (isExpanded) {
+                element.classList.remove('expanded');
+                children.classList.remove('show');
+            } else {
+                element.classList.add('expanded');
+                children.classList.add('show');
+            }
+        }
+
+        function toggleUserMenu() {
+            const userMenu = document.querySelector('.user-menu');
+            userMenu.classList.toggle('active');
+        }
+
+        // 点击外部关闭用户菜单
+        document.addEventListener('click', function(e) {
+            const userMenu = document.querySelector('.user-menu');
+            if (!userMenu.contains(e.target)) {
+                userMenu.classList.remove('active');
+            }
+        });
+
+        function logout() {
+            if (confirm('确定要退出登录吗?')) {
+                window.location.href = 'minimal-login.html';
+            }
+        }
+
+        // ===== 分页功能 =====
+        function previousPage() {
+            alert('上一页');
+        }
+
+        function nextPage() {
+            alert('下一页');
+        }
+
+        // ===== 设备选择相关 =====
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.device-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                if (checkbox.checked) {
+                    selectedDevices.add(cb.value);
+                } else {
+                    selectedDevices.delete(cb.value);
+                }
+            });
+            updateOtaButtonState();
+        }
+
+        function toggleDeviceSelect(checkbox, deviceId) {
+            if (checkbox.checked) {
+                selectedDevices.add(deviceId);
+            } else {
+                selectedDevices.delete(deviceId);
+                document.getElementById('selectAll').checked = false;
+            }
+            updateOtaButtonState();
+        }
+
+        function updateOtaButtonState() {
+            // 可以添加OTA按钮的启用/禁用逻辑
+        }
+
+        // ===== 主题切换 =====
+        let isDarkMode = false;
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+
+            if (isDarkMode) {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+                document.getElementById('themeToggle').title = '白天模式';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+                document.getElementById('themeToggle').title = '夜间模式';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // ===== 语言切换 =====
+        let currentLanguage = 'zh';
+
+        const translations = {
+            zh: {
+                deviceManagement: '设备管理',
+                deviceSearch: '设备搜索',
+                searchPlaceholder: '搜索设备ID、名称...',
+                deviceStatus: '设备状态',
+                allStatus: '全部状态',
+                charging: '充电',
+                discharging: '放电',
+                standby: '待机',
+                offline: '离线',
+                query: '查询',
+                reset: '重置',
+                addDevice: '添加设备',
+                otaUpgrade: 'OTA 升级',
+                totalDevices: '台设备',
+                deviceId: '设备ID',
+                name: '名称',
+                createTime: '创建时间',
+                operations: '操作',
+                viewDetails: '查看详情',
+                edit: '编辑',
+                delete: '删除',
+                showing: '显示',
+                of: '条,共',
+                items: '条'
+            },
+            en: {
+                deviceManagement: 'Device Management',
+                deviceSearch: 'Device Search',
+                searchPlaceholder: 'Search Device ID, Name...',
+                deviceStatus: 'Device Status',
+                allStatus: 'All Status',
+                charging: 'Charging',
+                discharging: 'Discharging',
+                standby: 'Standby',
+                offline: 'Offline',
+                query: 'Query',
+                reset: 'Reset',
+                addDevice: 'Add Device',
+                otaUpgrade: 'OTA Upgrade',
+                totalDevices: 'devices',
+                deviceId: 'Device ID',
+                name: 'Name',
+                createTime: 'Create Time',
+                operations: 'Operations',
+                viewDetails: 'View',
+                edit: 'Edit',
+                delete: 'Delete',
+                showing: 'Showing',
+                of: 'of',
+                items: 'items'
+            }
+        };
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+            applyLanguage();
+            localStorage.setItem('language', currentLanguage);
+        }
+
+        function applyLanguage() {
+            const t = translations[currentLanguage];
+            // 可以根据需要更新页面文本
+            // 这里仅作为示例,完整实现需要更新所有文本元素
+        }
+
+        // ===== 添加设备弹框 =====
+        function addDevice() {
+            document.getElementById('addDeviceModal').classList.add('active');
+            document.getElementById('addDeviceForm').reset();
+        }
+
+        function closeAddDeviceModal() {
+            document.getElementById('addDeviceModal').classList.remove('active');
+        }
+
+        function saveNewDevice() {
+            const id = document.getElementById('addDeviceId').value.trim();
+            const name = document.getElementById('addDeviceName').value.trim();
+
+            if (!id || !name) {
+                alert('请填写所有必填字段');
+                return;
+            }
+
+            // 检查ID是否已存在
+            if (mockDevices.find(d => d.id === id)) {
+                alert('设备ID已存在');
+                return;
+            }
+
+            // 创建新设备
+            const newDevice = {
+                id: id,
+                name: name,
+                soc: 0,
+                soh: 100,
+                status: 'standby',
+                createTime: new Date().toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }).replace(/\//g, '-'),
+                version: 'v1.0.0'
+            };
+
+            mockDevices.push(newDevice);
+            currentDevices = [...mockDevices];
+            renderTable();
+            closeAddDeviceModal();
+            alert(`设备 ${id} 添加成功`);
+        }
+
+        // ===== 编辑设备弹框 =====
+        function editDevice(id) {
+            const device = mockDevices.find(d => d.id === id);
+            if (!device) return;
+
+            document.getElementById('editDeviceOriginalId').value = id;
+            document.getElementById('editDeviceId').value = device.id;
+            document.getElementById('editDeviceName').value = device.name;
+            document.getElementById('editDeviceModal').classList.add('active');
+        }
+
+        function closeEditDeviceModal() {
+            document.getElementById('editDeviceModal').classList.remove('active');
+        }
+
+        function saveEditedDevice() {
+            const originalId = document.getElementById('editDeviceOriginalId').value;
+            const newId = document.getElementById('editDeviceId').value.trim();
+            const newName = document.getElementById('editDeviceName').value.trim();
+
+            if (!newId || !newName) {
+                alert('请填写所有必填字段');
+                return;
+            }
+
+            // 如果ID变更,检查新ID是否已存在
+            if (newId !== originalId && mockDevices.find(d => d.id === newId)) {
+                alert('设备ID已存在');
+                return;
+            }
+
+            const deviceIndex = mockDevices.findIndex(d => d.id === originalId);
+            if (deviceIndex > -1) {
+                mockDevices[deviceIndex].id = newId;
+                mockDevices[deviceIndex].name = newName;
+                currentDevices = [...mockDevices];
+                renderTable();
+                closeEditDeviceModal();
+                alert(`设备 ${newId} 更新成功`);
+            }
+        }
+
+        // ===== OTA 升级弹框 =====
+        function otaUpgrade() {
+            if (selectedDevices.size === 0) {
+                alert('请先选择要升级的设备');
+                return;
+            }
+
+            // 填充已选择的设备列表
+            const devicesList = document.getElementById('selectedDevicesList');
+            devicesList.innerHTML = '';
+
+            selectedDevices.forEach(deviceId => {
+                const device = mockDevices.find(d => d.id === deviceId);
+                if (device) {
+                    const deviceItem = document.createElement('div');
+                    deviceItem.className = 'selected-device-item';
+                    deviceItem.innerHTML = `
+                        <div class="device-item-info">
+                            <div class="device-item-id">${device.id}</div>
+                            <div class="device-item-details">${device.name} | 当前版本: ${device.version || 'v1.0.0'}</div>
+                        </div>
+                        <button class="device-item-remove" onclick="removeDeviceFromUpgrade('${deviceId}')">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                            </svg>
+                        </button>
+                    `;
+                    devicesList.appendChild(deviceItem);
+                }
+            });
+
+            document.getElementById('selectedDeviceCount').textContent = selectedDevices.size;
+            document.getElementById('otaUpgradeModal').classList.add('active');
+        }
+
+        function closeOtaUpgradeModal() {
+            document.getElementById('otaUpgradeModal').classList.remove('active');
+            document.getElementById('otaUpgradeForm').reset();
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('startUpgradeBtn').disabled = true;
+        }
+
+        function removeDeviceFromUpgrade(deviceId) {
+            selectedDevices.delete(deviceId);
+
+            // 更新复选框状态
+            const checkbox = document.querySelector(`.device-checkbox[value="${deviceId}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+
+            // 重新渲染列表
+            if (selectedDevices.size === 0) {
+                closeOtaUpgradeModal();
+                return;
+            }
+
+            otaUpgrade();
+        }
+
+        let selectedFile = null;
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // 验证文件类型
+            if (!file.name.endsWith('.bin')) {
+                alert('请选择 .bin 格式的文件');
+                event.target.value = '';
+                return;
+            }
+
+            // 验证文件大小 (500KB = 512000 bytes)
+            if (file.size > 512000) {
+                alert('文件大小不能超过 500KB');
+                event.target.value = '';
+                return;
+            }
+
+            selectedFile = file;
+
+            // 显示文件信息
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.style.display = 'block';
+            fileInfo.innerHTML = `
+                <div class="file-info">
+                    <svg class="file-info-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    </svg>
+                    <div class="file-info-details">
+                        <div class="file-info-name">${file.name}</div>
+                        <div class="file-info-size">${(file.size / 1024).toFixed(2)} KB</div>
+                    </div>
+                    <button class="file-info-remove" onclick="removeSelectedFile()">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            // 启用升级按钮
+            document.getElementById('startUpgradeBtn').disabled = false;
+        }
+
+        function removeSelectedFile() {
+            selectedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('startUpgradeBtn').disabled = true;
+        }
+
+        function startOtaUpgrade() {
+            const packSize = document.getElementById('otaPackSize').value;
+            const delay = document.getElementById('otaDelay').value;
+
+            if (!packSize || !delay) {
+                alert('请填写所有必填字段');
+                return;
+            }
+
+            if (!selectedFile) {
+                alert('请选择固件文件');
+                return;
+            }
+
+            // 执行升级
+            alert(`开始升级 ${selectedDevices.size} 个设备\nPackSize: ${packSize}\nDelay: ${delay}\n文件: ${selectedFile.name}`);
+
+            // 模拟升级成功,更新设备版本
+            const newVersion = 'v' + (Math.random() * 2 + 1).toFixed(1) + '.' + Math.floor(Math.random() * 10);
+            selectedDevices.forEach(deviceId => {
+                const device = mockDevices.find(d => d.id === deviceId);
+                if (device) {
+                    device.version = newVersion;
+                }
+            });
+
+            renderTable();
+            closeOtaUpgradeModal();
+
+            // 清空选择
+            selectedDevices.clear();
+            document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('selectAll').checked = false;
+        }
+
+        // 点击弹框外部关闭
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // ESC键关闭弹框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+
+        // 文件拖放支持
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        if (fileUploadArea) {
+            fileUploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.add('dragover');
+            });
+
+            fileUploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('dragover');
+            });
+
+            fileUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove('dragover');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const fileInput = document.getElementById('fileInput');
+                    fileInput.files = files;
+                    handleFileSelect({ target: fileInput });
+                }
+            });
+        }
+
+        // ===== 初始化 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable();
+
+            // 恢复主题
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                toggleTheme();
+            }
+
+            // 恢复语言
+            const savedLanguage = localStorage.getItem('language');
+            if (savedLanguage && savedLanguage !== currentLanguage) {
+                currentLanguage = savedLanguage;
+                applyLanguage();
+            }
+
+            // 回车键触发搜索
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyFilters();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

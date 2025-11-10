@@ -1,0 +1,922 @@
+<!-- ========================================
+     将此文件内容插入 device-management.html 的 </main> 标签之前
+     ======================================== -->
+
+<!-- ===== 弹框样式 ===== -->
+<style>
+    /* 模态框遮罩层 */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        animation: fadeIn 0.3s;
+    }
+
+    .modal-overlay.active {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* 模态框容器 */
+    .modal-container {
+        background: var(--bg-white);
+        border-radius: 12px;
+        box-shadow: var(--shadow-md);
+        max-width: 600px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideDown 0.3s;
+    }
+
+    .modal-container.wide {
+        max-width: 800px;
+    }
+
+    /* 模态框头部 */
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+        background: var(--bg-gray);
+    }
+
+    .modal-close svg {
+        width: 20px;
+        height: 20px;
+        fill: var(--text-gray);
+    }
+
+    /* 模态框主体 */
+    .modal-body {
+        padding: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+    }
+
+    .form-label.required::after {
+        content: '*';
+        color: var(--error-red);
+        margin-left: 4px;
+    }
+
+    .form-input,
+    .form-select {
+        width: 100%;
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 14px;
+        color: var(--text-dark);
+        background: var(--bg-white);
+        transition: all 0.3s;
+        outline: none;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(30, 107, 255, 0.1);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-light);
+    }
+
+    /* OTA升级特定样式 */
+    .selected-devices-section {
+        background: var(--bg-gray);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+    }
+
+    .selected-devices-header {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 12px;
+    }
+
+    .selected-devices-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .selected-device-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        background: var(--bg-white);
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+    }
+
+    .device-item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+    }
+
+    .device-item-id {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--primary-blue);
+    }
+
+    .device-item-details {
+        font-size: 12px;
+        color: var(--text-gray);
+    }
+
+    .device-item-remove {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        flex-shrink: 0;
+    }
+
+    .device-item-remove:hover {
+        background: var(--error-red);
+    }
+
+    .device-item-remove svg {
+        width: 16px;
+        height: 16px;
+        fill: var(--text-gray);
+    }
+
+    .device-item-remove:hover svg {
+        fill: white;
+    }
+
+    .file-upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        padding: 32px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: var(--bg-gray);
+    }
+
+    .file-upload-area:hover {
+        border-color: var(--primary-blue);
+        background: var(--light-blue);
+    }
+
+    .file-upload-area.dragover {
+        border-color: var(--primary-blue);
+        background: var(--light-blue);
+    }
+
+    .file-upload-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 12px;
+        fill: var(--text-gray);
+    }
+
+    .file-upload-text {
+        font-size: 14px;
+        color: var(--text-dark);
+        margin-bottom: 8px;
+    }
+
+    .file-upload-hint {
+        font-size: 12px;
+        color: var(--text-light);
+    }
+
+    .file-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--light-blue);
+        border-radius: 6px;
+        margin-top: 12px;
+    }
+
+    .file-info-icon {
+        width: 32px;
+        height: 32px;
+        fill: var(--primary-blue);
+        flex-shrink: 0;
+    }
+
+    .file-info-details {
+        flex: 1;
+    }
+
+    .file-info-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 4px;
+    }
+
+    .file-info-size {
+        font-size: 12px;
+        color: var(--text-gray);
+    }
+
+    .file-info-remove {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .file-info-remove:hover {
+        background: rgba(245, 34, 45, 0.1);
+    }
+
+    .file-info-remove svg {
+        width: 16px;
+        height: 16px;
+        fill: var(--error-red);
+    }
+
+    /* 模态框底部 */
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .modal-btn {
+        height: 40px;
+        padding: 0 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .modal-btn.cancel {
+        background: var(--bg-gray);
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+    }
+
+    .modal-btn.cancel:hover {
+        background: #E5E7EB;
+    }
+
+    .modal-btn.primary {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .modal-btn.primary:hover {
+        background: var(--hover-blue);
+        box-shadow: 0 2px 8px rgba(30, 107, 255, 0.3);
+    }
+
+    .modal-btn.success {
+        background: var(--success-green);
+        color: white;
+    }
+
+    .modal-btn.success:hover {
+        background: #73D13D;
+        box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+    }
+
+    .modal-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .modal-btn:disabled:hover {
+        box-shadow: none;
+    }
+</style>
+
+<!-- ===== 添加设备弹框 ===== -->
+<div class="modal-overlay" id="addDeviceModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title">添加设备</h3>
+            <button class="modal-close" onclick="closeAddDeviceModal()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="addDeviceForm">
+                <div class="form-group">
+                    <label class="form-label required">设备 ID</label>
+                    <input type="text" class="form-input" id="addDeviceId" placeholder="请输入设备 ID" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">设备名称</label>
+                    <input type="text" class="form-input" id="addDeviceName" placeholder="请输入设备名称" required>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeAddDeviceModal()">取消</button>
+            <button class="modal-btn primary" onclick="saveNewDevice()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 编辑设备弹框 ===== -->
+<div class="modal-overlay" id="editDeviceModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title">编辑设备</h3>
+            <button class="modal-close" onclick="closeEditDeviceModal()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editDeviceForm">
+                <input type="hidden" id="editDeviceOriginalId">
+                <div class="form-group">
+                    <label class="form-label required">设备 ID</label>
+                    <input type="text" class="form-input" id="editDeviceId" placeholder="请输入设备 ID" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">设备名称</label>
+                    <input type="text" class="form-input" id="editDeviceName" placeholder="请输入设备名称" required>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeEditDeviceModal()">取消</button>
+            <button class="modal-btn primary" onclick="saveEditedDevice()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== OTA 升级弹框 ===== -->
+<div class="modal-overlay" id="otaUpgradeModal">
+    <div class="modal-container wide">
+        <div class="modal-header">
+            <h3 class="modal-title">OTA 升级</h3>
+            <button class="modal-close" onclick="closeOtaUpgradeModal()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- 已选择设备区域 -->
+            <div class="selected-devices-section">
+                <div class="selected-devices-header">
+                    已选择的设备 <span id="selectedDeviceCount">0</span> 个
+                </div>
+                <div class="selected-devices-list" id="selectedDevicesList">
+                    <!-- 动态填充 -->
+                </div>
+            </div>
+
+            <form id="otaUpgradeForm">
+                <div class="form-group">
+                    <label class="form-label required">PackSize</label>
+                    <input type="number" class="form-input" id="otaPackSize" placeholder="请输入 PackSize (单位:字节)" required value="512">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Delay</label>
+                    <input type="number" class="form-input" id="otaDelay" placeholder="请输入 Delay (单位:毫秒)" required value="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">固件文件</label>
+                    <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
+                        <svg class="file-upload-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                        </svg>
+                        <div class="file-upload-text">拖放文件或点击上传</div>
+                        <div class="file-upload-hint">.bin 文件且文件大小少于 500kb</div>
+                    </div>
+                    <input type="file" id="fileInput" accept=".bin" style="display: none;" onchange="handleFileSelect(event)">
+                    <div id="fileInfo" style="display: none;"></div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel" onclick="closeOtaUpgradeModal()">取消</button>
+            <button class="modal-btn success" onclick="startOtaUpgrade()" id="startUpgradeBtn" disabled>升级固件</button>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================
+     JavaScript补充代码 - 在现有<script>标签内的末尾添加以下函数
+     ======================================== -->
+<script>
+// ===== 设备选择相关 =====
+let selectedDevices = new Set();
+
+function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.device-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+        if (checkbox.checked) {
+            selectedDevices.add(cb.value);
+        } else {
+            selectedDevices.delete(cb.value);
+        }
+    });
+    updateOtaButtonState();
+}
+
+function toggleDeviceSelect(checkbox, deviceId) {
+    if (checkbox.checked) {
+        selectedDevices.add(deviceId);
+    } else {
+        selectedDevices.delete(deviceId);
+        document.getElementById('selectAll').checked = false;
+    }
+    updateOtaButtonState();
+}
+
+function updateOtaButtonState() {
+    // 可以添加OTA按钮的启用/禁用逻辑
+}
+
+// ===== 主题切换 =====
+let isDarkMode = false;
+
+function toggleTheme() {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('dark-mode', isDarkMode);
+
+    const sunIcon = document.getElementById('sunIcon');
+    const moonIcon = document.getElementById('moonIcon');
+
+    if (isDarkMode) {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+        document.getElementById('themeToggle').title = '白天模式';
+        localStorage.setItem('theme', 'dark');
+    } else {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+        document.getElementById('themeToggle').title = '夜间模式';
+        localStorage.setItem('theme', 'light');
+    }
+}
+
+// 页面加载时恢复主题
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        toggleTheme();
+    }
+});
+
+// ===== 语言切换 =====
+let currentLanguage = 'zh';
+
+const translations = {
+    zh: {
+        deviceManagement: '设备管理',
+        deviceSearch: '设备搜索',
+        searchPlaceholder: '搜索设备ID、名称...',
+        deviceStatus: '设备状态',
+        allStatus: '全部状态',
+        charging: '充电',
+        discharging: '放电',
+        standby: '待机',
+        offline: '离线',
+        query: '查询',
+        reset: '重置',
+        addDevice: '添加设备',
+        otaUpgrade: 'OTA 升级',
+        totalDevices: '台设备',
+        deviceId: '设备ID',
+        name: '名称',
+        createTime: '创建时间',
+        operations: '操作',
+        viewDetails: '查看详情',
+        edit: '编辑',
+        delete: '删除',
+        showing: '显示',
+        of: '条，共',
+        items: '条'
+    },
+    en: {
+        deviceManagement: 'Device Management',
+        deviceSearch: 'Device Search',
+        searchPlaceholder: 'Search Device ID, Name...',
+        deviceStatus: 'Device Status',
+        allStatus: 'All Status',
+        charging: 'Charging',
+        discharging: 'Discharging',
+        standby: 'Standby',
+        offline: 'Offline',
+        query: 'Query',
+        reset: 'Reset',
+        addDevice: 'Add Device',
+        otaUpgrade: 'OTA Upgrade',
+        totalDevices: 'devices',
+        deviceId: 'Device ID',
+        name: 'Name',
+        createTime: 'Create Time',
+        operations: 'Operations',
+        viewDetails: 'View',
+        edit: 'Edit',
+        delete: 'Delete',
+        showing: 'Showing',
+        of: 'of',
+        items: 'items'
+    }
+};
+
+function toggleLanguage() {
+    currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+    applyLanguage();
+    localStorage.setItem('language', currentLanguage);
+}
+
+function applyLanguage() {
+    const t = translations[currentLanguage];
+    // 可以根据需要更新页面文本
+    // 这里仅作为示例,完整实现需要更新所有文本元素
+}
+
+// 页面加载时恢复语言
+document.addEventListener('DOMContentLoaded', function() {
+    const savedLanguage = localStorage.getItem('language');
+    if (savedLanguage && savedLanguage !== currentLanguage) {
+        currentLanguage = savedLanguage;
+        applyLanguage();
+    }
+});
+
+// ===== 添加设备弹框 =====
+function addDevice() {
+    document.getElementById('addDeviceModal').classList.add('active');
+    document.getElementById('addDeviceForm').reset();
+}
+
+function closeAddDeviceModal() {
+    document.getElementById('addDeviceModal').classList.remove('active');
+}
+
+function saveNewDevice() {
+    const id = document.getElementById('addDeviceId').value.trim();
+    const name = document.getElementById('addDeviceName').value.trim();
+
+    if (!id || !name) {
+        alert('请填写所有必填字段');
+        return;
+    }
+
+    // 检查ID是否已存在
+    if (mockDevices.find(d => d.id === id)) {
+        alert('设备ID已存在');
+        return;
+    }
+
+    // 创建新设备
+    const newDevice = {
+        id: id,
+        name: name,
+        soc: 0,
+        soh: 100,
+        status: 'standby',
+        createTime: new Date().toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).replace(/\//g, '-'),
+        version: 'v1.0.0'
+    };
+
+    mockDevices.push(newDevice);
+    currentDevices = [...mockDevices];
+    renderTable();
+    closeAddDeviceModal();
+    alert(`设备 ${id} 添加成功`);
+}
+
+// ===== 编辑设备弹框 =====
+function editDevice(id) {
+    const device = mockDevices.find(d => d.id === id);
+    if (!device) return;
+
+    document.getElementById('editDeviceOriginalId').value = id;
+    document.getElementById('editDeviceId').value = device.id;
+    document.getElementById('editDeviceName').value = device.name;
+    document.getElementById('editDeviceModal').classList.add('active');
+}
+
+function closeEditDeviceModal() {
+    document.getElementById('editDeviceModal').classList.remove('active');
+}
+
+function saveEditedDevice() {
+    const originalId = document.getElementById('editDeviceOriginalId').value;
+    const newId = document.getElementById('editDeviceId').value.trim();
+    const newName = document.getElementById('editDeviceName').value.trim();
+
+    if (!newId || !newName) {
+        alert('请填写所有必填字段');
+        return;
+    }
+
+    // 如果ID变更,检查新ID是否已存在
+    if (newId !== originalId && mockDevices.find(d => d.id === newId)) {
+        alert('设备ID已存在');
+        return;
+    }
+
+    const deviceIndex = mockDevices.findIndex(d => d.id === originalId);
+    if (deviceIndex > -1) {
+        mockDevices[deviceIndex].id = newId;
+        mockDevices[deviceIndex].name = newName;
+        currentDevices = [...mockDevices];
+        renderTable();
+        closeEditDeviceModal();
+        alert(`设备 ${newId} 更新成功`);
+    }
+}
+
+// ===== OTA 升级弹框 =====
+function otaUpgrade() {
+    if (selectedDevices.size === 0) {
+        alert('请先选择要升级的设备');
+        return;
+    }
+
+    // 填充已选择的设备列表
+    const devicesList = document.getElementById('selectedDevicesList');
+    devicesList.innerHTML = '';
+
+    selectedDevices.forEach(deviceId => {
+        const device = mockDevices.find(d => d.id === deviceId);
+        if (device) {
+            const deviceItem = document.createElement('div');
+            deviceItem.className = 'selected-device-item';
+            deviceItem.innerHTML = `
+                <div class="device-item-info">
+                    <div class="device-item-id">${device.id}</div>
+                    <div class="device-item-details">${device.name} | 当前版本: ${device.version || 'v1.0.0'}</div>
+                </div>
+                <button class="device-item-remove" onclick="removeDeviceFromUpgrade('${deviceId}')">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            `;
+            devicesList.appendChild(deviceItem);
+        }
+    });
+
+    document.getElementById('selectedDeviceCount').textContent = selectedDevices.size;
+    document.getElementById('otaUpgradeModal').classList.add('active');
+}
+
+function closeOtaUpgradeModal() {
+    document.getElementById('otaUpgradeModal').classList.remove('active');
+    document.getElementById('otaUpgradeForm').reset();
+    document.getElementById('fileInfo').style.display = 'none';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('startUpgradeBtn').disabled = true;
+}
+
+function removeDeviceFromUpgrade(deviceId) {
+    selectedDevices.delete(deviceId);
+
+    // 更新复选框状态
+    const checkbox = document.querySelector(`.device-checkbox[value="${deviceId}"]`);
+    if (checkbox) {
+        checkbox.checked = false;
+    }
+
+    // 重新渲染列表
+    if (selectedDevices.size === 0) {
+        closeOtaUpgradeModal();
+        return;
+    }
+
+    otaUpgrade();
+}
+
+let selectedFile = null;
+
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // 验证文件类型
+    if (!file.name.endsWith('.bin')) {
+        alert('请选择 .bin 格式的文件');
+        event.target.value = '';
+        return;
+    }
+
+    // 验证文件大小 (500KB = 512000 bytes)
+    if (file.size > 512000) {
+        alert('文件大小不能超过 500KB');
+        event.target.value = '';
+        return;
+    }
+
+    selectedFile = file;
+
+    // 显示文件信息
+    const fileInfo = document.getElementById('fileInfo');
+    fileInfo.style.display = 'block';
+    fileInfo.innerHTML = `
+        <div class="file-info">
+            <svg class="file-info-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            </svg>
+            <div class="file-info-details">
+                <div class="file-info-name">${file.name}</div>
+                <div class="file-info-size">${(file.size / 1024).toFixed(2)} KB</div>
+            </div>
+            <button class="file-info-remove" onclick="removeSelectedFile()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </button>
+        </div>
+    `;
+
+    // 启用升级按钮
+    document.getElementById('startUpgradeBtn').disabled = false;
+}
+
+function removeSelectedFile() {
+    selectedFile = null;
+    document.getElementById('fileInput').value = '';
+    document.getElementById('fileInfo').style.display = 'none';
+    document.getElementById('startUpgradeBtn').disabled = true;
+}
+
+function startOtaUpgrade() {
+    const packSize = document.getElementById('otaPackSize').value;
+    const delay = document.getElementById('otaDelay').value;
+
+    if (!packSize || !delay) {
+        alert('请填写所有必填字段');
+        return;
+    }
+
+    if (!selectedFile) {
+        alert('请选择固件文件');
+        return;
+    }
+
+    // 执行升级
+    alert(`开始升级 ${selectedDevices.size} 个设备\nPackSize: ${packSize}\nDelay: ${delay}\n文件: ${selectedFile.name}`);
+
+    // 模拟升级成功,更新设备版本
+    const newVersion = 'v' + (Math.random() * 2 + 1).toFixed(1) + '.' + Math.floor(Math.random() * 10);
+    selectedDevices.forEach(deviceId => {
+        const device = mockDevices.find(d => d.id === deviceId);
+        if (device) {
+            device.version = newVersion;
+        }
+    });
+
+    renderTable();
+    closeOtaUpgradeModal();
+
+    // 清空选择
+    selectedDevices.clear();
+    document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('selectAll').checked = false;
+}
+
+// 点击弹框外部关闭
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal-overlay')) {
+        e.target.classList.remove('active');
+    }
+});
+
+// ESC键关闭弹框
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+            modal.classList.remove('active');
+        });
+    }
+});
+
+// 文件拖放支持
+const fileUploadArea = document.getElementById('fileUploadArea');
+if (fileUploadArea) {
+    fileUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.add('dragover');
+    });
+
+    fileUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.remove('dragover');
+    });
+
+    fileUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.remove('dragover');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.files = files;
+            handleFileSelect({ target: fileInput });
+        }
+    });
+}
+</script>

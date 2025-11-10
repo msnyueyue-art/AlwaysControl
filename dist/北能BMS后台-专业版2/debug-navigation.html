@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调试导航</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .status {
+            color: #666;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 6px;
+        }
+        .menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        .menu-item {
+            padding: 20px;
+            background: #1E6BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .menu-item:hover {
+            background: #4589FF;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 107, 255, 0.3);
+        }
+        .menu-item.success {
+            background: #52C41A;
+        }
+        .menu-item.warning {
+            background: #FA8C16;
+        }
+        .file-list {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+        .file-list h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .file-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: 'Consolas', monospace;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 北能BMS后台 - 页面导航调试</h1>
+        <div class="status" id="status">
+            正在检测文件...
+        </div>
+
+        <div class="menu">
+            <button class="menu-item" onclick="navigateTo('index.html')">
+                🏠 首页 (登录页)
+            </button>
+            <button class="menu-item" onclick="navigateTo('user-management.html')">
+                👥 用户管理
+            </button>
+            <button class="menu-item warning" onclick="navigateTo('distributor-management.html')">
+                🏪 分销商管理 ⚠️
+            </button>
+            <button class="menu-item" onclick="navigateTo('device-management.html')">
+                📱 设备管理
+            </button>
+            <button class="menu-item" onclick="navigateTo('alarm-management.html')">
+                🔔 告警管理
+            </button>
+            <button class="menu-item" onclick="navigateTo('role-management.html')">
+                🎭 角色管理
+            </button>
+            <button class="menu-item" onclick="navigateTo('personnel-management.html')">
+                👤 人员管理
+            </button>
+            <button class="menu-item" onclick="navigateTo('operation-log.html')">
+                📋 操作日志
+            </button>
+        </div>
+
+        <div class="file-list">
+            <h3>📁 当前目录文件列表</h3>
+            <div id="fileList">检测中...</div>
+        </div>
+    </div>
+
+    <script>
+        // 显示当前状态
+        function updateStatus() {
+            const status = document.getElementById('status');
+            status.innerHTML = `
+                <strong>当前页面:</strong> ${window.location.href}<br>
+                <strong>协议:</strong> ${window.location.protocol}<br>
+                <strong>路径:</strong> ${window.location.pathname}
+            `;
+        }
+
+        // 导航到指定页面
+        function navigateTo(page) {
+            console.log('尝试导航到:', page);
+
+            // 尝试多种方式
+            const methods = [
+                page,
+                './' + page,
+                window.location.pathname.replace(/[^/]*$/, '') + page
+            ];
+
+            console.log('尝试的路径:', methods);
+
+            // 使用第一种方式
+            window.location.href = page;
+        }
+
+        // 检测文件是否存在
+        async function checkFiles() {
+            const files = [
+                'index.html',
+                'user-management.html',
+                'distributor-management.html',
+                'device-management.html',
+                'alarm-management.html',
+                'role-management.html',
+                'personnel-management.html',
+                'operation-log.html'
+            ];
+
+            const fileListDiv = document.getElementById('fileList');
+            fileListDiv.innerHTML = '';
+
+            for (const file of files) {
+                const item = document.createElement('div');
+                item.className = 'file-item';
+
+                try {
+                    const response = await fetch(file, { method: 'HEAD' });
+                    if (response.ok) {
+                        item.innerHTML = `✅ ${file}`;
+                        item.style.color = '#52C41A';
+                    } else {
+                        item.innerHTML = `❌ ${file} (HTTP ${response.status})`;
+                        item.style.color = '#F5222D';
+                    }
+                } catch (error) {
+                    item.innerHTML = `❓ ${file} (无法检测: ${error.message})`;
+                    item.style.color = '#FA8C16';
+                }
+
+                fileListDiv.appendChild(item);
+            }
+        }
+
+        // 页面加载时执行
+        window.addEventListener('DOMContentLoaded', function() {
+            updateStatus();
+            checkFiles();
+        });
+
+        // 添加调试信息
+        console.log('调试导航页面已加载');
+        console.log('当前URL:', window.location.href);
+        console.log('当前协议:', window.location.protocol);
+    </script>
+</body>
+</html>

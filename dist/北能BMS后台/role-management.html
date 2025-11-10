@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色管理 - 北能BMS后台管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #1E6BFF;
+            --bg-white: #FFFFFF;
+            --bg-gray: #F5F7FA;
+            --border-color: #E4E7ED;
+            --text-primary: #303133;
+            --text-regular: #606266;
+            --text-secondary: #909399;
+            --success-color: #67C23A;
+            --warning-color: #E6A23C;
+            --danger-color: #F56C6C;
+            --info-color: #909399;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-primary);
+        }
+
+        /* 顶部导航栏 */
+        .top-navbar {
+            height: 60px;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-gray);
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-regular);
+        }
+
+        .icon-btn.has-badge::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger-color);
+            border-radius: 50%;
+            border: 2px solid var(--bg-white);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .user-menu:hover {
+            background: var(--bg-gray);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), #4589FF);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .dropdown-icon {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-regular);
+            transition: transform 0.2s;
+        }
+
+        .user-menu.active .dropdown-icon {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+        }
+
+        .user-menu.active .user-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+            color: var(--danger-color);
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-gray);
+        }
+
+        .dropdown-item svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 220px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            left: 0;
+            top: 60px;
+            bottom: 0;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+
+        .menu-group {
+            margin-bottom: 8px;
+        }
+
+        .menu-parent {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+
+        .menu-parent:hover {
+            background-color: var(--bg-gray);
+        }
+
+        .menu-parent.active {
+            background-color: #E8F4FF;
+            color: var(--primary-blue);
+        }
+
+        .menu-parent-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-parent svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .menu-arrow {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s;
+            fill: var(--text-regular);
+        }
+
+        .menu-parent.expanded .menu-arrow {
+            transform: rotate(90deg);
+        }
+
+        .menu-children {
+            max-height: 0;
+            overflow: hidden;
+            padding-left: 20px;
+            transition: max-height 0.3s ease;
+        }
+
+        .menu-children.show {
+            max-height: 500px;
+        }
+
+        .menu-child {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-child:hover {
+            background-color: var(--bg-gray);
+        }
+
+        .menu-child.active {
+            background-color: #E8F4FF;
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            margin-left: 220px;
+            margin-top: 60px;
+            padding: 24px;
+            min-height: calc(100vh - 60px);
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: var(--bg-white);
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: var(--text-regular);
+        }
+
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            width: 240px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .filter-input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-white);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-btn.primary {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .filter-btn.primary:hover {
+            background: #0052E6;
+            border-color: #0052E6;
+        }
+
+        .filter-btn.default:hover {
+            background: var(--bg-gray);
+        }
+
+        /* 操作区域 */
+        .action-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .action-left {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--bg-white);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn.primary {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .action-btn.primary:hover {
+            background: #0052E6;
+            border-color: #0052E6;
+        }
+
+        .action-btn.default:hover {
+            background: var(--bg-gray);
+        }
+
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .data-table thead {
+            background: var(--bg-gray);
+        }
+
+        .data-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-regular);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table td {
+            padding: 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table tbody tr {
+            transition: background-color 0.3s;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--bg-gray);
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .status-badge.enabled {
+            background-color: #F0F9FF;
+            color: var(--success-color);
+        }
+
+        .status-badge.disabled {
+            background-color: #FEF0F0;
+            color: var(--danger-color);
+        }
+
+        /* 操作按钮 */
+        .action-icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--primary-blue);
+            transition: all 0.3s;
+            margin-right: 8px;
+        }
+
+        .action-icon-btn:hover {
+            opacity: 0.7;
+        }
+
+        .action-icon-btn.delete {
+            color: var(--danger-color);
+        }
+
+        .action-icon-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .pagination-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-white);
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-regular);
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--bg-gray);
+        }
+
+        .pagination-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .pagination-btn.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-right: 12px;
+        }
+
+        /* 用户数量标签 */
+        .user-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: var(--bg-gray);
+            border-radius: 12px;
+            font-size: 13px;
+            color: var(--text-regular);
+        }
+
+        .user-count svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-white);
+            border-radius: 8px;
+            width: 600px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal.wide {
+            width: 700px;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+            background: var(--bg-white);
+        }
+
+        .modal-btn.primary {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .modal-btn.primary:hover {
+            background: #0052E6;
+            border-color: #0052E6;
+        }
+
+        .modal-btn.danger {
+            background: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+
+        .modal-btn.danger:hover {
+            background: #F24545;
+            border-color: #F24545;
+        }
+
+        .modal-btn.default:hover {
+            background: var(--bg-gray);
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-regular);
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: var(--danger-color);
+            margin-right: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .form-textarea:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+            background: var(--bg-white);
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-blue);
+        }
+
+        /* 权限树形结构 */
+        .permission-tree {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .permission-module {
+            margin-bottom: 12px;
+        }
+
+        .permission-module:last-child {
+            margin-bottom: 0;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .module-header:hover {
+            background: var(--bg-gray);
+        }
+
+        .module-toggle {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            fill: var(--text-regular);
+            transition: transform 0.2s;
+        }
+
+        .permission-module.expanded .module-toggle {
+            transform: rotate(90deg);
+        }
+
+        .module-checkbox {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .module-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .permission-children {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding-left: 32px;
+        }
+
+        .permission-module.expanded .permission-children {
+            max-height: 500px;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .permission-item:hover {
+            background: var(--bg-gray);
+        }
+
+        .permission-checkbox {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .permission-label {
+            font-size: 14px;
+            color: var(--text-regular);
+            cursor: pointer;
+        }
+
+        /* 删除确认弹框 */
+        .delete-modal {
+            width: 450px;
+        }
+
+        .delete-warning {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .warning-icon {
+            width: 48px;
+            height: 48px;
+            background: #FFF7E6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .warning-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--warning-color);
+        }
+
+        .delete-message {
+            flex: 1;
+            padding-top: 8px;
+        }
+
+        .delete-message p {
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .delete-message .role-name {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+
+        .error-text {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-navbar">
+        <div class="navbar-left">
+            <div class="brand-logo">
+                <img src="logo.png" alt="AlwaysControl Technology" style="height: 40px; object-fit: contain;">
+            </div>
+        </div>
+        <div class="navbar-right">
+            <!-- 夜间模式 -->
+            <button class="icon-btn" id="themeToggle" title="夜间模式" onclick="toggleTheme()">
+                <svg id="sunIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/>
+                </svg>
+                <svg id="moonIcon" style="display: none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 2c-1.05 0-2.05.16-3 .46 4.06 1.27 7 5.06 7 9.54 0 4.48-2.94 8.27-7 9.54.95.3 1.95.46 3 .46 5.52 0 10-4.48 10-10S14.52 2 9 2z"/>
+                </svg>
+            </button>
+            <!-- 语言切换 -->
+            <button class="icon-btn" id="languageToggle" title="语言切换" onclick="toggleLanguage()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
+                </svg>
+            </button>
+            <!-- 铃铛按钮 -->
+            <button class="icon-btn has-badge" id="alarmBtn" title="告警通知" onclick="window.location.href='alarm-management.html'">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                </svg>
+            </button>
+            <!-- 用户菜单 -->
+            <div class="user-menu" onclick="toggleUserMenu()">
+                <div class="user-avatar">管</div>
+                <span class="user-name">管理员</span>
+                <svg class="dropdown-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 10l5 5 5-5z"/>
+                </svg>
+                <div class="user-dropdown">
+                    <div class="dropdown-item">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                        账号设置
+                    </div>
+                    <div class="dropdown-item" onclick="logout()">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                        </svg>
+                        退出登录
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 左侧边栏 -->
+    <aside class="sidebar">
+        <!-- 用户管理菜单组 -->
+        <div class="menu-group">
+            <div class="menu-parent" onclick="window.location.href='user-management.html'">
+                <div class="menu-parent-left">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span>用户管理</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-group">
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <div class="menu-parent-left">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                    </svg>
+                    <span>设备管理</span>
+                </div>
+                <svg class="menu-arrow" viewBox="0 0 24 24">
+                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="window.location.href='device-management.html'">
+                    <span>设备列表</span>
+                </div>
+                <div class="menu-child" onclick="window.location.href='alarm-management.html'">
+                    <span>告警管理</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-group">
+            <div class="menu-parent expanded" onclick="toggleMenu(this)">
+                <div class="menu-parent-left">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <span>系统管理</span>
+                </div>
+                <svg class="menu-arrow" viewBox="0 0 24 24">
+                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+            </div>
+            <div class="menu-children show">
+                <div class="menu-child" onclick="window.location.href='menu-management.html'">
+                    <span>菜单管理</span>
+                </div>
+                <div class="menu-child active">
+                    <span>角色管理</span>
+                </div>
+                <div class="menu-child" onclick="window.location.href='personnel-management.html'">
+                    <span>人员管理</span>
+                </div>
+                <div class="menu-child" onclick="window.location.href='operation-log.html'">
+                    <span>操作日志</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">角色管理</h1>
+        </div>
+
+        <div class="content-card">
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-item">
+                    <input type="text" class="filter-input" id="roleNameFilter" placeholder="搜索角色名称...">
+                </div>
+                <button class="filter-btn primary" onclick="applyFilters()">
+                    <span>查询</span>
+                </button>
+                <button class="filter-btn default" onclick="resetFilters()">
+                    <span>重置</span>
+                </button>
+            </div>
+
+            <!-- 操作区域 -->
+            <div class="action-section">
+                <div class="action-left">
+                    <button class="action-btn primary" onclick="addRole()">
+                        <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: currentColor;">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        <span>新增角色</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>角色名称</th>
+                        <th>角色描述</th>
+                        <th>用户数量</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="roleTableBody">
+                    <!-- 数据通过JS动态渲染 -->
+                </tbody>
+            </table>
+
+            <!-- 分页 -->
+            <div class="pagination">
+                <span class="pagination-info">共 <span id="totalCount">0</span> 条</span>
+                <button class="pagination-btn" id="prevBtn" onclick="prevPage()">上一页</button>
+                <button class="pagination-btn active">1</button>
+                <button class="pagination-btn" onclick="goToPage(2)">2</button>
+                <button class="pagination-btn" onclick="goToPage(3)">3</button>
+                <button class="pagination-btn" id="nextBtn" onclick="nextPage()">下一页</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 新增角色弹框 -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal wide">
+            <div class="modal-header">
+                <h3 class="modal-title">新增角色</h3>
+                <button class="modal-close" onclick="closeAddModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addRoleForm">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span>角色名称</label>
+                        <input type="text" class="form-input" id="add_roleName" placeholder="请输入角色名称" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">角色描述</label>
+                        <textarea class="form-textarea" id="add_description" placeholder="请输入角色描述"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">权限设置</label>
+                        <div class="permission-tree" id="add_permissionTree">
+                            <!-- 权限树将通过JS动态生成 -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="add_status">
+                            <option value="enabled" selected>启用</option>
+                            <option value="disabled">禁用</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn default" onclick="closeAddModal()">取消</button>
+                <button class="modal-btn primary" onclick="saveRole()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑角色弹框 -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal wide">
+            <div class="modal-header">
+                <h3 class="modal-title">编辑角色</h3>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editRoleForm">
+                    <input type="hidden" id="edit_roleId">
+
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span>角色名称</label>
+                        <input type="text" class="form-input" id="edit_roleName" placeholder="请输入角色名称" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">角色描述</label>
+                        <textarea class="form-textarea" id="edit_description" placeholder="请输入角色描述"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">权限设置</label>
+                        <div class="permission-tree" id="edit_permissionTree">
+                            <!-- 权限树将通过JS动态生成 -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="edit_status">
+                            <option value="enabled">启用</option>
+                            <option value="disabled">禁用</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn default" onclick="closeEditModal()">取消</button>
+                <button class="modal-btn primary" onclick="updateRole()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹框 -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal delete-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">删除确认</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-warning">
+                    <div class="warning-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                        </svg>
+                    </div>
+                    <div class="delete-message">
+                        <p>确定要删除角色 <span class="role-name" id="deleteRoleName"></span> 吗?</p>
+                        <p class="error-text">此操作不可撤销!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn default" onclick="closeDeleteModal()">取消</button>
+                <button class="modal-btn danger" onclick="confirmDelete()">确定删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 权限结构定义
+        const permissionStructure = [
+            {
+                id: 'user',
+                name: '用户管理',
+                children: []
+            },
+            {
+                id: 'device',
+                name: '设备管理',
+                children: [
+                    { id: 'device_view', name: '查看设备' },
+                    { id: 'device_add', name: '新增设备' },
+                    { id: 'device_edit', name: '编辑设备' },
+                    { id: 'device_delete', name: '删除设备' },
+                    { id: 'device_control', name: '设备控制' }
+                ]
+            },
+            {
+                id: 'alarm',
+                name: '告警管理',
+                children: []
+            },
+            {
+                id: 'system',
+                name: '系统管理',
+                children: [
+                    { id: 'menu_manage', name: '菜单管理' },
+                    { id: 'role_manage', name: '角色管理' },
+                    { id: 'personnel_manage', name: '人员管理' }
+                ]
+            }
+        ];
+
+        // 当前操作的角色ID(用于删除确认)
+        let currentRoleId = null;
+
+        // 模拟数据
+        const mockRoles = [
+            {
+                id: 1,
+                name: '超级管理员',
+                description: '拥有系统所有权限，可管理所有模块和数据',
+                userCount: 2,
+                status: 'enabled',
+                createTime: '2024-01-15 10:30:00',
+                permissions: ['user', 'device', 'device_view', 'device_add', 'device_edit', 'device_delete', 'device_control', 'alarm', 'system', 'menu_manage', 'role_manage', 'personnel_manage']
+            },
+            {
+                id: 2,
+                name: '运维人员',
+                description: '负责设备日常运维和监控，可查看和处理告警信息',
+                userCount: 8,
+                status: 'enabled',
+                createTime: '2024-02-20 14:20:00',
+                permissions: ['device', 'device_view', 'device_edit', 'device_control', 'alarm']
+            },
+            {
+                id: 3,
+                name: '操作员',
+                description: '负责设备基本操作，可查看设备状态和基础信息',
+                userCount: 15,
+                status: 'enabled',
+                createTime: '2024-03-10 09:15:00',
+                permissions: ['device_view', 'device_control']
+            },
+            {
+                id: 4,
+                name: '访客',
+                description: '仅可查看设备基本信息，无操作权限',
+                userCount: 5,
+                status: 'enabled',
+                createTime: '2024-03-25 16:45:00',
+                permissions: ['device_view']
+            },
+            {
+                id: 5,
+                name: '数据分析员',
+                description: '专注于数据分析和报表查看，可导出数据',
+                userCount: 3,
+                status: 'enabled',
+                createTime: '2024-04-05 11:00:00',
+                permissions: ['device_view', 'alarm']
+            },
+            {
+                id: 6,
+                name: '测试角色',
+                description: '用于系统测试的临时角色',
+                userCount: 0,
+                status: 'disabled',
+                createTime: '2024-05-12 13:30:00',
+                permissions: []
+            }
+        ];
+
+        // 渲染角色列表
+        function renderRoleList() {
+            const tbody = document.getElementById('roleTableBody');
+            const totalCount = document.getElementById('totalCount');
+
+            totalCount.textContent = mockRoles.length;
+
+            tbody.innerHTML = mockRoles.map(role => `
+                <tr>
+                    <td><strong>${role.name}</strong></td>
+                    <td>${role.description}</td>
+                    <td>
+                        <span class="user-count">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
+                            ${role.userCount}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge ${role.status}">
+                            ${role.status === 'enabled' ? '启用' : '禁用'}
+                        </span>
+                    </td>
+                    <td>${role.createTime}</td>
+                    <td>
+                        <button class="action-icon-btn" onclick="editRole(${role.id})" title="编辑">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                        </button>
+                        <button class="action-icon-btn delete" onclick="deleteRole(${role.id})" title="删除">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 菜单切换
+        function toggleMenu(element) {
+            const isExpanded = element.classList.contains('expanded');
+            const children = element.nextElementSibling;
+
+            if (isExpanded) {
+                element.classList.remove('expanded');
+                children.classList.remove('show');
+            } else {
+                element.classList.add('expanded');
+                children.classList.add('show');
+            }
+        }
+
+        // 筛选功能
+        function applyFilters() {
+            const searchValue = document.getElementById('roleNameFilter').value.toLowerCase();
+            console.log('应用筛选:', searchValue);
+            // 实际项目中这里会调用API进行筛选
+            alert('筛选功能：搜索 "' + searchValue + '"');
+        }
+
+        function resetFilters() {
+            document.getElementById('roleNameFilter').value = '';
+            renderRoleList();
+        }
+
+        // ========== 权限树相关函数 ==========
+
+        // 渲染权限树
+        function renderPermissionTree(containerId, selectedPermissions = []) {
+            const container = document.getElementById(containerId);
+
+            container.innerHTML = permissionStructure.map(module => {
+                const hasChildren = module.children && module.children.length > 0;
+                const moduleChecked = selectedPermissions.includes(module.id);
+
+                // 计算子权限勾选状态
+                let childrenHTML = '';
+                let checkedChildrenCount = 0;
+                if (hasChildren) {
+                    module.children.forEach(child => {
+                        const childChecked = selectedPermissions.includes(child.id);
+                        if (childChecked) checkedChildrenCount++;
+                    });
+
+                    childrenHTML = module.children.map(child => {
+                        const childChecked = selectedPermissions.includes(child.id);
+                        return `
+                            <div class="permission-item">
+                                <input type="checkbox"
+                                       class="permission-checkbox"
+                                       id="${containerId}_${child.id}"
+                                       data-module-id="${module.id}"
+                                       data-permission-id="${child.id}"
+                                       ${childChecked ? 'checked' : ''}
+                                       onchange="handlePermissionCheckboxChange('${containerId}', '${child.id}', '${module.id}')">
+                                <label for="${containerId}_${child.id}" class="permission-label">${child.name}</label>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                // 父级checkbox状态：全选、半选、未选
+                const allChildrenChecked = hasChildren && checkedChildrenCount === module.children.length;
+                const someChildrenChecked = hasChildren && checkedChildrenCount > 0 && checkedChildrenCount < module.children.length;
+                const parentChecked = moduleChecked || allChildrenChecked;
+
+                return `
+                    <div class="permission-module ${hasChildren ? 'has-children' : ''}" data-module-id="${module.id}">
+                        <div class="module-header" onclick="togglePermissionModule('${containerId}', '${module.id}')">
+                            ${hasChildren ? '<svg class="module-toggle" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>' : '<span style="width: 24px;"></span>'}
+                            <input type="checkbox"
+                                   class="module-checkbox"
+                                   id="${containerId}_module_${module.id}"
+                                   data-module-id="${module.id}"
+                                   ${parentChecked ? 'checked' : ''}
+                                   ${someChildrenChecked ? 'indeterminate' : ''}
+                                   onclick="event.stopPropagation()"
+                                   onchange="handleModuleCheckboxChange('${containerId}', '${module.id}')">
+                            <label for="${containerId}_module_${module.id}" class="module-name" onclick="event.stopPropagation()">${module.name}</label>
+                        </div>
+                        ${hasChildren ? `<div class="permission-children">${childrenHTML}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            // 设置半选状态
+            permissionStructure.forEach(module => {
+                if (module.children && module.children.length > 0) {
+                    const checkbox = document.getElementById(`${containerId}_module_${module.id}`);
+                    const checkedChildren = module.children.filter(child => selectedPermissions.includes(child.id));
+                    if (checkedChildren.length > 0 && checkedChildren.length < module.children.length) {
+                        checkbox.indeterminate = true;
+                    }
+                }
+            });
+        }
+
+        // 切换权限模块展开/折叠
+        function togglePermissionModule(containerId, moduleId) {
+            const container = document.getElementById(containerId);
+            const moduleElem = container.querySelector(`[data-module-id="${moduleId}"]`);
+            if (moduleElem) {
+                moduleElem.classList.toggle('expanded');
+            }
+        }
+
+        // 处理模块checkbox变化
+        function handleModuleCheckboxChange(containerId, moduleId) {
+            const moduleCheckbox = document.getElementById(`${containerId}_module_${moduleId}`);
+            const isChecked = moduleCheckbox.checked;
+
+            // 查找该模块
+            const module = permissionStructure.find(m => m.id === moduleId);
+            if (!module) return;
+
+            // 如果有子权限，同步更新所有子权限
+            if (module.children && module.children.length > 0) {
+                module.children.forEach(child => {
+                    const childCheckbox = document.getElementById(`${containerId}_${child.id}`);
+                    if (childCheckbox) {
+                        childCheckbox.checked = isChecked;
+                    }
+                });
+                moduleCheckbox.indeterminate = false;
+            }
+        }
+
+        // 处理子权限checkbox变化
+        function handlePermissionCheckboxChange(containerId, permissionId, moduleId) {
+            const module = permissionStructure.find(m => m.id === moduleId);
+            if (!module || !module.children) return;
+
+            // 统计已选中的子权限数量
+            let checkedCount = 0;
+            module.children.forEach(child => {
+                const childCheckbox = document.getElementById(`${containerId}_${child.id}`);
+                if (childCheckbox && childCheckbox.checked) {
+                    checkedCount++;
+                }
+            });
+
+            // 更新父级checkbox状态
+            const moduleCheckbox = document.getElementById(`${containerId}_module_${moduleId}`);
+            if (checkedCount === 0) {
+                moduleCheckbox.checked = false;
+                moduleCheckbox.indeterminate = false;
+            } else if (checkedCount === module.children.length) {
+                moduleCheckbox.checked = true;
+                moduleCheckbox.indeterminate = false;
+            } else {
+                moduleCheckbox.checked = false;
+                moduleCheckbox.indeterminate = true;
+            }
+        }
+
+        // 获取选中的权限
+        function getSelectedPermissions(containerId) {
+            const container = document.getElementById(containerId);
+            const selectedPerms = [];
+
+            // 获取所有选中的模块和权限
+            permissionStructure.forEach(module => {
+                const moduleCheckbox = document.getElementById(`${containerId}_module_${module.id}`);
+
+                // 如果没有子权限，直接添加模块ID
+                if (!module.children || module.children.length === 0) {
+                    if (moduleCheckbox && moduleCheckbox.checked) {
+                        selectedPerms.push(module.id);
+                    }
+                } else {
+                    // 如果有子权限，检查子权限
+                    let hasCheckedChild = false;
+                    module.children.forEach(child => {
+                        const childCheckbox = document.getElementById(`${containerId}_${child.id}`);
+                        if (childCheckbox && childCheckbox.checked) {
+                            selectedPerms.push(child.id);
+                            hasCheckedChild = true;
+                        }
+                    });
+
+                    // 如果有任何子权限被选中，添加父级模块ID
+                    if (hasCheckedChild) {
+                        selectedPerms.push(module.id);
+                    }
+                }
+            });
+
+            return selectedPerms;
+        }
+
+        // ========== 弹框操作函数 ==========
+
+        // 打开新增角色弹框
+        function addRole() {
+            // 清空表单
+            document.getElementById('add_roleName').value = '';
+            document.getElementById('add_description').value = '';
+            document.getElementById('add_status').value = 'enabled';
+
+            // 渲染空权限树
+            renderPermissionTree('add_permissionTree', []);
+
+            // 显示弹框
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        // 关闭新增角色弹框
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        // 保存新增角色
+        function saveRole() {
+            const roleName = document.getElementById('add_roleName').value.trim();
+            const description = document.getElementById('add_description').value.trim();
+            const status = document.getElementById('add_status').value;
+            const permissions = getSelectedPermissions('add_permissionTree');
+
+            // 表单验证
+            if (!roleName) {
+                alert('请输入角色名称');
+                return;
+            }
+
+            // 生成新ID
+            const newId = Math.max(...mockRoles.map(r => r.id)) + 1;
+
+            // 创建新角色
+            const newRole = {
+                id: newId,
+                name: roleName,
+                description: description || '',
+                userCount: 0,
+                status: status,
+                createTime: new Date().toISOString().slice(0, 19).replace('T', ' '),
+                permissions: permissions
+            };
+
+            // 添加到列表
+            mockRoles.push(newRole);
+
+            // 刷新列表
+            renderRoleList();
+
+            // 关闭弹框
+            closeAddModal();
+
+            alert('角色创建成功!');
+        }
+
+        // 打开编辑角色弹框
+        function editRole(id) {
+            const role = mockRoles.find(r => r.id === id);
+            if (!role) return;
+
+            // 填充表单数据
+            document.getElementById('edit_roleId').value = role.id;
+            document.getElementById('edit_roleName').value = role.name;
+            document.getElementById('edit_description').value = role.description;
+            document.getElementById('edit_status').value = role.status;
+
+            // 渲染权限树并勾选已有权限
+            renderPermissionTree('edit_permissionTree', role.permissions || []);
+
+            // 显示弹框
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // 关闭编辑角色弹框
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // 保存编辑后的角色
+        function updateRole() {
+            const roleId = parseInt(document.getElementById('edit_roleId').value);
+            const roleName = document.getElementById('edit_roleName').value.trim();
+            const description = document.getElementById('edit_description').value.trim();
+            const status = document.getElementById('edit_status').value;
+            const permissions = getSelectedPermissions('edit_permissionTree');
+
+            // 表单验证
+            if (!roleName) {
+                alert('请输入角色名称');
+                return;
+            }
+
+            // 查找并更新角色
+            const roleIndex = mockRoles.findIndex(r => r.id === roleId);
+            if (roleIndex !== -1) {
+                mockRoles[roleIndex].name = roleName;
+                mockRoles[roleIndex].description = description;
+                mockRoles[roleIndex].status = status;
+                mockRoles[roleIndex].permissions = permissions;
+
+                // 刷新列表
+                renderRoleList();
+
+                // 关闭弹框
+                closeEditModal();
+
+                alert('角色更新成功!');
+            }
+        }
+
+        // 打开删除确认弹框
+        function deleteRole(id) {
+            const role = mockRoles.find(r => r.id === id);
+            if (!role) return;
+
+            // 设置当前操作的角色ID
+            currentRoleId = id;
+
+            // 显示角色名称
+            document.getElementById('deleteRoleName').textContent = role.name;
+
+            // 显示弹框
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        // 关闭删除确认弹框
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            currentRoleId = null;
+        }
+
+        // 确认删除角色
+        function confirmDelete() {
+            if (!currentRoleId) return;
+
+            // 查找并删除角色
+            const roleIndex = mockRoles.findIndex(r => r.id === currentRoleId);
+            if (roleIndex !== -1) {
+                mockRoles.splice(roleIndex, 1);
+
+                // 刷新列表
+                renderRoleList();
+
+                // 关闭弹框
+                closeDeleteModal();
+
+                alert('角色已删除!');
+            }
+        }
+
+        // 分页功能
+        function prevPage() {
+            console.log('上一页');
+        }
+
+        function nextPage() {
+            console.log('下一页');
+        }
+
+        function goToPage(page) {
+            console.log('跳转到第', page, '页');
+        }
+
+        // 切换主题
+        function toggleTheme() {
+            console.log('切换主题');
+            alert('主题切换功能');
+        }
+
+        // 切换语言
+        function toggleLanguage() {
+            console.log('切换语言');
+            alert('语言切换功能');
+        }
+
+        // 切换用户菜单
+        function toggleUserMenu() {
+            const userMenu = document.querySelector('.user-menu');
+            userMenu.classList.toggle('active');
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                console.log('退出登录');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // 关闭用户菜单（点击页面其他地方时）
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            if (userMenu && !userMenu.contains(event.target)) {
+                userMenu.classList.remove('active');
+            }
+        });
+
+        // 页面加载时渲染列表
+        document.addEventListener('DOMContentLoaded', function() {
+            renderRoleList();
+
+            // 点击弹框背景关闭弹框
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) {
+                        overlay.classList.remove('active');
+                        currentRoleId = null;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>菜单管理 - AlwaysControl</title>
+    <style>
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 主题色系 */
+            --primary-blue: #1E6BFF;
+            --hover-blue: #4589FF;
+            --light-blue: #E8F3FF;
+            --success-green: #52C41A;
+            --warning-orange: #FA8C16;
+            --error-red: #F5222D;
+            --text-dark: #333333;
+            --text-gray: #666666;
+            --text-light: #999999;
+            --border-color: #E5E7EB;
+            --bg-white: #FFFFFF;
+            --bg-gray: #F8F9FA;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+                         'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: var(--bg-gray);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* 复用现有样式 */
+        .top-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            cursor: pointer;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-gray);
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-gray);
+        }
+
+        .icon-btn.has-badge::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--error-red);
+            border-radius: 50%;
+            border: 2px solid var(--bg-white);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .user-menu:hover {
+            background: var(--bg-gray);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-blue), var(--hover-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-size: 14px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        /* 左侧菜单栏 */
+        .sidebar {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            bottom: 0;
+            width: 240px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border-color);
+            padding: 16px 0;
+            overflow-y: auto;
+            z-index: 999;
+        }
+
+        .menu-group {
+            margin-bottom: 8px;
+        }
+
+        .menu-parent {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .menu-parent:hover {
+            background: var(--bg-gray);
+        }
+
+        .menu-parent.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+        }
+
+        .menu-parent-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-parent-left svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .menu-arrow {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-gray);
+            transition: transform 0.3s;
+        }
+
+        .menu-parent.expanded .menu-arrow {
+            transform: rotate(90deg);
+        }
+
+        .menu-children {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .menu-children.show {
+            max-height: 300px;
+        }
+
+        .menu-child {
+            padding: 10px 20px 10px 52px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        .menu-child:hover {
+            background: var(--bg-gray);
+            color: var(--text-dark);
+        }
+
+        .menu-child.active {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            font-weight: 500;
+        }
+
+        .menu-child svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            margin-left: 240px;
+            margin-top: 60px;
+            padding: 24px;
+            min-height: calc(100vh - 60px);
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            height: 40px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--hover-blue);
+            box-shadow: 0 2px 8px rgba(30, 107, 255, 0.3);
+        }
+
+        .btn-default {
+            background: var(--bg-white);
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-default:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+        }
+
+        /* 菜单列表 */
+        .menu-list {
+            margin-top: 20px;
+        }
+
+        .menu-item-row {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            background: var(--bg-white);
+            transition: all 0.2s;
+            cursor: move;
+        }
+
+        .menu-item-row:hover {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .drag-handle {
+            margin-right: 16px;
+            cursor: grab;
+            color: var(--text-light);
+        }
+
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 20px;
+        }
+
+        .menu-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .menu-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .menu-path {
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-left: 16px;
+        }
+
+        .status-badge.enabled {
+            background: #F6FFED;
+            color: var(--success-green);
+        }
+
+        .status-badge.disabled {
+            background: #FFF1F0;
+            color: var(--error-red);
+        }
+
+        .menu-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: 16px;
+        }
+
+        .action-icon-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-white);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .action-icon-btn:hover {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .action-icon-btn.delete:hover {
+            border-color: var(--error-red);
+            background: #FFF1F0;
+        }
+
+        .action-icon-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-gray);
+        }
+
+        .action-icon-btn:hover svg {
+            fill: var(--primary-blue);
+        }
+
+        .action-icon-btn.delete:hover svg {
+            fill: var(--error-red);
+        }
+
+        /* 层级菜单列表样式 */
+        .hierarchical-menu-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .menu-level-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-white);
+            transition: all 0.2s;
+        }
+
+        .menu-level-item:hover {
+            background: var(--bg-gray);
+        }
+
+        .menu-level-item.child-item {
+            padding-left: 52px;
+            background: #FAFBFC;
+        }
+
+        .menu-level-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .menu-level-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .menu-level-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .menu-level-path {
+            font-size: 12px;
+            color: var(--text-gray);
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-white);
+            border-radius: 8px;
+            width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-gray);
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-dark);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+            background: var(--bg-white);
+            font-weight: 500;
+        }
+
+        .modal-btn.primary {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--hover-blue);
+            border-color: var(--hover-blue);
+        }
+
+        .modal-btn.danger {
+            background: var(--error-red);
+            color: white;
+            border-color: var(--error-red);
+        }
+
+        .modal-btn.danger:hover {
+            background: #FF4D4F;
+            border-color: #FF4D4F;
+        }
+
+        .modal-btn.default:hover {
+            background: var(--bg-gray);
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-label .required {
+            color: var(--error-red);
+            margin-right: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            background: var(--bg-white);
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-blue);
+        }
+
+        /* 删除确认弹框样式 */
+        .delete-modal {
+            width: 400px;
+        }
+
+        .delete-warning {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .warning-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .warning-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--warning-orange);
+        }
+
+        .delete-message {
+            flex: 1;
+        }
+
+        .delete-message p {
+            font-size: 14px;
+            color: var(--text-dark);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .delete-message .error-text {
+            font-size: 13px;
+            color: var(--error-red);
+            line-height: 1.6;
+        }
+
+        .menu-name-highlight {
+            font-weight: 600;
+            color: var(--primary-blue);
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="top-navbar">
+        <div class="navbar-left">
+            <div class="brand-logo">
+                <img src="logo.png" alt="AlwaysControl Technology" style="height: 40px; object-fit: contain;">
+            </div>
+        </div>
+        <div class="navbar-right">
+            <button class="icon-btn" title="夜间模式">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"/>
+                </svg>
+            </button>
+            <button class="icon-btn" title="语言切换">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
+                </svg>
+            </button>
+            <button class="icon-btn has-badge" title="告警通知" onclick="window.location.href='alarm-management.html'">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                </svg>
+            </button>
+            <div class="user-menu">
+                <div class="user-avatar">管</div>
+                <span class="user-name">管理员</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 左侧菜单栏 -->
+    <aside class="sidebar">
+        <!-- 用户管理菜单组 -->
+        <div class="menu-group">
+            <div class="menu-parent" onclick="window.location.href='user-management.html'">
+                <div class="menu-parent-left">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    <span>用户管理</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-group">
+            <div class="menu-parent" onclick="toggleMenu(this)">
+                <div class="menu-parent-left">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 20H4v-4h4v4zm0-6H4v-4h4v4zm0-6H4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4z"/>
+                    </svg>
+                    <span>设备管理</span>
+                </div>
+                <svg class="menu-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                </svg>
+            </div>
+            <div class="menu-children">
+                <div class="menu-child" onclick="window.location.href='device-management.html'">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                    </svg>
+                    <span>设备管理</span>
+                </div>
+                <div class="menu-child" onclick="window.location.href='alarm-management.html'">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                    </svg>
+                    <span>告警管理</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 系统管理菜单组 -->
+        <div class="menu-group">
+            <div class="menu-parent expanded active" onclick="toggleMenu(this)">
+                <div class="menu-parent-left">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                    </svg>
+                    <span>系统管理</span>
+                </div>
+                <svg class="menu-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                </svg>
+            </div>
+            <div class="menu-children show">
+                <div class="menu-child active">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+                    </svg>
+                    <span>菜单管理</span>
+                </div>
+                <div class="menu-child" onclick="window.location.href='role-management.html'">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    <span>角色管理</span>
+                </div>
+                <div class="menu-child" onclick="window.location.href='personnel-management.html'">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                    </svg>
+                    <span>人员管理</span>
+                </div>
+                <div class="menu-child" onclick="window.location.href='operation-log.html'">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                    <span>操作日志</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">菜单管理</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="addMenu()">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    </svg>
+                    <span>新增菜单</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="hierarchical-menu-list" id="menuList">
+                <!-- 层级菜单列表动态生成 -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 新增菜单弹框 -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">新增菜单</h3>
+                <button class="modal-close" onclick="closeAddModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="addMenuForm">
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span>菜单名称</label>
+                        <input type="text" class="form-input" id="add_menuName" placeholder="请输入菜单名称" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">菜单图标</label>
+                        <input type="text" class="form-input" id="add_menuIcon" placeholder="例如: ⚙ 或 🔧">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">菜单路径</label>
+                        <input type="text" class="form-input" id="add_menuPath" placeholder="例如: /settings.html">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">父级菜单</label>
+                        <select class="form-select" id="add_parentMenu">
+                            <option value="">无 (作为一级菜单)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="add_status">
+                            <option value="enabled">启用</option>
+                            <option value="disabled">禁用</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn default" onclick="closeAddModal()">取消</button>
+                <button class="modal-btn primary" onclick="saveMenu()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑菜单弹框 -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">编辑菜单</h3>
+                <button class="modal-close" onclick="closeEditModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="editMenuForm">
+                    <input type="hidden" id="edit_menuId">
+
+                    <div class="form-group">
+                        <label class="form-label"><span class="required">*</span>菜单名称</label>
+                        <input type="text" class="form-input" id="edit_menuName" placeholder="请输入菜单名称" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">菜单图标</label>
+                        <input type="text" class="form-input" id="edit_menuIcon" placeholder="例如: ⚙ 或 🔧">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">菜单路径</label>
+                        <input type="text" class="form-input" id="edit_menuPath" placeholder="例如: /dashboard.html">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">父级菜单</label>
+                        <select class="form-select" id="edit_parentMenu">
+                            <option value="">无 (作为一级菜单)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">状态</label>
+                        <select class="form-select" id="edit_status">
+                            <option value="enabled">启用</option>
+                            <option value="disabled">禁用</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn default" onclick="closeEditModal()">取消</button>
+                <button class="modal-btn primary" onclick="updateMenu()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹框 -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal delete-modal">
+            <div class="modal-header">
+                <h3 class="modal-title">删除确认</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-warning">
+                    <div class="warning-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                        </svg>
+                    </div>
+                    <div class="delete-message">
+                        <p>确定要删除菜单 <span class="menu-name-highlight" id="deleteMenuName"></span> 吗?</p>
+                        <p class="error-text">此操作不可撤销,如果菜单有子菜单,子菜单也将被删除。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn default" onclick="closeDeleteModal()">取消</button>
+                <button class="modal-btn danger" onclick="confirmDelete()">确定删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟菜单数据 - 支持层级结构
+        let mockMenus = [
+            {
+                id: 1,
+                name: '用户管理',
+                path: '/user-management.html',
+                icon: '👤',
+                parentId: null,
+                status: 'enabled'
+            },
+            {
+                id: 2,
+                name: '设备管理',
+                path: null,
+                icon: '📦',
+                parentId: null,
+                status: 'enabled'
+            },
+            {
+                id: 3,
+                name: '设备管理',
+                path: '/device-management.html',
+                icon: '☰',
+                parentId: 2,
+                status: 'enabled'
+            },
+            {
+                id: 4,
+                name: '告警管理',
+                path: '/alarm-management.html',
+                icon: '🔔',
+                parentId: 2,
+                status: 'enabled'
+            },
+            {
+                id: 5,
+                name: '系统管理',
+                path: null,
+                icon: '⚙',
+                parentId: null,
+                status: 'enabled'
+            },
+            {
+                id: 6,
+                name: '菜单管理',
+                path: '/menu-management.html',
+                icon: '☰',
+                parentId: 5,
+                status: 'enabled'
+            },
+            {
+                id: 7,
+                name: '角色管理',
+                path: '/role-management.html',
+                icon: '👥',
+                parentId: 5,
+                status: 'enabled'
+            },
+            {
+                id: 8,
+                name: '人员管理',
+                path: '/personnel-management.html',
+                icon: '👤',
+                parentId: 5,
+                status: 'enabled'
+            },
+            {
+                id: 9,
+                name: '操作日志',
+                path: '/operation-log.html',
+                icon: '📋',
+                parentId: 5,
+                status: 'enabled'
+            }
+        ];
+
+        let currentDeleteId = null;
+
+        // 渲染层级菜单列表
+        function renderMenuList() {
+            const menuList = document.getElementById('menuList');
+            menuList.innerHTML = '';
+
+            // 获取一级菜单
+            const parentMenus = mockMenus.filter(menu => !menu.parentId);
+
+            parentMenus.forEach(parentMenu => {
+                // 渲染父菜单
+                const parentRow = createMenuRow(parentMenu, false);
+                menuList.appendChild(parentRow);
+
+                // 查找并渲染子菜单
+                const childMenus = mockMenus.filter(menu => menu.parentId === parentMenu.id);
+                childMenus.forEach(childMenu => {
+                    const childRow = createMenuRow(childMenu, true);
+                    menuList.appendChild(childRow);
+                });
+            });
+
+            // 更新父级菜单选择器
+            updateParentMenuSelectors();
+        }
+
+        // 创建菜单行
+        function createMenuRow(menu, isChild) {
+            const menuRow = document.createElement('div');
+            menuRow.className = isChild ? 'menu-level-item child-item' : 'menu-level-item';
+            menuRow.innerHTML = `
+                <div class="menu-level-icon">${menu.icon || '📄'}</div>
+                <div class="menu-level-info">
+                    <div class="menu-level-name">${menu.name}</div>
+                    <div class="menu-level-path">${menu.path || '无路径'}</div>
+                </div>
+                <span class="status-badge ${menu.status}">${menu.status === 'enabled' ? '启用' : '禁用'}</span>
+                <div class="menu-actions">
+                    <button class="action-icon-btn" title="编辑" onclick="openEditModal(${menu.id})">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                    </button>
+                    <button class="action-icon-btn delete" title="删除" onclick="openDeleteModal(${menu.id})">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            return menuRow;
+        }
+
+        // 更新父级菜单选择器
+        function updateParentMenuSelectors() {
+            const parentMenus = mockMenus.filter(menu => !menu.parentId);
+            const addSelect = document.getElementById('add_parentMenu');
+            const editSelect = document.getElementById('edit_parentMenu');
+
+            // 清空并重新填充
+            [addSelect, editSelect].forEach(select => {
+                // 保留第一个"无"选项
+                const firstOption = select.options[0];
+                select.innerHTML = '';
+                select.appendChild(firstOption);
+
+                // 添加父级菜单选项
+                parentMenus.forEach(menu => {
+                    const option = document.createElement('option');
+                    option.value = menu.id;
+                    option.textContent = menu.name;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        // 菜单交互
+        function toggleMenu(element) {
+            const isExpanded = element.classList.contains('expanded');
+            const children = element.nextElementSibling;
+
+            if (isExpanded) {
+                element.classList.remove('expanded');
+                children.classList.remove('show');
+            } else {
+                element.classList.add('expanded');
+                children.classList.add('show');
+            }
+        }
+
+        // 新增菜单 - 打开弹框
+        function addMenu() {
+            document.getElementById('addMenuForm').reset();
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        // 关闭新增弹框
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        // 保存新菜单
+        function saveMenu() {
+            const name = document.getElementById('add_menuName').value.trim();
+            const icon = document.getElementById('add_menuIcon').value.trim();
+            const path = document.getElementById('add_menuPath').value.trim();
+            const parentId = document.getElementById('add_parentMenu').value;
+            const status = document.getElementById('add_status').value;
+
+            if (!name) {
+                alert('请输入菜单名称!');
+                return;
+            }
+
+            const newMenu = {
+                id: Math.max(...mockMenus.map(m => m.id)) + 1,
+                name: name,
+                path: path || null,
+                icon: icon || '📄',
+                parentId: parentId ? parseInt(parentId) : null,
+                status: status
+            };
+
+            mockMenus.push(newMenu);
+            renderMenuList();
+            closeAddModal();
+            alert('菜单添加成功!');
+        }
+
+        // 编辑菜单 - 打开弹框
+        function openEditModal(id) {
+            const menu = mockMenus.find(m => m.id === id);
+            if (!menu) return;
+
+            document.getElementById('edit_menuId').value = menu.id;
+            document.getElementById('edit_menuName').value = menu.name;
+            document.getElementById('edit_menuIcon').value = menu.icon || '';
+            document.getElementById('edit_menuPath').value = menu.path || '';
+            document.getElementById('edit_parentMenu').value = menu.parentId || '';
+            document.getElementById('edit_status').value = menu.status;
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        // 关闭编辑弹框
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // 更新菜单
+        function updateMenu() {
+            const id = parseInt(document.getElementById('edit_menuId').value);
+            const name = document.getElementById('edit_menuName').value.trim();
+            const icon = document.getElementById('edit_menuIcon').value.trim();
+            const path = document.getElementById('edit_menuPath').value.trim();
+            const parentId = document.getElementById('edit_parentMenu').value;
+            const status = document.getElementById('edit_status').value;
+
+            if (!name) {
+                alert('请输入菜单名称!');
+                return;
+            }
+
+            const menuIndex = mockMenus.findIndex(m => m.id === id);
+            if (menuIndex !== -1) {
+                mockMenus[menuIndex] = {
+                    ...mockMenus[menuIndex],
+                    name: name,
+                    icon: icon || '📄',
+                    path: path || null,
+                    parentId: parentId ? parseInt(parentId) : null,
+                    status: status
+                };
+
+                renderMenuList();
+                closeEditModal();
+                alert('菜单更新成功!');
+            }
+        }
+
+        // 删除菜单 - 打开确认弹框
+        function openDeleteModal(id) {
+            const menu = mockMenus.find(m => m.id === id);
+            if (!menu) return;
+
+            currentDeleteId = id;
+            document.getElementById('deleteMenuName').textContent = menu.name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        // 关闭删除弹框
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            currentDeleteId = null;
+        }
+
+        // 确认删除
+        function confirmDelete() {
+            if (!currentDeleteId) return;
+
+            // 删除菜单及其子菜单
+            const deleteIds = [currentDeleteId];
+            const children = mockMenus.filter(m => m.parentId === currentDeleteId);
+            children.forEach(child => deleteIds.push(child.id));
+
+            mockMenus = mockMenus.filter(m => !deleteIds.includes(m.id));
+
+            renderMenuList();
+            closeDeleteModal();
+            alert('菜单已删除!');
+        }
+
+        // 点击遮罩层关闭弹框
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMenuList();
+        });
+    </script>
+</body>
+</html>

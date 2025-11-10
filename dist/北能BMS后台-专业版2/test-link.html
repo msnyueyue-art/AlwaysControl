@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>链接测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-link {
+            display: block;
+            padding: 20px;
+            margin: 10px 0;
+            border: 2px solid #1E6BFF;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #1E6BFF;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        .test-link:hover {
+            background: #E8F3FF;
+            transform: translateX(10px);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 分销商管理页面测试</h1>
+
+    <div class="info">
+        <strong>当前文件位置:</strong><br>
+        C:\Users\33765\Desktop\项目集\原型demo\1031北能BMS后台\dist\北能BMS后台\test-link.html
+    </div>
+
+    <a href="distributor-management.html" class="test-link">
+        ✅ 方式1: 相对路径 - distributor-management.html
+    </a>
+
+    <a href="./distributor-management.html" class="test-link">
+        ✅ 方式2: 当前目录 - ./distributor-management.html
+    </a>
+
+    <a href="file:///C:/Users/33765/Desktop/项目集/原型demo/1031北能BMS后台/dist/北能BMS后台/distributor-management.html" class="test-link">
+        ✅ 方式3: 绝对file协议路径
+    </a>
+
+    <div class="info">
+        <strong>测试步骤:</strong><br>
+        1. 用浏览器打开这个测试页面<br>
+        2. 依次点击上面三个链接<br>
+        3. 查看哪个能正常打开分销商管理页面<br>
+        4. 把结果告诉我
+    </div>
+
+    <script>
+        // 显示当前页面的完整URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const info = document.createElement('div');
+            info.className = 'info';
+            info.innerHTML = `<strong>当前页面URL:</strong><br>${window.location.href}`;
+            document.body.appendChild(info);
+        });
+    </script>
+</body>
+</html>

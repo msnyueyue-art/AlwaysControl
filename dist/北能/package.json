@@ -1,0 +1,32 @@
+{
+  "name": "beineng-energy-management",
+  "version": "1.0.0",
+  "description": "北能能源管理系统",
+  "private": true,
+  "workspaces": [
+    "app",
+    "admin",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "dev:app": "cd app && npm run start",
+    "dev:admin": "cd admin && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:admin\"",
+    "build:admin": "cd admin && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build": "npm run build:admin && npm run build:backend",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

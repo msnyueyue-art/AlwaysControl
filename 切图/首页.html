@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>触摸屏页面PNG资源生成器 - 10寸</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .asset-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .asset-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .canvas-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1e90ff, #00bfff);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .specs {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* 10寸屏幕尺寸：1280x800 */
+        .bg-canvas { width: 640px; height: 400px; }
+        .frame-canvas { width: 400px; height: 250px; }
+        .device-canvas { width: 350px; height: 220px; }
+        .particle-canvas { width: 40px; height: 40px; }
+        .data-card-canvas { width: 260px; height: 130px; }
+        .component-canvas { width: 48px; height: 48px; }
+        .energy-component-canvas { width: 60px; height: 60px; }
+        .header-button-canvas { width: 40px; height: 40px; }
+        .login-logo-canvas { width: 100px; height: 100px; }
+
+        /* 从原始home.html复制的样式 */
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon i {
+            font-size: 18px;
+            color: #ffffff;
+            transform: translateY(0px);
+        }
+
+        .stat-icon.calendar i {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon.calendar {
+            background: #f59e0b;
+        }
+
+        .stat-icon.power {
+            background: #eab308;
+        }
+
+        .stat-icon.charge-up {
+            background: #22c55e;
+        }
+
+        .stat-icon.charge-down {
+            background: #ef4444;
+        }
+
+        .stat-icon.chart-line {
+            background: #3b82f6;
+        }
+
+        .stat-icon.chart-bar {
+            background: #8b5cf6;
+        }
+
+        /* 组件图标样式 */
+        .component-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0096ff 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 20px rgba(0, 150, 255, 0.4);
+            position: relative;
+        }
+
+        .component-icon i {
+            font-size: 28px;
+            color: #ffffff;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        /* 能量流组件样式 */
+        .flow-component-compact {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .flow-component-compact img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* 语言切换按钮样式 - 从common-header-styles.css复制 */
+        .lang-switcher {
+            position: relative;
+            margin-left: 15px;
+        }
+
+        .lang-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .lang-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 退出按钮样式 - 从common-header-styles.css复制 */
+        .logout-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 登录页Logo样式 - 从login-loading.html复制 */
+        .login-logo {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 150, 255, 0.3);
+        }
+
+        .login-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>触摸屏页面PNG资源 - 10寸屏幕</h1>
+        
+        
+        <div class="asset-grid">
+
+            <!-- 背景 -->
+            <div class="asset-card">
+                <div class="asset-title">背景</div>
+                <div class="canvas-container">
+                    <canvas id="backgroundCanvas" class="bg-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('backgroundCanvas', 'background.png')">
+                    下载背景
+                </button>
+                <div class="specs">尺寸: 1280x800px</div>
+            </div>
+
+
+            <!-- 运行天数图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">运行天数图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="runDaysIconOriginal" class="particle-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('runDaysIconOriginal', 'icon-run-days-original.png')">
+                    下载原始HTML图标
+                </button>
+                <div class="specs">尺寸: 40x40px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalRunDaysIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="stat-icon calendar">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 系统功率图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">系统功率图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="powerIconOriginal" class="particle-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('powerIconOriginal', 'icon-power-original.png')">
+                    下载原始HTML图标
+                </button>
+                <div class="specs">尺寸: 40x40px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalPowerIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="stat-icon power">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日充电量图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">今日充电量图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="todayChargeIconOriginal" class="particle-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('todayChargeIconOriginal', 'icon-today-charge-original.png')">
+                    下载原始HTML图标
+                </button>
+                <div class="specs">尺寸: 40x40px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalTodayChargeIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="stat-icon charge-up">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 今日放电量图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">今日放电量图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="todayDischargeIconOriginal" class="particle-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('todayDischargeIconOriginal', 'icon-today-discharge-original.png')">
+                    下载原始HTML图标
+                </button>
+                <div class="specs">尺寸: 40x40px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalTodayDischargeIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="stat-icon charge-down">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 累计充电量图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">累计充电量图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="totalChargeIconOriginal" class="particle-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('totalChargeIconOriginal', 'icon-total-charge-original.png')">
+                    下载原始HTML图标
+                </button>
+                <div class="specs">尺寸: 40x40px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalTotalChargeIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="stat-icon chart-line">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 累计放电量图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">累计放电量图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="totalDischargeIconOriginal" class="particle-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('totalDischargeIconOriginal', 'icon-total-discharge-original.png')">
+                    下载原始HTML图标
+                </button>
+                <div class="specs">尺寸: 40x40px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalTotalDischargeIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="stat-icon chart-bar">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PCS组件图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">PCS组件图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="pcsIconOriginal" class="component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('pcsIconOriginal', 'component-pcs-icon.png')">
+                    下载PCS图标
+                </button>
+                <div class="specs">尺寸: 48x48px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalPcsIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="component-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BMS组件图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">BMS组件图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="bmsIconOriginal" class="component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('bmsIconOriginal', 'component-bms-icon.png')">
+                    下载BMS图标
+                </button>
+                <div class="specs">尺寸: 48x48px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalBmsIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="component-icon">
+                        <i class="fas fa-battery-full"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 电表组件图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">电表组件图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="meterIconOriginal" class="component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('meterIconOriginal', 'component-meter-icon.png')">
+                    下载电表图标
+                </button>
+                <div class="specs">尺寸: 48x48px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalMeterIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="component-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 温度组件图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">温度组件图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="thermalIconOriginal" class="component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('thermalIconOriginal', 'component-thermal-icon.png')">
+                    下载温度图标
+                </button>
+                <div class="specs">尺寸: 48x48px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalThermalIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="component-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消防组件图标 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">消防组件图标 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="fireIconOriginal" class="component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('fireIconOriginal', 'component-fire-icon.png')">
+                    下载消防图标
+                </button>
+                <div class="specs">尺寸: 48x48px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalFireIcon" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="component-icon">
+                        <i class="fas fa-fire-extinguisher"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 光伏面板图片 -->
+            <div class="asset-card">
+                <div class="asset-title">光伏面板图片</div>
+                <div class="canvas-container">
+                    <canvas id="solarCanvas" class="energy-component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('solarCanvas', 'energy-solar.png')">
+                    下载光伏面板图片
+                </button>
+                <div class="specs">尺寸: 60x60px (Canvas绘制)</div>
+            </div>
+
+            <!-- 负载图片 -->
+            <div class="asset-card">
+                <div class="asset-title">负载图片</div>
+                <div class="canvas-container">
+                    <canvas id="loadCanvas" class="energy-component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('loadCanvas', 'energy-load.png')">
+                    下载负载图片
+                </button>
+                <div class="specs">尺寸: 60x60px (Canvas绘制)</div>
+            </div>
+
+            <!-- 储能柜图片 -->
+            <div class="asset-card">
+                <div class="asset-title">储能柜图片</div>
+                <div class="canvas-container">
+                    <canvas id="storageCanvas" class="energy-component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('storageCanvas', 'energy-storage.png')">
+                    下载储能柜图片
+                </button>
+                <div class="specs">尺寸: 60x60px (Canvas绘制)</div>
+            </div>
+
+            <!-- 电网图片 -->
+            <div class="asset-card">
+                <div class="asset-title">电网图片</div>
+                <div class="canvas-container">
+                    <canvas id="gridCanvas" class="energy-component-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('gridCanvas', 'energy-grid.png')">
+                    下载电网图片
+                </button>
+                <div class="specs">尺寸: 60x60px (Canvas绘制)</div>
+            </div>
+
+            <!-- 语言切换按钮 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">语言切换按钮 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="langButtonOriginal" class="header-button-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('langButtonOriginal', 'header-lang-button.png')">
+                    下载语言切换按钮
+                </button>
+                <div class="specs">尺寸: 40x40px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalLangButton" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="lang-switcher">
+                        <button class="lang-btn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 退出按钮 (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">退出按钮 (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="logoutButtonOriginal" class="header-button-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('logoutButtonOriginal', 'header-logout-button.png')">
+                    下载退出按钮
+                </button>
+                <div class="specs">尺寸: 40x40px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalLogoutButton" style="position: absolute; left: -9999px; top: -9999px;">
+                    <button class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 登录页Logo (原始HTML渲染) -->
+            <div class="asset-card">
+                <div class="asset-title">登录页Logo (原始HTML)</div>
+                <div class="canvas-container">
+                    <canvas id="loginLogoOriginal" class="login-logo-canvas"></canvas>
+                </div>
+                <button class="download-btn" onclick="downloadAsset('loginLogoOriginal', 'login-logo.png')">
+                    下载登录页Logo
+                </button>
+                <div class="specs">尺寸: 100x100px (直接从HTML渲染)</div>
+                
+                <!-- 隐藏的原始HTML元素 -->
+                <div id="originalLoginLogo" style="position: absolute; left: -9999px; top: -9999px;">
+                    <div class="login-logo">
+                        <img src="../dist/储能柜/touchscreen/logo.png" alt="Logo">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有画布
+        function initCanvases() {
+            createBackground();
+            // 原来的Canvas绘制图标已删除
+            
+            // 创建能量组件图片
+            createEnergyComponents();
+            
+            // 渲染原始HTML元素
+            renderOriginalHTMLIcon();
+        }
+
+
+        // 创建背景
+        function createBackground() {
+            const canvas = document.getElementById('backgroundCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1280;
+            canvas.height = 800;
+
+            // 背景渐变
+            const bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            bgGradient.addColorStop(0, '#2c3e50');
+            bgGradient.addColorStop(1, '#34495e');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 添加纹理点
+            ctx.globalAlpha = 0.3;
+            for (let i = 0; i < 100; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 2 + 1;
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+
+        // 创建圆角矩形辅助函数
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        // 创建统计图标 (stat-icon) - 使用严格的FontAwesome样式
+        function createStatIcon(canvasId, iconClass, faIcon) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // 获取设备像素比例
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = 40;
+            const displayHeight = 40;
+            
+            // 设置Canvas的实际尺寸（用于绘制）
+            canvas.width = displayWidth * dpr;
+            canvas.height = displayHeight * dpr;
+            
+            // 设置Canvas的显示尺寸（CSS尺寸）
+            canvas.style.width = displayWidth + 'px';
+            canvas.style.height = displayHeight + 'px';
+            
+            // 缩放context以匹配设备像素比例
+            ctx.scale(dpr, dpr);
+            
+            // 设置高质量渲染
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            // 根据图标类型设置背景色 - 严格按照CSS
+            let bgColor;
+            switch(iconClass) {
+                case 'calendar':
+                    bgColor = '#f59e0b';
+                    break;
+                case 'power':
+                    bgColor = '#eab308';
+                    break;
+                case 'charge-up':
+                    bgColor = '#22c55e';
+                    break;
+                case 'charge-down':
+                    bgColor = '#ef4444';
+                    break;
+                case 'chart-line':
+                    bgColor = '#3b82f6';
+                    break;
+                case 'chart-bar':
+                    bgColor = '#8b5cf6';
+                    break;
+                default:
+                    bgColor = '#6b7280';
+            }
+            
+            // 绘制圆角背景 - border-radius: 8px，相对于40px是20%圆角
+            ctx.fillStyle = bgColor;
+            roundRect(ctx, 0, 0, displayWidth, displayHeight, 6);
+            ctx.fill();
+            
+            // 绘制FontAwesome图标
+            drawFAIcon(ctx, faIcon, displayWidth/2, displayHeight/2, 18);
+        }
+        
+        // 绘制FontAwesome图标函数
+        function drawFAIcon(ctx, faIcon, centerX, centerY, size) {
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            switch(faIcon) {
+                case 'fa-calendar-alt':
+                    // 日历图标 - 更精确的FontAwesome样式
+                    const calW = size * 0.75;
+                    const calH = size * 0.75;
+                    
+                    // 日历主体边框
+                    ctx.lineWidth = 1.5;
+                    ctx.strokeRect(centerX - calW/2, centerY - calH/2, calW, calH);
+                    
+                    // 顶部标题栏
+                    ctx.fillRect(centerX - calW/2, centerY - calH/2, calW, calH/3.5);
+                    
+                    // 日历孔（顶部小矩形）
+                    ctx.fillRect(centerX - calW/3, centerY - calH/2 - 2, 2, 4);
+                    ctx.fillRect(centerX + calW/3 - 2, centerY - calH/2 - 2, 2, 4);
+                    
+                    // 日期网格线
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 0.8;
+                    // 垂直线
+                    for(let i = 1; i < 3; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(centerX - calW/2 + (calW/3) * i, centerY - calH/6);
+                        ctx.lineTo(centerX - calW/2 + (calW/3) * i, centerY + calH/2);
+                        ctx.stroke();
+                    }
+                    // 水平线
+                    for(let i = 1; i < 3; i++) {
+                        ctx.beginPath();
+                        ctx.moveTo(centerX - calW/2, centerY - calH/6 + (calH/3.5) * i);
+                        ctx.lineTo(centerX + calW/2, centerY - calH/6 + (calH/3.5) * i);
+                        ctx.stroke();
+                    }
+                    break;
+                    
+                case 'fa-bolt':
+                    // FontAwesome fa-bolt 闪电图标 - 简化准确版本
+                    const boltW = size * 0.35;
+                    const boltH = size * 0.75;
+                    
+                    ctx.beginPath();
+                    // 简化的Z字形闪电
+                    ctx.moveTo(centerX - boltW/2, centerY - boltH/2);      // 1. 左上
+                    ctx.lineTo(centerX + boltW/4, centerY - boltH/2);      // 2. 右上
+                    ctx.lineTo(centerX - boltW/8, centerY - boltH/12);     // 3. 上转折
+                    ctx.lineTo(centerX + boltW/2, centerY - boltH/12);     // 4. 右突出
+                    ctx.lineTo(centerX - boltW/4, centerY + boltH/2);      // 5. 左下
+                    ctx.lineTo(centerX + boltW/8, centerY + boltH/2);      // 6. 右下
+                    ctx.lineTo(centerX + boltW/8, centerY + boltH/12);     // 7. 下转折
+                    ctx.lineTo(centerX - boltW/2, centerY + boltH/12);     // 8. 左突出
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                    
+                case 'fa-arrow-down':
+                    // 向下箭头
+                    ctx.lineWidth = 3;
+                    const arrowLen = size * 0.6;
+                    // 箭头杆
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY - arrowLen/2);
+                    ctx.lineTo(centerX, centerY + arrowLen/4);
+                    ctx.stroke();
+                    // 箭头头
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - arrowLen/3, centerY);
+                    ctx.lineTo(centerX, centerY + arrowLen/2);
+                    ctx.lineTo(centerX + arrowLen/3, centerY);
+                    ctx.stroke();
+                    break;
+                    
+                case 'fa-arrow-up':
+                    // 向上箭头
+                    ctx.lineWidth = 3;
+                    const arrowUpLen = size * 0.6;
+                    // 箭头杆
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY + arrowUpLen/2);
+                    ctx.lineTo(centerX, centerY - arrowUpLen/4);
+                    ctx.stroke();
+                    // 箭头头
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - arrowUpLen/3, centerY);
+                    ctx.lineTo(centerX, centerY - arrowUpLen/2);
+                    ctx.lineTo(centerX + arrowUpLen/3, centerY);
+                    ctx.stroke();
+                    break;
+                    
+                case 'fa-chart-line':
+                    // 折线图 - 更精细的设计
+                    const chartW = size * 0.8;
+                    const chartH = size * 0.8;
+                    
+                    // 坐标轴 - 更细的线条
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    // Y轴
+                    ctx.moveTo(centerX - chartW/2, centerY + chartH/2);
+                    ctx.lineTo(centerX - chartW/2, centerY - chartH/2);
+                    // X轴
+                    ctx.moveTo(centerX - chartW/2, centerY + chartH/2);
+                    ctx.lineTo(centerX + chartW/2, centerY + chartH/2);
+                    ctx.stroke();
+                    
+                    // 折线 - 上升趋势
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - chartW/2.5, centerY + chartH/4);
+                    ctx.lineTo(centerX - chartW/6, centerY - chartH/8);
+                    ctx.lineTo(centerX + chartW/8, centerY + chartH/6);
+                    ctx.lineTo(centerX + chartW/2.5, centerY - chartH/3);
+                    ctx.stroke();
+                    
+                    // 数据点 - 稍大一些
+                    const pointSize = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(centerX - chartW/2.5, centerY + chartH/4, pointSize, 0, Math.PI * 2);
+                    ctx.arc(centerX - chartW/6, centerY - chartH/8, pointSize, 0, Math.PI * 2);
+                    ctx.arc(centerX + chartW/8, centerY + chartH/6, pointSize, 0, Math.PI * 2);
+                    ctx.arc(centerX + chartW/2.5, centerY - chartH/3, pointSize, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case 'fa-chart-bar':
+                    // FontAwesome fa-chart-bar 柱状图 - 标准柱状图样式
+                    const barChartW = size * 0.8;
+                    const barChartH = size * 0.8;
+                    const barWidth = barChartW/7;
+                    const barSpacing = barWidth * 0.3;
+                    
+                    // 不绘制坐标轴，直接绘制柱子（FontAwesome风格）
+                    // 4个柱子，不同高度，展现数据变化
+                    const baseY = centerY + barChartH/2;
+                    
+                    // 第1个柱子 - 最短
+                    ctx.fillRect(
+                        centerX - barChartW/2 + barSpacing, 
+                        baseY - barChartH/4, 
+                        barWidth, 
+                        barChartH/4
+                    );
+                    
+                    // 第2个柱子 - 中等
+                    ctx.fillRect(
+                        centerX - barChartW/2 + barWidth + barSpacing * 2, 
+                        baseY - barChartH/2.5, 
+                        barWidth, 
+                        barChartH/2.5
+                    );
+                    
+                    // 第3个柱子 - 最高
+                    ctx.fillRect(
+                        centerX - barChartW/2 + barWidth * 2 + barSpacing * 3, 
+                        baseY - barChartH * 0.8, 
+                        barWidth, 
+                        barChartH * 0.8
+                    );
+                    
+                    // 第4个柱子 - 中高
+                    ctx.fillRect(
+                        centerX - barChartW/2 + barWidth * 3 + barSpacing * 4, 
+                        baseY - barChartH/1.8, 
+                        barWidth, 
+                        barChartH/1.8
+                    );
+                    break;
+            }
+        }
+
+        // 下载资源函数
+        function downloadAsset(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+
+        // 渲染原始HTML元素到Canvas
+        async function renderOriginalHTMLIcon() {
+            try {
+                // 等待FontAwesome加载完成
+                await new Promise(resolve => {
+                    if (document.fonts && document.fonts.ready) {
+                        document.fonts.ready.then(resolve);
+                    } else {
+                        setTimeout(resolve, 1000);
+                    }
+                });
+
+                // 定义所有数据统计图标的映射
+                const iconMappings = [
+                    { sourceId: '#originalRunDaysIcon .stat-icon', targetId: 'runDaysIconOriginal', name: '运行天数' },
+                    { sourceId: '#originalPowerIcon .stat-icon', targetId: 'powerIconOriginal', name: '系统功率' },
+                    { sourceId: '#originalTodayChargeIcon .stat-icon', targetId: 'todayChargeIconOriginal', name: '今日充电量' },
+                    { sourceId: '#originalTodayDischargeIcon .stat-icon', targetId: 'todayDischargeIconOriginal', name: '今日放电量' },
+                    { sourceId: '#originalTotalChargeIcon .stat-icon', targetId: 'totalChargeIconOriginal', name: '累计充电量' },
+                    { sourceId: '#originalTotalDischargeIcon .stat-icon', targetId: 'totalDischargeIconOriginal', name: '累计放电量' }
+                ];
+
+                // 定义所有组件图标的映射
+                const componentIconMappings = [
+                    { sourceId: '#originalPcsIcon .component-icon', targetId: 'pcsIconOriginal', name: 'PCS组件图标' },
+                    { sourceId: '#originalBmsIcon .component-icon', targetId: 'bmsIconOriginal', name: 'BMS组件图标' },
+                    { sourceId: '#originalMeterIcon .component-icon', targetId: 'meterIconOriginal', name: '电表组件图标' },
+                    { sourceId: '#originalThermalIcon .component-icon', targetId: 'thermalIconOriginal', name: '温度组件图标' },
+                    { sourceId: '#originalFireIcon .component-icon', targetId: 'fireIconOriginal', name: '消防组件图标' }
+                ];
+
+                // 定义所有头部按钮的映射
+                const headerButtonMappings = [
+                    { sourceId: '#originalLangButton .lang-btn', targetId: 'langButtonOriginal', name: '语言切换按钮' },
+                    { sourceId: '#originalLogoutButton .logout-btn', targetId: 'logoutButtonOriginal', name: '退出按钮' }
+                ];
+
+                // 定义登录页Logo的映射
+                const loginLogoMappings = [
+                    { sourceId: '#originalLoginLogo .login-logo', targetId: 'loginLogoOriginal', name: '登录页Logo' }
+                ];
+
+                // 为每个数据统计图标渲染
+                for (const mapping of iconMappings) {
+                    await renderSingleIcon(mapping);
+                }
+                
+                // 为每个组件图标渲染
+                for (const mapping of componentIconMappings) {
+                    await renderSingleIcon(mapping);
+                }
+                
+                // 为每个头部按钮渲染
+                for (const mapping of headerButtonMappings) {
+                    await renderSingleIcon(mapping);
+                }
+                
+                // 为登录页Logo渲染
+                for (const mapping of loginLogoMappings) {
+                    await renderSingleIcon(mapping);
+                }
+                
+                console.log('所有原始HTML图标渲染完成');
+            } catch (error) {
+                console.error('渲染原始HTML图标失败:', error);
+            }
+        }
+
+        // 渲染单个图标
+        async function renderSingleIcon(mapping) {
+            const element = document.querySelector(mapping.sourceId);
+            if (!element) {
+                console.error(`找不到${mapping.name}图标元素:`, mapping.sourceId);
+                return;
+            }
+
+            try {
+                // 根据元素类型确定尺寸
+                const isComponentIcon = mapping.sourceId.includes('component-icon');
+                const isEnergyComponent = mapping.sourceId.includes('flow-component-compact');
+                const isHeaderButton = mapping.sourceId.includes('lang-btn') || mapping.sourceId.includes('logout-btn');
+                const isLoginLogo = mapping.sourceId.includes('login-logo');
+                let iconWidth, iconHeight;
+                
+                if (isLoginLogo) {
+                    iconWidth = iconHeight = 100;
+                } else if (isEnergyComponent) {
+                    iconWidth = iconHeight = 60;
+                } else if (isComponentIcon) {
+                    iconWidth = iconHeight = 48;
+                } else if (isHeaderButton) {
+                    iconWidth = iconHeight = 40;
+                } else {
+                    iconWidth = iconHeight = 40;
+                }
+
+                // 使用html2canvas渲染元素
+                const canvas = await html2canvas(element, {
+                    backgroundColor: null, // 透明背景
+                    scale: 2, // 高分辨率
+                    width: iconWidth,
+                    height: iconHeight,
+                    useCORS: true,
+                    allowTaint: true
+                });
+
+                // 将结果绘制到目标canvas
+                const targetCanvas = document.getElementById(mapping.targetId);
+                if (!targetCanvas) {
+                    console.error(`找不到目标canvas:`, mapping.targetId);
+                    return;
+                }
+                
+                const targetCtx = targetCanvas.getContext('2d');
+                
+                // 设置目标canvas尺寸
+                const dpr = window.devicePixelRatio || 1;
+                targetCanvas.width = iconWidth * dpr;
+                targetCanvas.height = iconHeight * dpr;
+                targetCanvas.style.width = iconWidth + 'px';
+                targetCanvas.style.height = iconHeight + 'px';
+                targetCtx.scale(dpr, dpr);
+                
+                // 清除并绘制
+                targetCtx.clearRect(0, 0, iconWidth, iconHeight);
+                targetCtx.drawImage(canvas, 0, 0, iconWidth, iconHeight);
+                
+                console.log(`${mapping.name}图标渲染完成`);
+            } catch (error) {
+                console.error(`渲染${mapping.name}图标失败:`, error);
+            }
+        }
+
+        // 创建能量组件图片
+        function createEnergyComponents() {
+            // 加载实际图片文件
+            loadImageToCanvas('../dist/储能柜/光伏.png', 'solarCanvas');
+            loadImageToCanvas('../dist/储能柜/负载.png', 'loadCanvas');
+            loadImageToCanvas('../dist/储能柜/储能柜.png', 'storageCanvas');
+            loadImageToCanvas('../dist/储能柜/电网.png', 'gridCanvas');
+        }
+
+        // 加载图片到Canvas
+        function loadImageToCanvas(imagePath, canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = 60 * dpr;
+                canvas.height = 60 * dpr;
+                canvas.style.width = '60px';
+                canvas.style.height = '60px';
+                ctx.scale(dpr, dpr);
+                
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                
+                // 绘制图片，保持宽高比并居中
+                const aspectRatio = img.width / img.height;
+                let drawWidth, drawHeight, drawX, drawY;
+                
+                if (aspectRatio > 1) {
+                    // 图片宽度大于高度
+                    drawWidth = 60;
+                    drawHeight = 60 / aspectRatio;
+                    drawX = 0;
+                    drawY = (60 - drawHeight) / 2;
+                } else {
+                    // 图片高度大于或等于宽度
+                    drawHeight = 60;
+                    drawWidth = 60 * aspectRatio;
+                    drawX = (60 - drawWidth) / 2;
+                    drawY = 0;
+                }
+                
+                ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+                console.log(`加载图片成功: ${imagePath}`);
+            };
+            
+            img.onerror = function() {
+                console.error(`无法加载图片: ${imagePath}`);
+                // 如果图片加载失败，显示一个占位符
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = 60 * dpr;
+                canvas.height = 60 * dpr;
+                canvas.style.width = '60px';
+                canvas.style.height = '60px';
+                ctx.scale(dpr, dpr);
+                
+                // 绘制占位符
+                ctx.fillStyle = '#e5e7eb';
+                ctx.fillRect(0, 0, 60, 60);
+                ctx.fillStyle = '#6b7280';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('图片', 30, 25);
+                ctx.fillText('加载失败', 30, 40);
+            };
+            
+            img.src = imagePath;
+        }
+
+
+        // 页面加载时初始化
+        window.onload = function() {
+            initCanvases();
+        };
+    </script>
+</body>
+</html>
